@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>
+        Pagina di accesso
+    </title>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="stylesheet" type="text/css" href="/static/common/style.css" />
+    <link rel="stylesheet" type="text/css" href="/static/confirm/style.css" />
+</head>
+
+<body>
+    <div class="access-panel">
+        <h1>Completa i dati</h1>
+        <div class="banner">
+            La tua email e&grave; stata confermata. Ora puoi procedere con la creazione del tuo account.
+        </div>
+        <div>
+            <img src="/static/icon/signup.svg" alt="Icona accedi" />
+        </div>
+        <form>
+            <div class="multi">
+                <div>
+                    <input type="text" placeholder="Nome" id="name" name="name" />
+                </div>
+                <div>
+                    <input type="text" placeholder="Cognome" id="surname" name="surname" />
+                </div>
+            </div>
+            <div class="mono">
+                <input type="email" placeholder="Ripeti la tua email" id="email" name="email" />
+            </div>
+            <div class="mono">
+                <input type="password" placeholder="La tua password" id="password" name="password" />
+            </div>
+            <div class="mono">
+                <input type="password" placeholder="Riscrivi la tua password" id="password-check" name="password-check" />
+            </div>
+            <div>
+                <button type="submit">Crea Account</button>
+            </div>
+        </form>
+    </div>
+</body>
+
+</html>
