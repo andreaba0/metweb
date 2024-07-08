@@ -44,6 +44,10 @@ class SignupEmail extends Email {
         }
         return this.#ptoken;
     }
+
+    create(recipient, subject, token) {
+        return new SignupEmail({recipient: recipient, subject: subject, content: {token: token}});
+    }
 }
 
 class ChangePasswordEmail extends Email {

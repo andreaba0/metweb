@@ -1,3 +1,5 @@
+PRAGMA foreign_keys = ON;
+
 create table user_account (
     id varchar(36) primary key,
     email varchar(255) not null,
@@ -17,12 +19,12 @@ create table rsa_key (
 );
 
 create table email_type (
-    id varchar(10) primary key,
+    id varchar(10) primary key
 );
 
-create table mail_inbox (
+create table email_inbox (
     id varchar(36) primary key,
-    email_type varchar(10) not null,
+    email_type varchar(10) not null references email_type(id),
     content text not null,
-    created_at timestamp not null default current_timestamp,
+    created_at timestamp not null default current_timestamp
 );

@@ -1,3 +1,7 @@
+-- This file inserts rows just for testing purposes
+-- Nothing in this file, even rsa keys, should be used in production EVER
+
+
 insert into rsa_key (id, public_key, private_key) values (
     'e20df8a4-ee7a-4a6a-bf39-df9e6ca3d760',
     '-----BEGIN PUBLIC KEY-----

@@ -1,81 +1,20 @@
-const sqlite3 = require('sqlite3').verbose()
 const express = require('express')
 require('dotenv').config()
 const app = express()
 const cookieParser = require('cookie-parser')
+const bodyParser = require('body-parser')
 const {Cache, CacheHit, CacheMiss, CacheError} = require('./cache')
-const cache = new Cache()
+const {authenticate} = require('./middleware/authenticate')
+const {KeyManager, KeySchema, KeyManagerError} = require('./key_rotation')
+const {v4: uuidv4} = require('uuid')
+const crypto = require('crypto')
+const {Database} = require('./db_store')
 
 app.set('view engine', 'ejs')
 app.use('/static', express.static(__dirname + '/static'))
 app.use(cookieParser())
-
-function parseKeyName(base64url_header) {
-    try {
-        //convert base64url to json
-        const header = JSON.parse(Buffer.from(base64url_header, 'base64').toString('utf-8'))
-        return header.kid
-    } catch (e) {
-        return null
-    }
-}
-
-function getKey(kid) {
-    const key = cache.get(kid)
-    if (key instanceof CacheMiss)
-        return null
-    if (key instanceof CacheHit)
-        return key.message()
-    const db = new sqlite3.Database(process.env.DB_NAME)
-    db.get('SELECT id, private_key, public_key FROM rsa_key order by created_at LIMIT 3', (err, rows) => {
-        if (err || row == null)
-            return null
-        let keys = {}
-        //loop thorugh rows and set keys[keys.id] = {private_key: keys.private_key, public_key: keys.public_key}
-        rows.forEach(row => {
-            keys[row.id] = {
-                private_key: row.private_key,
-                public_key: row.public_key
-            }
-        })
-        //set cache with keys
-        cache.set_raw(keys, 60*10)
-        key = cache.get(kid)
-        if (key instanceof CacheMiss || key instanceof CacheError)
-            return null
-        return key.message()
-    })
-}
-
-function authenticate(req, res, next) {
-    //get cookie named 'token'
-    const token = req.cookies.token
-    //if token is not set, return response with status code 401
-    if (token == null || token == "") {
-        return res.sendStatus(401).send('Token is not set')
-    }
-    const re =/^(?<header>[a-zA-Z0-9\-\_]+).(?<payload>[a-zA-Z0-9\-\_]+).(?<signature>[a-zA-Z0-9\-\_]+)$/g
-    const match = re.exec(token)
-    if (match == null) {
-        return res.sendStatus(401).send('Invalid token')
-    }
-    const kid = parseKeyName(match.groups.header)
-    if (kid == null) {
-        return res.sendStatus(401).send('Invalid token')
-    }
-    const key = getKey(kid)
-    if (key == null) {
-        return res.sendStatus(401).send('Maybe token is expired')
-    }
-    //verify token
-    const verify = require('jsonwebtoken').verify
-    verify(token, key.public_key, (err, decoded) => {
-        if (err) {
-            return res.sendStatus(401).send('Invalid token')
-        }
-        next()
-    })
-}
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({extended: true}))
 
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/views/index.html')
@@ -85,8 +24,63 @@ app.get('/signup', (req, res) => {
     res.sendFile(__dirname + '/views/signup.html')
 })
 
-app.post('/signup', (req, res) => {
-    res.redirect('/confirm')
+app.post('/signup', async (req, res) => {
+    //get email from request body
+    const email = (req.body.email) ? req.body.email : null
+    if (email == null) {
+        res.status(400).send('Email is required')
+        return
+    }
+    
+    var keySchema = await KeyManager.schema()
+    if (keySchema instanceof KeyManagerError) {
+        res.status(500).send('Service temporarily unavailable')
+        return
+    }
+    //get public key from keys
+    const signing_key = keySchema.signing
+    const private_key = signing_key.private_key
+    const kid = signing_key.kid
+
+    //generate sha256 hash of email
+    const hash = crypto.createHash('sha256')
+    hash.update(email)
+    const email_hash = hash.digest('hex')
+
+    //generate jwt token
+    const jwt = require('jsonwebtoken')
+    const token = jwt.sign({
+        hashed_email: email_hash,
+    }, private_key, {
+        algorithm: 'RS256', 
+        expiresIn: '6h',
+        keyid: kid
+    })
+
+    //generate uuid
+    const uuid = uuidv4()
+
+    const content = {
+        token: token
+    }
+    const content_string = JSON.stringify(content)
+    const email_type = 'verify_email'
+    const id = uuid
+
+    //store email in db
+    const db = Database.database()
+    const query = 'INSERT INTO email_inbox (id, email_type, content) VALUES (?, ?, ?)'
+    const args = [id, email_type, content_string]
+    const result = await Database.non_returning_query(query, args)
+    if (result == null) {
+        res.status(500).send('Service temporarily unavailable')
+        return
+    }
+
+    res.render('email_sent', {
+        email: email,
+        action_title: 'Conferma email',
+    })
 })
 
 app.get('/confirm', (req, res) => {
@@ -106,6 +100,10 @@ app.get('/about', (req, res) => {
 })
 
 app.get('/mock/signup/confirm/:uuid', (req, res) => {
+    res.sendStatus(204)
+})
+
+app.get('/poll/:uuid', authenticate, (req, res) => {
     res.sendStatus(204)
 })
 
