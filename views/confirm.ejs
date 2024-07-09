@@ -22,13 +22,14 @@
         <div>
             <img src="/static/icon/signup.svg" alt="Icona accedi" />
         </div>
-        <form>
+        <form method="POST" action="/signup/confirm">
+            <input type="hidden" name="token" value="<%= token %>">
             <div class="multi">
                 <div>
-                    <input type="text" placeholder="Nome" id="name" name="name" />
+                    <input type="text" placeholder="Nome" id="name" name="first_name" />
                 </div>
                 <div>
-                    <input type="text" placeholder="Cognome" id="surname" name="surname" />
+                    <input type="text" placeholder="Cognome" id="surname" name="last_name" />
                 </div>
             </div>
             <div class="mono">
@@ -38,7 +39,7 @@
                 <input type="password" placeholder="La tua password" id="password" name="password" />
             </div>
             <div class="mono">
-                <input type="password" placeholder="Riscrivi la tua password" id="password-check" name="password-check" />
+                <input type="password" placeholder="Riscrivi la tua password" id="password-check" name="confirm_password" />
             </div>
             <div>
                 <button type="submit">Crea Account</button>

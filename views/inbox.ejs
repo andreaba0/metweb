@@ -15,6 +15,25 @@
 
 <body>
     <div class="inbox">
+        <% messages.forEach((message) => { %>
+            <div class="message">
+                <div class="icon">
+                    <i class="fa-regular fa-star"></i>
+                </div>
+                <div class="icon">
+                    <i class="fa-regular fa-bookmark"></i>
+                </div>
+                <div class="sender">
+                    PollEd Team
+                </div>
+                <div class="subject">
+                    <%= message.subject %>
+                </div>
+                <div class="body">
+                    <%- message.body %>
+                </div>
+            </div>
+        <% }) %>
         <div class="message">
             <div class="icon">
                 <i class="fa-regular fa-star"></i>

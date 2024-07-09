@@ -17,10 +17,7 @@ class Database {
         return new Promise((resolve, reject) => {
             const db = Database.database()
             db.all(query, args, (err, rows) => {
-                if (err || rows == null) {
-                    resolve(null)
-                }
-                resolve(rows)
+                resolve([err, rows])
             })
         })
     }

@@ -115,6 +115,10 @@ form div {
     max-width: 360px;
 }
 
+input[type="hidden"] {
+    display: none;
+}
+
 form div.mono input {
     width: 100%;
     padding: 15px 9px;

@@ -2,7 +2,7 @@ PRAGMA foreign_keys = ON;
 
 create table user_account (
     id varchar(36) primary key,
-    email varchar(255) not null,
+    email varchar(255) not null unique,
     first_name varchar(30) not null,
     last_name varchar(30) not null,
     hashed_password text not null,

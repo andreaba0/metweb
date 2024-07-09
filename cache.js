@@ -8,12 +8,17 @@ class CacheEmpty {
 }
 
 class CacheHit {
+    #internal_value = null
     constructor(value) {
-        this.value = value
+        this.#internal_value = value
     }
 
     message() {
         return this.value
+    }
+
+    get value() {
+        return this.#internal_value
     }
 }
 

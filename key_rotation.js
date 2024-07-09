@@ -7,8 +7,13 @@ class KeySchema {
         this.#keys = arr
     }
 
-    get validation() {
-        return this.#keys[1]
+    validation(kid) {
+        for (let i = 0; i < this.#keys.length; i++) {
+            if (this.#keys[i].kid == kid) {
+                return this.#keys[i]
+            }
+        }
+        return null
     }
 
     get signing() {
@@ -24,7 +29,6 @@ class KeySchema {
         for(let i = 0; i < arr.length; i++) {
             keys.push({kid: arr[i].kid, public_key: arr[i].public_key, private_key: arr[i].private_key})
         }
-        console.log(keys)
         this.#keys = keys
     }
 }
@@ -76,7 +80,9 @@ class KeyManager {
     static async schema() {
         let keys = []
         keys = this.#key_store.get('keys')
-        if (keys instanceof CacheMiss || keys instanceof CacheEmpty || keys instanceof CacheError) {
+        if (keys instanceof CacheHit) {
+            keys = keys.value
+        } else {
             //get keys from db
             const new_keys = await this.#query_from_db()
             if (new_keys == null) {
