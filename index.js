@@ -4,9 +4,9 @@ const app = express()
 const cookieParser = require('cookie-parser')
 const bodyParser = require('body-parser')
 const {Cache, CacheHit, CacheMiss, CacheError} = require('./cache')
-const {authenticate} = require('./middleware/authenticate')
+const {authenticate, renewExpired} = require('./middleware/authenticate')
 const {KeyManager, KeySchema, KeyManagerError} = require('./key_rotation')
-const {v4: uuidv4} = require('uuid')
+const {v4: uuidv4, validate: isValidUUID} = require('uuid')
 const crypto = require('crypto')
 const {Database} = require('./db_store')
 const {parseJwt, JwtBadToken} = require('./jwt_utility')
@@ -104,7 +104,7 @@ app.post('/signin', async (req, res) => {
         res.status(400).send('All fields are required')
         return
     }
-    const query = 'SELECT id, first_name, last_name, email, hashed_password, password_salt FROM user_account WHERE email = ?'
+    const query = 'SELECT id, first_name, last_name, email, hashed_password, password_salt, user_role FROM user_account WHERE email = ?'
     const [err, result] = await Database.query(query, [email])
     if (err) {
         res.status(500).send('Service temporarily unavailable')
@@ -134,7 +134,8 @@ app.post('/signin', async (req, res) => {
         id: user.id,
         first_name: user.first_name,
         last_name: user.last_name,
-        authenticated_till: new Date().getTime() + 10 * 60 * 1000
+        authenticated_till: new Date().getTime() + 10 * 60 * 1000,
+        role: user.user_role
     }, private_key, {
         algorithm: 'RS256',
         expiresIn: '30d',
@@ -178,6 +179,62 @@ app.get('/inbox', async (req, res) => {
 
 app.get('/about', (req, res) => {
     res.sendFile(__dirname + '/views/about.html')
+})
+
+app.get('/poll/create/:uuid', authenticate, async (req, res) => {
+    if (req.params.uuid == null) {
+        res.status(400).send('Invalid request')
+        return
+    }
+    const uuid = req.params.uuid
+    if (!isValidUUID(uuid)) {
+        res.status(400).send('Invalid request')
+        return
+    }
+    res.render('poll/create', {
+        id: uuid
+    })
+})
+
+app.post('/poll/create/:uuid', authenticate, renewExpired, async (req, res) => {
+    if (req.params.uuid == null) {
+        res.status(400).send('Invalid request')
+        return
+    }
+    const uuid = req.params.uuid
+    if (!isValidUUID(uuid)) {
+        res.status(400).send('Invalid request')
+        return
+    }
+    const body = req.body
+    let title = null
+    let description = null
+    let options = []
+    for (const key in body) {
+        if (key == 'title') {
+            title = body[key]
+        }
+        if (key == 'description') {
+            description = body[key]
+        }
+        var regex = /^option_[0-9]+$/
+        if (regex.test(key)) {
+            options.push(body[key])
+        }
+    }
+    if (title == null || options.length == 0) {
+        res.status(400).send('All fields are required')
+        return
+    }
+    console.log(title)
+    console.log(description)
+    console.log(options)
+    res.status(201).send('Poll created')
+})
+
+app.get('/poll/create', authenticate, async (req, res) => {
+    const uuid = uuidv4()
+    res.redirect(302, `/poll/create/${uuid}`)
 })
 
 app.get('/signup/confirm/:token', (req, res) => {

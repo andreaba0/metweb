@@ -13,7 +13,7 @@ async function renew_expired_token(req, res, next) {
 async function authenticate(req, res, next) {
     const token = req.cookies.token
     if (token == null || token == "") {
-        res.status(401).send('Token is not set')
+        res.redirect(302, '/signin')
         return
     }
     const cache_id = 'auth_key_store'
@@ -43,7 +43,9 @@ async function authenticate(req, res, next) {
             id: decoded.id,
             first_name: decoded.first_name,
             last_name: decoded.last_name,
-            expired: decoded.authenticated_till < current_time
+            expired: decoded.authenticated_till < current_time,
+            issued_at: decoded.iat,
+            role: decoded.role
         }
         next()
         return
@@ -57,6 +59,75 @@ async function authenticate(req, res, next) {
     next()
 }
 
+async function renewExpired(req, res, next) {
+    console.log(req.user)
+    if (!req.user.expired) {
+        next()
+        return
+    }
+    const user_id = req.user.id
+    const iat = req.user.issued_at
+    const query = "SELECT first_name, last_name, user_role, account_barrier FROM user_account WHERE id = ?"
+    const args = [user_id]
+    const [err, rows] = await Database.query(query, args)
+    if (err) {
+        console.log(err)
+        res.status(500).send('Service temporarily unavailable')
+        return
+    }
+    if (rows.length == 0) {
+        res.clearCookie('token')
+        res.status(401).send('User no longer exists')
+        return
+    }
+    const user = rows[0]
+    console.log(user)
+    if (user.user_role != req.user.role) {
+        res.clearCookie('token')
+        res.status(401).send('User role has changed')
+        return
+    }
+    const current_time = new Date().getTime()
+    const issued_at = current_time
+    const account_barrier_time = new Date(`${user.account_barrier}Z`).getTime()
+    if (iat*1000 < account_barrier_time) {
+        res.clearCookie('token')
+        res.status(401).send('Token has been revoked')
+        return
+    }
+    const authenticated_till = current_time + (10*60*1000)
+    const payload = {
+        id: user_id,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        role: user.user_role,
+        authenticated_till: authenticated_till,
+        iat: issued_at
+    }
+    const jwt = require('jsonwebtoken')
+    const keySchema = await KeyManager.schema()
+    if (keySchema instanceof KeyManagerError) {
+        res.status(500).send('Service temporarily unavailable')
+        return
+    }
+    const key = keySchema.signing
+    console.log(key)
+    const privateKey = key.private_key
+    const token = jwt.sign(payload, privateKey, {
+        algorithm: 'RS256',
+        expiresIn: '30d',
+        keyid: key.kid
+    })
+    res.cookie('token', token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+        maxAge: 30*24*60*60*1000
+    })
+    next()
+}
+
 module.exports = {
-    authenticate: authenticate
+    authenticate: authenticate,
+    renewExpired: renewExpired
 }

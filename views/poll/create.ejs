@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Poll</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="stylesheet" type="text/css" href="/static/common/style.css" />
+
+    <script src="https://kit.fontawesome.com/49ec009d21.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <%- include('../partials/menu.ejs') %>
+
+    <style type="text/css">
+        .body {
+            width: 100vw;
+            overflow-x: hidden;
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+        }
+
+        textarea {
+            resize: vertical;
+            width: 100%;
+            display: block;
+            box-sizing: border-box;
+        }
+        form {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            max-width: 400px;
+            gap: 10px;
+        }
+        form .form-group {
+            width: 100%;
+            display: block;
+        }
+        form .form-submit {
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+    </style>
+
+    <div class="body">
+        <form action="/poll/create/<%= id %>" method="POST">
+            <div class="form-group">
+                <textarea id="title" name="title" placeholder="Testo della domanda"></textarea>
+            </div>
+            <div class="form-group">
+                <textarea id="description" name="description" placeholder="Descrizione a scopo informativo"></textarea>
+            </div>
+            <div class="form-group">
+                <textarea id="options" name="option_1" placeholder="Risposta numero 1"></textarea>
+            </div>
+            <div class="form-submit">
+                <button type="submit">Crea</button>
+            </div>
+        </form>
+        <div>
+            <button onclick="addOption()">Aggiungi risposta</button>
+            <button onclick="removeOption()">Rimuovi risposta</button>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        var option_id = 1;
+        function addOption() {
+            option_id++;
+            var textarea = document.createElement('textarea');
+            textarea.id = 'option_' + option_id;
+            textarea.name = 'option_' + option_id;
+            textarea.placeholder = 'Risposta numero ' + option_id;
+            document.querySelector('form').insertBefore(textarea, document.querySelector('.form-submit'));
+        }
+        function removeOption() {
+            if (option_id > 1) {
+                var textarea = document.getElementById('option_' + option_id);
+                textarea.remove();
+                option_id--;
+            }
+        }
+    </script>
+</body>
+</html>
