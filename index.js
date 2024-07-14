@@ -196,6 +196,42 @@ app.get('/poll/create/:uuid', authenticate, async (req, res) => {
     })
 })
 
+async function uploadPollTransaction(db, uuid, userUUID, user_visibility, title, description, options, multipleChoice, filter) {
+    return new Promise((resolve, reject) => {
+        db.run('BEGIN TRANSACTION', function(err) {
+            db.run('insert into vote_page(id, created_by, vote_type, title, vote_description, restrict_filter, option_type) values(?, ?, ?, ?, ?, ?, ?)', [uuid, userUUID, user_visibility, title, description, filter, multipleChoice], function(err) {
+                if (err) {
+                    console.log(err)
+                    db.run('ROLLBACK', function(err) {
+                        resolve(null)
+                    })
+                    return
+                }
+                var op_insert = []
+                var op_list = []
+                for (var i = 0; i < options.length; i++) {
+                    op_insert.push(`(?, ?, ?)`)
+                    op_list.push(uuid, i, options[i])
+                }
+                op_insert = op_insert.join(',')
+                db.run(`insert into vote_option(vote_page_id, option_index, option_text) values ${op_insert}`, op_list, function(err) {
+                    if (err) {
+                        console.log(err)
+                        db.run('ROLLBACK', function(err) {
+                            resolve(null)
+                        })
+                        return
+                    }
+                    db.run('COMMIT', function(err) {
+                        resolve(uuid)
+                    })
+                })
+            })
+
+        })
+    })
+}
+
 app.post('/poll/create/:uuid', authenticate, renewExpired, async (req, res) => {
     if (req.params.uuid == null) {
         res.status(400).send('Invalid request')
@@ -210,12 +246,20 @@ app.post('/poll/create/:uuid', authenticate, renewExpired, async (req, res) => {
     let title = null
     let description = null
     let options = []
+    let compilation_type = 'public'
+    let multiple_choice = 'single'
     for (const key in body) {
         if (key == 'title') {
             title = body[key]
         }
         if (key == 'description') {
             description = body[key]
+        }
+        if (key == 'anonymous_compilation') {
+            compilation_type = (body[key] == 'on') ? 'anonymous' : 'public' 
+        }
+        if (key == 'multiple_choice') {
+            multiple_choice = (body[key] == 'on') ? 'multiple' : 'single'
         }
         var regex = /^option_[0-9]+$/
         if (regex.test(key)) {
@@ -229,6 +273,11 @@ app.post('/poll/create/:uuid', authenticate, renewExpired, async (req, res) => {
     console.log(title)
     console.log(description)
     console.log(options)
+    const upload = await uploadPollTransaction(Database.database(), uuid, req.user.id, compilation_type, title, description, options, multiple_choice, '{}')
+    if (upload == null) {
+        res.status(500).send('Service temporarily unavailable')
+        return
+    }
     res.status(201).send('Poll created')
 })
 

@@ -56,7 +56,10 @@ create table vote_page (
     vote_description text not null,
     title text not null,
     created_at timestamp not null default current_timestamp,
-    created_by varchar(36) not null references user_customer(user_id)
+    created_by varchar(36) not null references user_customer(user_id),
+    available boolean not null default true,
+    option_type varchar(6) not null check (option_type = 'single' or option_type = 'multiple') default 'single',
+    restrict_filter jsonb not null default '{}'
 );
 
 create table vote_option (

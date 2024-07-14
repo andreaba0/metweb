@@ -102,7 +102,6 @@ async function renewExpired(req, res, next) {
         last_name: user.last_name,
         role: user.user_role,
         authenticated_till: authenticated_till,
-        iat: issued_at
     }
     const jwt = require('jsonwebtoken')
     const keySchema = await KeyManager.schema()
@@ -120,7 +119,7 @@ async function renewExpired(req, res, next) {
     })
     res.cookie('token', token, {
         httpOnly: true,
-        secure: true,
+        secure: false,
         sameSite: 'strict',
         maxAge: 30*24*60*60*1000
     })

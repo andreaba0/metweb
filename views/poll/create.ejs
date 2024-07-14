@@ -40,7 +40,11 @@
         }
         form .form-group {
             width: 100%;
-            display: block;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 10px;
         }
         form .form-submit {
             width: 100%;
@@ -61,8 +65,23 @@
             <div class="form-group">
                 <textarea id="description" name="description" placeholder="Descrizione a scopo informativo"></textarea>
             </div>
-            <div class="form-group">
+            <div class="form-group" id="option_list">
                 <textarea id="options" name="option_1" placeholder="Risposta numero 1"></textarea>
+            </div>
+            <div class="form-group" id="option_list">
+                <div>
+                    <input type="checkbox" id="multiple" name="multiple_choice" />
+                    <label for="multiple">Abilita risposte multiple</label>
+                </div>
+            </div>
+            <div class="form-group" id="option_list">
+                <div>
+                    <input type="checkbox" id="anonymous" name="anonymous_compilation" />
+                    <label for="anonymous">Abilita risposte anonime</label>
+                </div>
+            </div>
+            <div class="form-group" id="option_list">
+                <textarea id="domain_filter" name="domain_filter" placeholder="Restringi compilazione per domain email"></textarea>
             </div>
             <div class="form-submit">
                 <button type="submit">Crea</button>
@@ -82,7 +101,7 @@
             textarea.id = 'option_' + option_id;
             textarea.name = 'option_' + option_id;
             textarea.placeholder = 'Risposta numero ' + option_id;
-            document.querySelector('form').insertBefore(textarea, document.querySelector('.form-submit'));
+            document.getElementById('option_list').appendChild(textarea);
         }
         function removeOption() {
             if (option_id > 1) {
