@@ -92,6 +92,11 @@ app.get('/confirm', (req, res) => {
     res.sendFile(__dirname + '/views/confirm.html')
 })
 
+app.get('/poll/compile/:id', authenticate, async (req, res) => {
+    const id = req.params.id
+    res.render('poll/compile', {})
+})
+
 app.get('/signin', (req, res) => {
     res.sendFile(__dirname + '/views/signin.html')
 })
@@ -135,7 +140,9 @@ app.post('/signin', async (req, res) => {
         first_name: user.first_name,
         last_name: user.last_name,
         authenticated_till: new Date().getTime() + 10 * 60 * 1000,
-        role: user.user_role
+        role: user.user_role,
+        aud: process.env.TOKEN_AUD,
+        iss: process.env.TOKEN_ISS
     }, private_key, {
         algorithm: 'RS256',
         expiresIn: '30d',
@@ -389,6 +396,12 @@ if (db_name == null || db_name == "") {
 const bound_ip = process.env.BOUND_IP
 if (bound_ip == null || bound_ip == "") {
     throw new Error('BOUND_IP is not defined in .env file')
+}
+if (!process.env.TOKEN_AUD) {
+    throw new Error('TOKEN_AUD is not defined in .env file')
+}
+if (!process.env.TOKEN_ISS) {
+    throw new Error('TOKEN_ISS is not defined in .env file')
 }
 app.listen(port, bound_ip, () => {
     console.log(`Server is running on port ${port}`)

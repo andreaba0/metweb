@@ -2,6 +2,7 @@ const {parseJwt, JwtBadToken} = require('../jwt_utility')
 const {Cache, CacheHit, CacheMiss, CacheError, CacheEmpty, SharedCache} = require('../cache')
 const {Database} = require('../db_store')
 const {KeyManager, KeySchema, KeyManagerError} = require('../key_rotation')
+require('dotenv').config()
 
 async function renew_expired_token(req, res, next) {
     if (!req.user.expired) {
@@ -102,6 +103,8 @@ async function renewExpired(req, res, next) {
         last_name: user.last_name,
         role: user.user_role,
         authenticated_till: authenticated_till,
+        aud: process.env.TOKEN_AUD,
+        iss: process.env.TOKEN_ISS
     }
     const jwt = require('jsonwebtoken')
     const keySchema = await KeyManager.schema()

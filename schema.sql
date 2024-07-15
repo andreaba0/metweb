@@ -1,4 +1,5 @@
 PRAGMA foreign_keys = ON;
+PRAGMA journal_mode = WAL;
 
 create table user_account (
     id varchar(36) primary key,
