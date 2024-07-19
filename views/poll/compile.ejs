@@ -13,39 +13,235 @@
 
     <script src="https://kit.fontawesome.com/49ec009d21.js" crossorigin="anonymous"></script>
 </head>
+
 <body>
     <%- include('../partials/menu.ejs') %>
 
-    <style type="text/css">
-        .poll-body {
-            width: 100vw;
-            overflow-x: hidden;
-            margin-top: 30px;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: center;
-        }
-        .poll-body form {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: center;
-            max-width: 400px;
-            gap: 10px;
-        }
-    </style>
+        <style type="text/css">
+            .poll-body {
+                width: 100vw;
+                overflow-x: hidden;
+                margin-top: 30px;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: center;
+                gap: 40px;
+            }
 
-    <div class="poll-body">
-        <form method="POST" action="/poll/compile">
-            <div>
-                <label for="title">Title</label>
-                <input type="text" id="title" name="title" required />
+            .poll-body form {
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: center;
+                max-width: 600px;
+                gap: 40px;
+            }
+
+            .compile-title {
+                font-size: var(--text-xl);
+                font-weight: var(--text-normal);
+                text-align: center;
+                width: 90%;
+                text-align: center;
+                padding: 40px 20px;
+                max-width: 500px;
+                color: var(--black-color);
+                border: solid 1px var(--black-color);
+                border-radius: 5px;
+                position: relative;
+                box-sizing: border-box;
+            }
+
+            .compile-title::before {
+                content: '\f10d';
+                font-family: 'FontAwesome';
+                font-size: 48px;
+                line-height: 1;
+                color: var(--black-color);
+                display: block;
+                position: absolute;
+                top: -6px;
+                left: -6px;
+                background: var(--gray-color);
+            }
+
+            .compile-title::after {
+                content: '\f10e';
+                font-family: 'FontAwesome';
+                font-size: 48px;
+                line-height: 1;
+                color: var(--black-color);
+                display: block;
+                position: absolute;
+                bottom: -6px;
+                right: -6px;
+                background: var(--gray-color);
+            }
+
+            .compile-answer {
+                display: flex;
+                flex-direction: row;
+                justify-content: flex-start;
+                align-items: center;
+                gap: 10px;
+                width: 90%;
+                padding: 30px 0;
+                border: 1px solid var(--black-color);
+                border-radius: 5px;
+                max-width: 500px;
+                box-sizing: border-box;
+                padding-left: 20px;
+            }
+
+            .compile-answer input {
+                width: 45px;
+                display: block;
+            }
+
+            .compile-answer label {
+                font-size: var(--text-l);
+                font-weight: var(--text-light);
+                display: block;
+                flex-grow: 1;
+            }
+
+            .compile-submit {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                gap: 10px;
+                width: 100%;
+            }
+
+            .compile-submit button {
+                font-size: 1.2em;
+                font-weight: var(--text-bold);
+                padding: 20px 0;
+                border: none;
+                border-radius: 5px;
+                background-color: var(--blue-color);
+                color: var(--gray-color);
+                cursor: pointer;
+                transition: background-color 0.3s;
+                width: 100%;
+                max-width: 210px;
+            }
+
+            .input-checked {
+                background: var(--black-color);
+                color: var(--gray-color);
+            }
+
+            input[type="radio"] {
+                display: block;
+                width: 28px;
+                height: 28px;
+                border-radius: 50%;
+                border: 1px solid var(--black-color);
+                margin: 0;
+                position: relative;
+            }
+
+            input[type="radio"]:checked {
+                background: var(--blue-color);
+                border: none;
+                width: 30px;
+                height: 30px;
+            }
+
+            input[type="radio"]:checked::before {
+                content: '';
+                display: block;
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                border-radius: 50%;
+                background: var(--gray-color);
+            }
+
+            input[type="radio"]:checked::after {
+                content: '';
+                display: block;
+                position: absolute;
+                width: 18px;
+                height: 18px;
+                border-radius: 50%;
+                background: var(--blue-color);
+                top: 6px;
+                left: 6px;
+            }
+        </style>
+
+        <div class="poll-body">
+            <div class="compile-title">
+                Sei favorevole all'introduzione dell'eutanasia in Italia?<br />
+                Facendo riferimento alla proposta portata avanti da Marco Cappato.
             </div>
-        </form>
-    </div>
-    
+            <form method="POST" action="/poll/compile">
+                <div class="compile-answer" id="box-0">
+                    <input type="radio" name="answer" value="yes" id="input-0" />
+                    <label for="yes">Si, sono favorevole</label>
+                </div>
+                <div class="compile-answer" id="box-1">
+                    <input type="radio" name="answer" value="no" id="input-1" />
+                    <label for="no">No, sono contrario</label>
+                </div>
+                <div class="compile-answer" id="box-2">
+                    <input type="radio" name="answer" value="ns" id="input-2" />
+                    <label for="ns">Non so</label>
+                </div>
+                <div class="compile-submit">
+                    <button type="submit" disabled="true">Invia risposta</button>
+                </div>
+            </form>
+        </div>
+
+        <script type="text/javascript">
+
+            /**
+             * The following piece of code is used to make sure that 
+             * only one click event is triggered at a time.
+             * Look at the hierarchy of div.compile-answer and input[type="radio"]
+             * If input[type="radio"] is clicked, then 2 event are dispatched
+             * 1. click of div.compile-answer
+             * 2. click of input[type="radio"]
+             * The following piece of code make sure that only 1 click event is
+             * dispatched at a time
+             */            
+
+            var checkboxes = document.querySelectorAll('input[type="radio"]');
+
+            var boxes = document.querySelectorAll('.compile-answer');
+
+            function addClickEvent(iid, boxid) {
+                document.getElementById(boxid).addEventListener('click', (e) => {
+                    e.preventDefault();
+                    document.getElementById(iid).checked = true;
+                    const event = new Event('change');
+                    document.getElementById(iid).dispatchEvent(event);
+                })
+            }
+
+            for (var i = 0; i < boxes.length; i++) {
+                var iid = `input-${i}`;
+                var boxid = `box-${i}`;
+                addClickEvent(iid, boxid);
+            }
+            checkboxes.forEach(function (checkbox) {
+                checkbox.addEventListener('change', function (e) {
+                    e.preventDefault();
+                    checkboxes.forEach(function (c) {
+                        c.parentElement.classList.remove('input-checked');
+                    });
+                    if (e.target.checked)
+                        e.target.parentElement.classList.add('input-checked');
+                });
+            });
+        </script>
+
 </body>
 
 </html>
