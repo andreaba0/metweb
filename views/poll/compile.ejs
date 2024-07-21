@@ -52,6 +52,7 @@
                 border-radius: 5px;
                 position: relative;
                 box-sizing: border-box;
+                z-index: 6;
             }
 
             .compile-title::before {
@@ -64,6 +65,7 @@
                 position: absolute;
                 top: -6px;
                 left: -6px;
+                z-index: 8;
                 background: var(--gray-color);
             }
 
@@ -78,6 +80,7 @@
                 bottom: -6px;
                 right: -6px;
                 background: var(--gray-color);
+                z-index: 8;
             }
 
             .compile-answer {
@@ -117,8 +120,9 @@
             }
 
             .compile-submit button {
-                font-size: 1.2em;
+                font-size: 1.6em;
                 font-weight: var(--text-bold);
+                line-height: 1;
                 padding: 20px 0;
                 border: none;
                 border-radius: 5px;
@@ -156,22 +160,26 @@
                 content: '';
                 display: block;
                 position: absolute;
-                width: 100%;
-                height: 100%;
+                width: 22px;
+                height: 22px;
+                border: 4px solid var(--blue-color);
                 border-radius: 50%;
                 background: var(--gray-color);
             }
 
             input[type="radio"]:checked::after {
-                content: '';
+                content: '\f00c';
+                font-family: 'FontAwesome';
+                line-height: 1;
+                font-size: 56px;
                 display: block;
                 position: absolute;
-                width: 18px;
-                height: 18px;
+                width: 56px;
+                height: 56px;
                 border-radius: 50%;
-                background: var(--blue-color);
-                top: 6px;
-                left: 6px;
+                color: var(--blue-color);
+                top: -21px;
+                left: -3px;
             }
         </style>
 
@@ -194,7 +202,10 @@
                     <label for="ns">Non so</label>
                 </div>
                 <div class="compile-submit">
-                    <button type="submit" disabled="true">Invia risposta</button>
+                    <button type="submit" disabled="true">
+                        <i class="fa-solid fa-signature"></i>
+                        Invia
+                    </button>
                 </div>
             </form>
         </div>
@@ -218,7 +229,17 @@
 
             function addClickEvent(iid, boxid) {
                 document.getElementById(boxid).addEventListener('click', (e) => {
-                    e.preventDefault();
+                    console.log(e)
+                    console.log("click from outside")
+                    e.stopPropagation();
+                    document.getElementById(iid).checked = true;
+                    const event = new Event('change');
+                    document.getElementById(iid).dispatchEvent(event);
+                })
+                document.getElementById(iid).addEventListener('click', (e) => {
+                    console.log(e)
+                    console.log("click from inside")
+                    e.stopPropagation();
                     document.getElementById(iid).checked = true;
                     const event = new Event('change');
                     document.getElementById(iid).dispatchEvent(event);
@@ -232,7 +253,6 @@
             }
             checkboxes.forEach(function (checkbox) {
                 checkbox.addEventListener('change', function (e) {
-                    e.preventDefault();
                     checkboxes.forEach(function (c) {
                         c.parentElement.classList.remove('input-checked');
                     });
