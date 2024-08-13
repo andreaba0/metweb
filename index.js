@@ -10,6 +10,8 @@ const {v4: uuidv4, validate: isValidUUID} = require('uuid')
 const crypto = require('crypto')
 const {Database} = require('./db_store')
 const {parseJwt, JwtBadToken} = require('./jwt_utility')
+const {CustomDate} = require('./date')
+const {pollSanitizer} = require('./middleware/poll_sanitizer')
 
 app.set('view engine', 'ejs')
 app.use('/static', express.static(__dirname + '/static'))
@@ -76,8 +78,8 @@ app.post('/signup', async (req, res) => {
     const db = Database.database()
     const query = 'INSERT INTO email_inbox (id, email_type, content) VALUES (?, ?, ?)'
     const args = [id, email_type, content_string]
-    const result = await Database.non_returning_query(query, args)
-    if (result == null) {
+    const err = await Database.non_returning_query(query, args)
+    if (err != null) {
         res.status(500).send('Service temporarily unavailable')
         return
     }
@@ -94,7 +96,63 @@ app.get('/confirm', (req, res) => {
 
 app.get('/poll/compile/:id', authenticate, async (req, res) => {
     const id = req.params.id
-    res.render('poll/compile', {})
+    let query = `
+        SELECT id, 
+            created_by, 
+            vote_type, 
+            title, 
+            vote_description, 
+            restrict_filter, 
+            option_type, 
+            available,
+            compile_start_at,
+            compile_end_at
+        FROM vote_page 
+        WHERE id = ?`
+    let [err, result] = await Database.query(query, [id])
+    if (err) {
+        res.status(500).send('Service temporarily unavailable')
+        return
+    }
+    if (result.length == 0) {
+        res.status(404).send('Poll not found')
+        return
+    }
+    const poll_page = result[0]
+    if (poll_page.created_by == req.user.id) {
+        res.status(403).send('You cannot compile a poll you created')
+        return
+    }
+    if (poll_page.available == false) {
+        res.status(403).send('This poll has been suspended')
+        return
+    }
+    const validFrom = CustomDate.from_UTC_timestamp(poll_page.compile_start_at).getTime()
+    const validTo = CustomDate.from_UTC_timestamp(poll_page.compile_end_at).getTime()
+    const now = new Date().getTime()
+    if (now < validFrom || now > validTo) {
+        res.status(403).send('Poll is not available at the moment')
+        return
+    }
+    query = `SELECT option_index, option_text FROM vote_option WHERE vote_page_id = ?`
+    [err, result] = await Database.query(query, [id])
+    if (err) {
+        console.log(err)
+        res.status(500).send('Service temporarily unavailable')
+        return
+    }
+    const options = result
+    if (options.length == 0) {
+        res.status(500).send('Poll may be corrupted')
+        return
+    }
+    res.render('poll/compile', {
+        id: id,
+        title: poll_page.title,
+        description: poll_page.vote_description,
+        options: options,
+        multiple_choice: poll_page.option_type == 'multiple' ? true : false
+    })
 })
 
 app.get('/signin', (req, res) => {
@@ -139,7 +197,7 @@ app.post('/signin', async (req, res) => {
         id: user.id,
         first_name: user.first_name,
         last_name: user.last_name,
-        authenticated_till: new Date().getTime() + 10 * 60 * 1000,
+        authenticated_till: (new Date()).getTime() + 10 * 60 * 1000,
         role: user.user_role,
         aud: process.env.TOKEN_AUD,
         iss: process.env.TOKEN_ISS
@@ -203,10 +261,10 @@ app.get('/poll/create/:uuid', authenticate, async (req, res) => {
     })
 })
 
-async function uploadPollTransaction(db, uuid, userUUID, user_visibility, title, description, options, multipleChoice, filter) {
+async function uploadPollTransaction(db, uuid, userUUID, user_visibility, title, description, options, multipleChoice, start_date, end_date, filter) {
     return new Promise((resolve, reject) => {
         db.run('BEGIN TRANSACTION', function(err) {
-            db.run('insert into vote_page(id, created_by, vote_type, title, vote_description, restrict_filter, option_type) values(?, ?, ?, ?, ?, ?, ?)', [uuid, userUUID, user_visibility, title, description, filter, multipleChoice], function(err) {
+            db.run('insert into vote_page(id, created_by, vote_type, title, vote_description, restrict_filter, option_type, compile_start_at, compile_end_at) values(?, ?, ?, ?, ?, ?, ?, ?, ?)', [uuid, userUUID, user_visibility, title, description, filter, multipleChoice, start_date, end_date], function(err) {
                 if (err) {
                     console.log(err)
                     db.run('ROLLBACK', function(err) {
@@ -239,7 +297,7 @@ async function uploadPollTransaction(db, uuid, userUUID, user_visibility, title,
     })
 }
 
-app.post('/poll/create/:uuid', authenticate, renewExpired, async (req, res) => {
+app.post('/poll/create/:uuid', authenticate, renewExpired, pollSanitizer, async (req, res) => {
     if (req.params.uuid == null) {
         res.status(400).send('Invalid request')
         return
@@ -250,37 +308,15 @@ app.post('/poll/create/:uuid', authenticate, renewExpired, async (req, res) => {
         return
     }
     const body = req.body
-    let title = null
-    let description = null
-    let options = []
-    let compilation_type = 'public'
-    let multiple_choice = 'single'
-    for (const key in body) {
-        if (key == 'title') {
-            title = body[key]
-        }
-        if (key == 'description') {
-            description = body[key]
-        }
-        if (key == 'anonymous_compilation') {
-            compilation_type = (body[key] == 'on') ? 'anonymous' : 'public' 
-        }
-        if (key == 'multiple_choice') {
-            multiple_choice = (body[key] == 'on') ? 'multiple' : 'single'
-        }
-        var regex = /^option_[0-9]+$/
-        if (regex.test(key)) {
-            options.push(body[key])
-        }
-    }
-    if (title == null || options.length == 0) {
-        res.status(400).send('All fields are required')
-        return
-    }
-    console.log(title)
-    console.log(description)
-    console.log(options)
-    const upload = await uploadPollTransaction(Database.database(), uuid, req.user.id, compilation_type, title, description, options, multiple_choice, '{}')
+    const poll_id = req.params.uuid
+    let title = body.title
+    let description = body.description
+    let options = body.options
+    let compilation_type = (body.anonymous_compilation == 'on') ? 'anymus' : 'public'
+    let multiple_choice = (body.multiple_choice == 'on') ? 'multiple' : 'single'
+    let start_date = body.start_date
+    let end_date = body.end_date
+    const upload = await uploadPollTransaction(Database.database(), poll_id, req.user.id, compilation_type, title, description, options, multiple_choice, start_date, end_date, '{}')
     if (upload == null) {
         res.status(500).send('Service temporarily unavailable')
         return
