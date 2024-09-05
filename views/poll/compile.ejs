@@ -3,7 +3,7 @@
 
 <head>
     <title>
-        Compile Poll
+        <%= title %>
     </title>
 
     <meta charset="utf-8" />
@@ -11,7 +11,20 @@
 
     <link rel="stylesheet" type="text/css" href="/static/common/style.css" />
 
-    <script src="https://kit.fontawesome.com/49ec009d21.js" crossorigin="anonymous"></script>
+    <style type="text/css">
+        .compile-answer input {
+            width: 45px;
+            display: block;
+        }
+    </style>
+
+    <% if (multiple_choice) { %>
+        <link rel="stylesheet" type="text/css" href="/static/compile/multiple_choice.css" />
+        <% } else { %>
+            <link rel="stylesheet" type="text/css" href="/static/compile/single_choice.css" />
+            <% } %>
+
+                <script src="https://kit.fontawesome.com/49ec009d21.js" crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -98,11 +111,6 @@
                 padding-left: 20px;
             }
 
-            .compile-answer input {
-                width: 45px;
-                display: block;
-            }
-
             .compile-answer label {
                 font-size: var(--text-l);
                 font-weight: var(--text-light);
@@ -134,58 +142,20 @@
                 max-width: 210px;
             }
 
+            .compile-submit button:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+
             .input-checked {
                 background: var(--black-color);
                 color: var(--gray-color);
             }
-
-            input[type="radio"] {
-                display: block;
-                width: 28px;
-                height: 28px;
-                border-radius: 50%;
-                border: 1px solid var(--black-color);
-                margin: 0;
-                position: relative;
-                -webkit-appearance: none;
-                -moz-appearance: none;
-                appearance: none;
-            }
-
-            input[type="radio"]:checked {
-                background: var(--blue-color);
-                border: none;
-                width: 30px;
-                height: 30px;
-            }
-
-            input[type="radio"]:checked::before {
-                content: '';
-                display: block;
-                position: absolute;
-                width: 22px;
-                height: 22px;
-                border: 4px solid var(--blue-color);
-                border-radius: 50%;
-                background: var(--gray-color);
-            }
-
-            input[type="radio"]:checked::after {
-                content: '\f00c';
-                font-family: 'FontAwesome';
-                line-height: 1;
-                font-size: 56px;
-                display: block;
-                position: absolute;
-                width: 56px;
-                height: 56px;
-                border-radius: 50%;
-                color: var(--blue-color);
-                top: -21px;
-                left: -3px;
-            }
         </style>
 
+        <!--
+        // The following piece of code is just a template to be used to create the ejs script for the poll
+        // Ejs base the template on the following object template {question: "question", answers: ["answer1", "answer2", "answer3"]}
         <div class="poll-body">
             <div class="compile-title">
                 Sei favorevole all'introduzione dell'eutanasia in Italia?<br />
@@ -212,6 +182,35 @@
                 </div>
             </form>
         </div>
+        -->
+
+        <div class="poll-body">
+            <div class="compile-title">
+                <%= description %>
+            </div>
+            <form method="POST" action="/poll/compile">
+                <input type="hidden" name="poll_id" value="<%= id %>" />
+                <% for (let i=0; i < options.length; i++) { %>
+                    <div class="compile-answer" id="box-<%= i %>">
+                        <% if (multiple_choice) { %>
+                            <input type="checkbox" name="answer" value=<%=options[i]["index"] %> id="input-<%=
+                                options[i]["index"] %>" />
+                                <% } else { %>
+                                    <input type="radio" name="answer" value=<%=options[i]["index"] %> id="input-<%=
+                                        options[i]["index"] %>" />
+                                        <% } %>
+                                            <label for=<%=`input-${options[i]["index"]}` %>><%= options[i]["text"] %>
+                                            </label>
+                    </div>
+                    <% } %>
+                        <div class="compile-submit">
+                            <button type="submit" disabled="true">
+                                <i class="fa-solid fa-signature"></i>
+                                Invia
+                            </button>
+                        </div>
+            </form>
+        </div>
 
         <script type="text/javascript">
 
@@ -224,9 +223,12 @@
              * 2. click of input[type="radio"]
              * The following piece of code make sure that only 1 click event is
              * dispatched at a time
-             */            
+             */
+            var input_type = '<%= multiple_choice ? "checkbox" : "radio" %>';
+            var checkboxes = document.querySelectorAll(`input[type="${input_type}"]`);
 
-            var checkboxes = document.querySelectorAll('input[type="radio"]');
+            var boxes = document.querySelectorAll('.compile-answer');
+            //var checkboxes = document.querySelectorAll('input[type="radio"]');
 
             var boxes = document.querySelectorAll('.compile-answer');
 
@@ -235,7 +237,7 @@
                     console.log(e)
                     console.log("click from outside")
                     e.stopPropagation();
-                    document.getElementById(iid).checked = true;
+                    document.getElementById(iid).checked = !document.getElementById(iid).checked;
                     const event = new Event('change');
                     document.getElementById(iid).dispatchEvent(event);
                 })
@@ -243,7 +245,7 @@
                     console.log(e)
                     console.log("click from inside")
                     e.stopPropagation();
-                    document.getElementById(iid).checked = true;
+                    document.getElementById(iid).checked = !document.getElementById(iid).checked;
                     const event = new Event('change');
                     document.getElementById(iid).dispatchEvent(event);
                 })
@@ -254,15 +256,34 @@
                 var boxid = `box-${i}`;
                 addClickEvent(iid, boxid);
             }
+            var stateList = []
             checkboxes.forEach(function (checkbox) {
                 checkbox.addEventListener('change', function (e) {
+                    stateList = []
                     checkboxes.forEach(function (c) {
-                        c.parentElement.classList.remove('input-checked');
+                        stateList.push(c.checked)
+                        if (!c.checked)
+                            c.parentElement.classList.remove('input-checked');
+                        else
+                            c.parentElement.classList.add('input-checked');
+                        setButtonState();
                     });
-                    if (e.target.checked)
+                    /*if (e.target.checked)
                         e.target.parentElement.classList.add('input-checked');
+                    else
+                        e.target.parentElement.classList.remove('input-checked');*/
+
                 });
             });
+
+            function setButtonState() {
+                var enabled = false;
+                stateList.forEach(function (state) {
+                    enabled = enabled || state;
+                })
+                console.log(enabled)
+                document.querySelector('.compile-submit button').disabled = !enabled;
+            }
         </script>
 
 </body>

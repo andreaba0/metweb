@@ -51,8 +51,8 @@ class Database {
         const db = new sqlite3.Database(process.env.DB_NAME)
         let res = []
         try {
-            const res = await callback(db)
-            res.push(null, res)
+            const data = await callback(db)
+            res.push(null, data)
         } catch(e) {
             console.log(e)
             res.push(e, null)

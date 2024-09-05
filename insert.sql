@@ -128,3 +128,32 @@ YLU7UiB8YY/ZM3B0gsF+M7o=
 );
 
 insert into email_type (id) values ('reset_password'), ('verify_email');
+
+insert into user_account (id, email, first_name, last_name, hashed_password, password_salt, user_role, account_barrier) values (
+    'f1b3b3b3-1b3b-4b3b-8b3b-1b3b3b3b3b3b',
+    'andrea.gabbani@gmail.com',
+    'Andra',
+    'Gabbani',
+    '8d80795c93293316b50d89654eae5b376b8f6e45e0f672a3d4e4b1d96c9adbe6',
+    '0a41902f36a8b71132cbfd',
+    'usr',
+    datetime()
+), (
+    'f1b3b3b3-1b3b-4b3b-8b3b-1b3b3b3b3b3c',
+    'pietro.lombardi@gmail.com',
+    'Pietro',
+    'Lombardi',
+    'e58815a2d289354c28c7c1ab17a247ba9a84f396fefde72eb3a929fa3a5727c1',
+    '369da63ea82b00dd96daeb',
+    'usr',
+    datetime()
+);
+
+insert into user_customer (user_id, user_role) values (
+    'f1b3b3b3-1b3b-4b3b-8b3b-1b3b3b3b3b3b',
+    'usr'
+), (
+    'f1b3b3b3-1b3b-4b3b-8b3b-1b3b3b3b3b3c',
+    'usr'
+);
+

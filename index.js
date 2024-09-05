@@ -95,6 +95,8 @@ app.get('/confirm', (req, res) => {
 })
 
 app.get('/poll/compile/:id', authenticate, async (req, res) => {
+    const user = req.user
+    const user_id = user.id
     const id = req.params.id
     let query = `
         SELECT id, 
@@ -106,19 +108,26 @@ app.get('/poll/compile/:id', authenticate, async (req, res) => {
             option_type, 
             available,
             compile_start_at,
-            compile_end_at
+            compile_end_at,
+            coalesce((select 1 from voter where voter.voter_id = ? and voter.vote_page_id = vote_page.id), 0) as voted
         FROM vote_page 
         WHERE id = ?`
-    let [err, result] = await Database.query(query, [id])
-    if (err) {
+    let [err1, result1] = await Database.query(query, [user_id, id])
+    if (err1) {
+        console.log(err1)
         res.status(500).send('Service temporarily unavailable')
         return
     }
-    if (result.length == 0) {
+    if (result1.length == 0) {
         res.status(404).send('Poll not found')
         return
     }
-    const poll_page = result[0]
+    console.log(result1)
+    const poll_page = result1[0]
+    if (poll_page.voted == 1) {
+        res.status(403).send('You have already voted')
+        return
+    }
     if (poll_page.created_by == req.user.id) {
         res.status(403).send('You cannot compile a poll you created')
         return
@@ -134,26 +143,153 @@ app.get('/poll/compile/:id', authenticate, async (req, res) => {
         res.status(403).send('Poll is not available at the moment')
         return
     }
-    query = `SELECT option_index, option_text FROM vote_option WHERE vote_page_id = ?`
-    [err, result] = await Database.query(query, [id])
-    if (err) {
-        console.log(err)
+    query = `SELECT option_index, option_text FROM vote_option WHERE vote_page_id = ? ORDER BY option_index ASC`
+    let [err2, result2] = await Database.query(query, [id])
+    if (err2) {
+        console.log(err2)
         res.status(500).send('Service temporarily unavailable')
         return
     }
-    const options = result
-    if (options.length == 0) {
+    if (result2.length == 0) {
         res.status(500).send('Poll may be corrupted')
         return
     }
+    console.log(result2)
+    var options = []
+    for (var i = 0; i < result2.length; i++) {
+        options.push({
+            index: result2[i].option_index,
+            text: result2[i].option_text
+        })
+    }
+    console.log(options)
     res.render('poll/compile', {
         id: id,
         title: poll_page.title,
         description: poll_page.vote_description,
         options: options,
-        multiple_choice: poll_page.option_type == 'multiple' ? true : false
+        multiple_choice: (poll_page.option_type == 'multiple') ? true : false
     })
 })
+
+app.post('/poll/compile', authenticate, async (req, res) => {
+    const body = req.body
+    const poll_id = body.poll_id
+    const answers = body.answer
+    let query_poll_metadata = `
+        select vote_type, created_by, available, option_type, compile_start_at, compile_end_at, restrict_filter
+        from vote_page
+        where id = ?`
+    let [err1, result1] = await Database.query(query_poll_metadata, [poll_id])
+    if (err1) {
+        console.log(err1)
+        res.status(500).send('Service temporarily unavailable')
+        return
+    }
+    if (result1.length == 0) {
+        res.status(404).send('Poll not found')
+        return
+    }
+    const poll_metadata = result1[0]
+    if (poll_metadata.created_by == req.user.id) {
+        res.status(403).send('You cannot compile a poll you created')
+        return
+    }
+    if (poll_metadata.available == false) {
+        res.status(403).send('This poll has been suspended')
+        return
+    }
+    const validFrom = CustomDate.from_UTC_timestamp(poll_metadata.compile_start_at).getTime()
+    const validTo = CustomDate.from_UTC_timestamp(poll_metadata.compile_end_at).getTime()
+    const now = new Date().getTime()
+    if (now < validFrom) {
+        res.status(403).send('Poll is not yet available')
+        return
+    }
+    if (now > validTo) {
+        res.status(403).send('Poll is no longer available')
+        return
+    }
+    if (poll_metadata.option_type == 'single' && typeof answers != 'string') {
+        res.status(400).send('Invalid answer format')
+        return
+    }
+    if (poll_metadata.option_type == 'multiple' && !Array.isArray(answers) && answers.length == 0) {
+        res.status(400).send('Invalid answer format')
+        return
+    }
+
+    let uploadT = uploadTransaction(
+        (typeof answers == 'string') ? [answers] : answers, 
+        req.user.id, 
+        poll_id, 
+        poll_metadata.vote_type
+    )
+    var [err2, result2] = await Database.run_scoped_transaction(uploadT)
+    if (err2) {
+        console.log(err2)
+        res.status(500).send('Service temporarily unavailable')
+        return
+    }
+    res.status(204).send('Poll compiled')
+
+    console.log(body)
+    res.sendStatus(204)
+})
+
+function uploadTransaction(answers, user_id, poll_id, vote_type) {
+    return (db) => {
+        return new Promise((resolve, reject) => {
+            let query1 = 'BEGIN TRANSACTION'
+            db.run(query1, [], function(err) {
+                if (err) {
+                    reject(err)
+                    return
+                }
+                let query2 = 'INSERT INTO voter(voter_id, vote_page_id) VALUES (?, ?)'
+                db.run(query2, [user_id, poll_id], function(err) {
+                    if (err) {
+                        db.run('ROLLBACK', function(err) {
+                            reject(err)
+                        })
+                        return
+                    }
+                    let query3 = 'INSERT INTO vote(vote_page_id, vote_type, vote_option_index, created_by) VALUES'
+                    let author = (vote_type == 'anymus') ? null : user_id
+                    let values = []
+                    for (let i = 0; i < answers.length; i++) {
+                        let int_answer = parseInt(answers[i])
+                        let string_answer = int_answer.toString()
+                        if (string_answer != answers[i]) {
+                            reject(new Error('Invalid answer'))
+                            return
+                        }
+                        values.push(`("${poll_id}", "${vote_type}", ${int_answer}, "${author}")`)
+                    }
+                    query3 += values.join(',')
+                    db.run(query3, [], function(err) {
+                        if (err) {
+                            db.run('ROLLBACK', function(err) {
+                                reject(err)
+                            })
+                            return
+                        }
+                        let query4 = 'COMMIT'
+                        db.run(query4, [], function(err) {
+                            if (err) {
+                                db.run('ROLLBACK', function(err) {
+                                    reject(err)
+                                })
+                                return
+                            }
+                            resolve(null)
+                        })
+                    })
+                })
+            })
+        })
+    }
+}
 
 app.get('/signin', (req, res) => {
     res.sendFile(__dirname + '/views/signin.html')

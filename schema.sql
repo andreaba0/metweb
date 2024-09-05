@@ -46,14 +46,9 @@ create table email_inbox (
     created_at timestamp not null default current_timestamp
 );
 
-create table vote_type (
-    id varchar(6) primary key check (id = 'anymus' or id = 'public'),
-    created_at timestamp not null default current_timestamp
-);
-
 create table vote_page (
     id varchar(36) primary key,
-    vote_type varchar(6) not null references vote_type(id),
+    vote_type varchar(6) not null check (vote_type = 'anymus' or vote_type = 'public'),
     vote_description text not null,
     title text not null,
     created_at timestamp not null default current_timestamp,
@@ -62,6 +57,8 @@ create table vote_page (
     option_type varchar(6) not null check (option_type = 'single' or option_type = 'multiple') default 'single',
     compile_start_at timestamp not null,
     compile_end_at timestamp not null,
+
+    /* A json object with the filter restrictions imposed on the vote */
     restrict_filter jsonb not null default '{}'
 );
 
@@ -77,15 +74,24 @@ create table vote_option (
 
 create table vote (
     vote_page_id varchar(36) not null references vote_page(id),
+    vote_type varchar(6) not null,
     vote_option_index smallint not null,
     created_at timestamp not null default current_timestamp,
+
+    /* This check constraint is to ensure that the voter is hidden if the vote is anymus */
     created_by varchar(36) null references user_customer(user_id),
+    check ((created_by is null and vote_type = 'anymus') or (created_by is not null and vote_type = 'public')),
+    
     check (vote_option_index >= 0),
     primary key (vote_page_id, created_by, vote_option_index),
     foreign key (vote_page_id, vote_option_index) references vote_option(option_index, vote_page_id),
-    foreign key (vote_page_id, created_by) references voter(vote_page_id, voter_id)
+    foreign key (vote_page_id, created_by) references voter(vote_page_id, voter_id) on delete cascade,
+    foreign key (vote_page_id, vote_type) references vote_page(id, option_type) on delete no action
 );
 
+/* This table is required to be able to check if a user has voted on a specific poll */
+/* Dropping this table and adding a new column with a random value in table vote to group a set of answers for each user would also solve the problem */
+/* but make it impossible to know who voted for an anonyous poll. Hence, a user may vote multiple times for an anonymous poll */
 create table voter (
     vote_page_id varchar(36) not null references vote_page(id),
     voter_id varchar(36) not null references user_account(id),
