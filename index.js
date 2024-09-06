@@ -232,61 +232,50 @@ app.post('/poll/compile', authenticate, async (req, res) => {
         return
     }
     res.status(204).send('Poll compiled')
-
-    console.log(body)
-    res.sendStatus(204)
 })
 
 function uploadTransaction(answers, user_id, poll_id, vote_type) {
     return (db) => {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
+            console.log("ok 0")
             let query1 = 'BEGIN TRANSACTION'
-            db.run(query1, [], function(err) {
-                if (err) {
-                    reject(err)
+            var err = await Database.non_returning_query(db, query1, [])
+            if (err) {
+                reject(err)
+                return
+            }
+            console.log("ok 1")
+            let query2 = 'INSERT INTO voter(voter_id, vote_page_id) VALUES (?, ?)'
+            var err = await Database.non_returning_query(db, query2, [user_id, poll_id])
+            if (err) {
+                reject(err)
+                return
+            }
+            let query3 = 'INSERT INTO vote(vote_page_id, vote_type, vote_option_index, created_by) VALUES'
+            let author = (vote_type == 'anymus') ? null : user_id
+            let values = []
+            for (let i = 0; i < answers.length; i++) {
+                let int_answer = parseInt(answers[i])
+                let string_answer = int_answer.toString()
+                if (string_answer != answers[i]) {
+                    reject(new Error('Invalid answer'))
                     return
                 }
-                let query2 = 'INSERT INTO voter(voter_id, vote_page_id) VALUES (?, ?)'
-                db.run(query2, [user_id, poll_id], function(err) {
-                    if (err) {
-                        db.run('ROLLBACK', function(err) {
-                            reject(err)
-                        })
-                        return
-                    }
-                    let query3 = 'INSERT INTO vote(vote_page_id, vote_type, vote_option_index, created_by) VALUES'
-                    let author = (vote_type == 'anymus') ? null : user_id
-                    let values = []
-                    for (let i = 0; i < answers.length; i++) {
-                        let int_answer = parseInt(answers[i])
-                        let string_answer = int_answer.toString()
-                        if (string_answer != answers[i]) {
-                            reject(new Error('Invalid answer'))
-                            return
-                        }
-                        values.push(`("${poll_id}", "${vote_type}", ${int_answer}, "${author}")`)
-                    }
-                    query3 += values.join(',')
-                    db.run(query3, [], function(err) {
-                        if (err) {
-                            db.run('ROLLBACK', function(err) {
-                                reject(err)
-                            })
-                            return
-                        }
-                        let query4 = 'COMMIT'
-                        db.run(query4, [], function(err) {
-                            if (err) {
-                                db.run('ROLLBACK', function(err) {
-                                    reject(err)
-                                })
-                                return
-                            }
-                            resolve(null)
-                        })
-                    })
-                })
-            })
+                values.push(`("${poll_id}", "${vote_type}", ${int_answer}, "${author}")`)
+            }
+            query3 += values.join(',')
+            var err = await Database.non_returning_query(db, query3, [])
+            if (err) {
+                reject(err)
+                return
+            }
+            let query4 = 'COMMIT'
+            var err = await Database.non_returning_query(db, query4, [])
+            if (err) {
+                reject(err)
+                return
+            }
+            resolve(1)
         })
     }
 }

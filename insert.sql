@@ -157,3 +157,43 @@ insert into user_customer (user_id, user_role) values (
     'usr'
 );
 
+insert into vote_page (id, vote_type, vote_description, title, created_by, available, option_type, compile_start_at, compile_end_at) values (
+    '685c9ebe-6e29-4149-a3d7-64a27b40f37f',
+    'public',
+    'Votazione per verificare il supporto delle persone verso la proposta sull Eutanasia legale proposta da Marco Cappato',
+    'Sei favorevole alla proposta di legge sull Eutanasia legale proposta da Marco Cappato?',
+    'f1b3b3b3-1b3b-4b3b-8b3b-1b3b3b3b3b3b',
+    true,
+    'single',
+    datetime(datetime(), '-1 day'),
+    datetime(datetime(), '+1 day')
+), (
+    '5ff1d9ef-f37a-4c54-abe9-3688d3692976',
+    'public',
+    'Votazione per misurare il consenso dell attuale governo in carica',
+    'Supporti l operato del governo attuale?',
+    'f1b3b3b3-1b3b-4b3b-8b3b-1b3b3b3b3b3c',
+    true,
+    'single',
+    datetime(datetime(), '-1 day'),
+    datetime(datetime(), '+1 day')
+);
+
+insert into vote_option (option_index, vote_page_id, option_text) values (
+    0,
+    '685c9ebe-6e29-4149-a3d7-64a27b40f37f',
+    'Si, sono favorevole'
+), (
+    1,
+    '685c9ebe-6e29-4149-a3d7-64a27b40f37f',
+    'No, sono contrario'
+), (
+    0,
+    '5ff1d9ef-f37a-4c54-abe9-3688d3692976',
+    'Si, approvo l operato del governo'
+), (
+    1,
+    '5ff1d9ef-f37a-4c54-abe9-3688d3692976',
+    'No, non approvo l operato del governo'
+);
+

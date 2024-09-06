@@ -225,12 +225,12 @@
              * dispatched at a time
              */
             var input_type = '<%= multiple_choice ? "checkbox" : "radio" %>';
+            console.log(input_type)
             var checkboxes = document.querySelectorAll(`input[type="${input_type}"]`);
+            console.log(checkboxes)
 
             var boxes = document.querySelectorAll('.compile-answer');
-            //var checkboxes = document.querySelectorAll('input[type="radio"]');
-
-            var boxes = document.querySelectorAll('.compile-answer');
+            console.log(boxes)
 
             function addClickEvent(iid, boxid) {
                 document.getElementById(boxid).addEventListener('click', (e) => {
@@ -245,7 +245,8 @@
                     console.log(e)
                     console.log("click from inside")
                     e.stopPropagation();
-                    document.getElementById(iid).checked = !document.getElementById(iid).checked;
+                    console.log(document.getElementById(iid).checked)
+                    //document.getElementById(iid).checked = !document.getElementById(iid).checked;
                     const event = new Event('change');
                     document.getElementById(iid).dispatchEvent(event);
                 })
@@ -259,8 +260,10 @@
             var stateList = []
             checkboxes.forEach(function (checkbox) {
                 checkbox.addEventListener('change', function (e) {
+                    console.log("Event dispatched")
                     stateList = []
                     checkboxes.forEach(function (c) {
+                        console.log(c.checked)
                         stateList.push(c.checked)
                         if (!c.checked)
                             c.parentElement.classList.remove('input-checked');
@@ -281,7 +284,7 @@
                 stateList.forEach(function (state) {
                     enabled = enabled || state;
                 })
-                console.log(enabled)
+                //console.log(enabled)
                 document.querySelector('.compile-submit button').disabled = !enabled;
             }
         </script>

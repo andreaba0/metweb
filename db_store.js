@@ -13,13 +13,28 @@ class Database {
         return this.#dbms
     }
 
-    static async query(query, args) {
+    static async dedicated_query(db, query, args) {
         return new Promise((resolve, reject) => {
-            const db = Database.database()
             db.all(query, args, (err, rows) => {
                 resolve([err, rows])
             })
         })
+    }
+
+    static async shared_query(query, args) {
+        const db = Database.database()
+        return Database.query(db, query, args)
+    }
+
+    static async query() {
+        if (arguments.length == 2) {
+            return Database.shared_query(arguments[0], arguments[1])
+        }
+        if (arguments.length == 3) {
+            return Database.dedicated_query(arguments[0], arguments[1], arguments[2])
+        }
+
+        throw new Error('Invalid number of arguments')
     }
 
     /**
@@ -29,9 +44,8 @@ class Database {
      * @returns {Promise<any>}
      * @description Run a non-returning query within a shared database connection.
      */
-    static async non_returning_query(query, args) {
+    static async dedicated_non_returning_query(db, query, args) {
         return new Promise((resolve, reject) => {
-            const db = Database.database()
             db.run(query, args, (err) => {
                 if (err) {
                     console.log(err)
@@ -40,6 +54,22 @@ class Database {
                 resolve(null)
             })
         })
+    }
+
+    static async shared_non_returning_query(query, args) {
+        const db = Database.database()
+        return Database.dedicated_non_returning_query(db, query, args)
+    }
+
+    static async non_returning_query() {
+        if (arguments.length == 2) {
+            return Database.shared_non_returning_query(arguments[0], arguments[1])
+        }
+        if (arguments.length == 3) {
+            return Database.dedicated_non_returning_query(arguments[0], arguments[1], arguments[2])
+        }
+
+        throw new Error('Invalid number of arguments')
     }
 
     /**

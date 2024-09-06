@@ -59,7 +59,8 @@ create table vote_page (
     compile_end_at timestamp not null,
 
     /* A json object with the filter restrictions imposed on the vote */
-    restrict_filter jsonb not null default '{}'
+    restrict_filter jsonb not null default '{}',
+    unique (id, option_type)
 );
 
 create table vote_option (
@@ -85,7 +86,6 @@ create table vote (
     check (vote_option_index >= 0),
     primary key (vote_page_id, created_by, vote_option_index),
     foreign key (vote_page_id, vote_option_index) references vote_option(option_index, vote_page_id),
-    foreign key (vote_page_id, created_by) references voter(vote_page_id, voter_id) on delete cascade,
     foreign key (vote_page_id, vote_type) references vote_page(id, option_type) on delete no action
 );
 
