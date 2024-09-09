@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>
+        <%= title %>
+    </title>
+
+    <%- include('./partials/common_head.ejs') %>
+
+</head>
+
+<body>
+
+    <style type="text/css">
+        .body {
+            width: 100vw;
+            overflow-x: hidden;
+            padding-top: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            box-sizing: border-box;
+        }
+    </style>
+
+    <!-- Lista dei sondaggi -->
+    <div class="body">
+        <h1>Lista dei sondaggi</h1>
+        <div class="poll-list">
+            <% if (poll_list.length > 0) { %>
+                <% poll_list.forEach(function(poll) { %>
+                    <div class="poll">
+                        <h2><%= poll.title %></h2>
+                        <p><%= poll.description %></p>
+                        <a href="/poll/<%= poll.id %>" class="button">Vai al sondaggio</a>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <p>Non ci sono sondaggi</p>
+            <% } %>
+        </div>
+    </div>
+
+
+</body>
+
+</html>

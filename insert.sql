@@ -132,7 +132,7 @@ insert into email_type (id) values ('reset_password'), ('verify_email');
 insert into user_account (id, email, first_name, last_name, hashed_password, password_salt, user_role, account_barrier) values (
     'f1b3b3b3-1b3b-4b3b-8b3b-1b3b3b3b3b3b',
     'andrea.gabbani@gmail.com',
-    'Andra',
+    'Andrea',
     'Gabbani',
     '8d80795c93293316b50d89654eae5b376b8f6e45e0f672a3d4e4b1d96c9adbe6',
     '0a41902f36a8b71132cbfd',
@@ -142,6 +142,33 @@ insert into user_account (id, email, first_name, last_name, hashed_password, pas
     'f1b3b3b3-1b3b-4b3b-8b3b-1b3b3b3b3b3c',
     'pietro.lombardi@gmail.com',
     'Pietro',
+    'Lombardi',
+    'e58815a2d289354c28c7c1ab17a247ba9a84f396fefde72eb3a929fa3a5727c1',
+    '369da63ea82b00dd96daeb',
+    'usr',
+    datetime()
+), (
+    'f1b3b3b3-ffff-4b3b-8b3b-1b3b3b3b3b3c',
+    'marco.ascani@gmail.com',
+    'Marco',
+    'Ascani',
+    'e58815a2d289354c28c7c1ab17a247ba9a84f396fefde72eb3a929fa3a5727c1',
+    '369da63ea82b00dd96daeb',
+    'usr',
+    datetime()
+), (
+    'f1b3b3b3-1b3b-ffff-aaaa-1b3b3b3b3b3c',
+    'pietro.franchi@gmail.com',
+    'Pietro',
+    'Franchi',
+    'e58815a2d289354c28c7c1ab17a247ba9a84f396fefde72eb3a929fa3a5727c1',
+    '369da63ea82b00dd96daeb',
+    'usr',
+    datetime()
+), (
+    'f1b3b3b3-aaaa-aaaa-ffff-1b3b3b3b3b3c',
+    'giuseppe.lombardi@gmail.com',
+    'Giuseppe',
     'Lombardi',
     'e58815a2d289354c28c7c1ab17a247ba9a84f396fefde72eb3a929fa3a5727c1',
     '369da63ea82b00dd96daeb',
@@ -195,5 +222,23 @@ insert into vote_option (option_index, vote_page_id, option_text) values (
     1,
     '5ff1d9ef-f37a-4c54-abe9-3688d3692976',
     'No, non approvo l operato del governo'
+);
+
+insert into voter (vote_page_id, voter_id, created_at) values (
+    '685c9ebe-6e29-4149-a3d7-64a27b40f37f',
+    'f1b3b3b3-ffff-4b3b-8b3b-1b3b3b3b3b3c',
+    datetime()
+), (
+    '685c9ebe-6e29-4149-a3d7-64a27b40f37f',
+    'f1b3b3b3-aaaa-aaaa-ffff-1b3b3b3b3b3c',
+    datetime()
+), (
+    '5ff1d9ef-f37a-4c54-abe9-3688d3692976',
+    'f1b3b3b3-ffff-4b3b-8b3b-1b3b3b3b3b3c',
+    datetime()
+), (
+    '5ff1d9ef-f37a-4c54-abe9-3688d3692976',
+    'f1b3b3b3-1b3b-4b3b-8b3b-1b3b3b3b3b3c',
+    datetime()
 );
 

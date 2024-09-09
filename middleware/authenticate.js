@@ -129,7 +129,27 @@ async function renewExpired(req, res, next) {
     next()
 }
 
+function authorize(role) {
+    if (role != 'admin' && role != 'user' && role != '*') {
+        return function(req, res, next) {
+            res.status(500).send('Backend error')
+        }
+    }
+    return function(req, res, next) {
+        if ((role == 'user' && req.user.role == 'usr') || (role == 'admin' && req.user.role == 'adm')) {
+            next()
+            return
+        }
+        if (role == '*') {
+            next()
+            return
+        }
+        res.status(403).send('Unauthorized')
+    }
+}
+
 module.exports = {
     authenticate: authenticate,
-    renewExpired: renewExpired
+    renewExpired: renewExpired,
+    authorize: authorize
 }

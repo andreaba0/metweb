@@ -3,7 +3,7 @@
 
 <head>
     <title>
-
+        <%= title %>
     </title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -14,19 +14,30 @@
 </head>
 
 <body>
-    <%- include('../partials/menu.ejs') %>
 
         <style type="text/css">
-            .body {
+            body {
                 width: 100vw;
                 overflow-x: hidden;
                 margin-top: 30px;
                 display: flex;
                 flex-direction: column;
-                justify-content: flex-start;
+                justify-content: center;
                 align-items: center;
+                box-sizing: border-box;
+                padding-top: 60px;
+            }
+
+            img {
+                width: 100%;
+                max-width: 300px;
+                height: auto;
             }
         </style>
+        <img src=<%= src %> alt=<%= alt %> />
+        <h1>
+            <%= message %>
+        </h1>
 </body>
 
 </html>

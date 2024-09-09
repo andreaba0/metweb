@@ -98,3 +98,10 @@ create table voter (
     created_at timestamp not null default current_timestamp,
     primary key (vote_page_id, voter_id)
 );
+
+create table report (
+    vote_page_id varchar(36) not null references vote_page(id),
+    report_text text not null,
+    created_at timestamp not null default current_timestamp,
+    created_by varchar(36) not null references user_customer(user_id)
+);
