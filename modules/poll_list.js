@@ -47,7 +47,9 @@ async function pollList(req, res) {
         return new FrontendError(500, 'Internal Server Error').render(res)
     }
     res.status(200).render('poll_list', {
+        role: req.session.user_role,
         title: 'Poll List',
+        path_active: 'polls',
         poll_list: result
     })
 }

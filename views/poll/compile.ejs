@@ -6,10 +6,7 @@
         <%= title %>
     </title>
 
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-    <link rel="stylesheet" type="text/css" href="/static/common/style.css" />
+    <%- include('../partials/common_head.ejs') %>
 
     <style type="text/css">
         .compile-answer input {
@@ -23,8 +20,6 @@
         <% } else { %>
             <link rel="stylesheet" type="text/css" href="/static/compile/single_choice.css" />
             <% } %>
-
-                <script src="https://kit.fontawesome.com/49ec009d21.js" crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -153,37 +148,6 @@
             }
         </style>
 
-        <!--
-        // The following piece of code is just a template to be used to create the ejs script for the poll
-        // Ejs base the template on the following object template {question: "question", answers: ["answer1", "answer2", "answer3"]}
-        <div class="poll-body">
-            <div class="compile-title">
-                Sei favorevole all'introduzione dell'eutanasia in Italia?<br />
-                Facendo riferimento alla proposta portata avanti da Marco Cappato.
-            </div>
-            <form method="POST" action="/poll/compile">
-                <div class="compile-answer" id="box-0">
-                    <input type="radio" name="answer" value="yes" id="input-0" />
-                    <label for="yes">Si, sono favorevole</label>
-                </div>
-                <div class="compile-answer" id="box-1">
-                    <input type="radio" name="answer" value="no" id="input-1" />
-                    <label for="no">No, sono contrario</label>
-                </div>
-                <div class="compile-answer" id="box-2">
-                    <input type="radio" name="answer" value="ns" id="input-2" />
-                    <label for="ns">Non so</label>
-                </div>
-                <div class="compile-submit">
-                    <button type="submit" disabled="true">
-                        <i class="fa-solid fa-signature"></i>
-                        Invia
-                    </button>
-                </div>
-            </form>
-        </div>
-        -->
-
         <div class="poll-body">
             <div class="compile-title">
                 <%= description %>
@@ -271,10 +235,6 @@
                             c.parentElement.classList.add('input-checked');
                         setButtonState();
                     });
-                    /*if (e.target.checked)
-                        e.target.parentElement.classList.add('input-checked');
-                    else
-                        e.target.parentElement.classList.remove('input-checked');*/
 
                 });
             });

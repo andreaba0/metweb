@@ -36,6 +36,14 @@
         justify-content: center;
         align-items: center;
         height: 60px;
+        flex: 1;
+    }
+    .menu-box-report {
+        width: 60px;
+        height: 60px;
+        color: var(--red-color);
+        font-size: 24px;
+        cursor: pointer;
     }
     .side-blur {
         position: fixed;
@@ -71,19 +79,118 @@
         flex-direction: column;
         justify-content: flex-start;
         align-items: flex-start;
+        gap: 5px;
     }
     .menu-option-box-title {
-        font-size: 20px;
-        font-weight: bold;
+        font-size: var(--text-size-m);
+        font-weight: var(--text-bold);
+        color: var(--black-color);
         padding-top: 10px;
-        padding-bottom: 10px;
+        padding-bottom: 5px;
         padding-left: 10px;
     }
-    .menu-option-box-field {
-        font-size: 16px;
+
+    .menu-option-box-field-default {
+        font-size: var(--text-size-s);
+        font-weight: var(--text-bold);
         padding-top: 5px;
         padding-bottom: 5px;
         padding-left: 20px;
+        box-sizing: border-box;
+        width: 95%;
+        border-top-right-radius: 9px;
+        border-bottom-right-radius: 9px;
+    }
+
+    .menu-option-box-field-inactive {
+        color: var(--black-color);
+        
+    }
+
+    .menu-option-box-field-active {
+        background: var(--blue-color);
+        color: var(--gray-color);
+    }
+
+    .report-box {
+        position: fixed;
+        top: 90px;
+        right: 15px;
+        width: 100%;
+        max-width: 300px;
+        background-color: var(--accent-color-yellow);
+        z-index: 80;
+        border-radius: 9px;
+        display: none;
+        border: solid 1px var(--accent-color-yellow);
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+
+    .report-box form label {
+        font-size: var(--text-size-s);
+        font-weight: var(--text-bold);
+        color: var(--black-color);
+    }
+
+    .report-box form {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 20px;
+        height: 100%;
+        gap: 20px;
+    }
+
+    .report-box form textarea {
+        resize: vertical;
+        width: 100%;
+        box-sizing: border-box;
+        border: solid 2px var(--blue-color);
+        border-radius: 5px;
+        padding: 9px 15px;
+        font-weight: var(--text-normal);
+        color: var(--black-color);
+        display: block;
+    }
+
+    .report-box form button {
+        background-color: var(--red-color);
+        color: var(--gray-color);
+        border: none;
+        border-radius: 6px;
+        padding: 10px 20px;
+        font-weight: var(--text-bold);
+        font-size: var(--text-size-m);
+        cursor: pointer;
+    }
+
+    .report-box div.claim {
+        font-size: var(--text-size-xs);
+        font-weight: var(--text-normal);
+        color: var(--black-color);
+        padding: 10px 30px;
+        text-align: justify;
+    }
+
+    .report-box-display {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .report-box-hidden {
+        display: none;
+    }
+
+    .side-menu a {
+        text-decoration: none;
+        color: var(--black-color);
     }
 </style>
 
@@ -95,27 +202,59 @@
     <div class="menu-box-name">
         PollEd
     </div>
+    <div class="<%= (typeof path_active !== 'undefined' && path_active === 'compile_poll') ? 'menu-box-report report-box-display' : 'menu-box-report report-box-hidden' %>" id="poll-report">
+        <i class="fa-solid fa-exclamation-circle"></i>
+    </div>
+</div>
+
+<div class="report-box" id="report-box">
+    <form action="/poll/report" method="POST">
+        <label for="report">Motivo della segnalazione</label>
+        <textarea name="report" placeholder="Contenuto della segnalazione" required></textarea>
+        <input type="hidden" name="poll_id" value="<%- (typeof id !== 'undefined') ? id : '' %>">
+        <button type="submit" class="btn btn-danger">Invia</button>
+    </form>
+    <div class="claim">
+        Effettuare segnalazioni solo qualora sussistano reali motivi di preoccupazione per il contenuto in oggetto.
+        Segnalazioni non idonee ripetute potrebbero comportare la sospensione dell'account.
+    </div>
 </div>
 
 <div class="side-blur" id="menu-box">
     <div class="side-menu">
         <div class="menu-option-box">
+            <% if (typeof role !== 'undefined' && role === 'usr') { %>
             <div class="menu-option-box-title">
-                Opzioni
+                Sondaggi
             </div>
-            <div class="menu-option-box-field">
-                Crea un sondaggio
+            <div class="<%= (typeof path_active !== 'undefined' && path_active === 'create_poll') ? 'menu-option-box-field-default menu-option-box-field-active' : 'menu-option-box-field-default menu-option-box-field-inactive' %>">
+                <%- (typeof path_active !== 'undefined' && path_active === 'create_poll') ? 'Crea un sondaggio' : '<a href="/poll/create">Crea un sondaggio</a>' %>
             </div>
-            <div class="menu-option-box-field">
-                I miei sondaggi
+            <div class="<%= (typeof path_active !== 'undefined' && path_active === 'my_polls') ? 'menu-option-box-field-active menu-option-box-field-default' : 'menu-option-box-field-default menu-option-box-field-inactive' %>">
+                <%- (typeof path_active !== 'undefined' && path_active === 'my_polls') ? 'I miei sondaggi' : '<a href="/my-polls">I miei sondaggi</a>' %>
             </div>
+            <div class="<%= (typeof path_active !== 'undefined' && path_active === 'polls') ? 'menu-option-box-field-active menu-option-box-field-default' : 'menu-option-box-field-default menu-option-box-field-inactive' %>">
+                <%- (typeof path_active !== 'undefined' && path_active === 'polls') ? 'I miei sondaggi' : '<a href="/polls">Sondaggi pubblici</a>' %>
+            </div>
+            <% } %>
+            <% if (typeof role !== 'undefined' && role === 'adm') { %>
+            <div class="menu-option-box-title">
+                Pannello di controllo
+            </div>
+            <div class="<%= (typeof path_active !== 'undefined' && path_active === 'report_list') ? 'menu-option-box-field-default menu-option-box-field-active' : 'menu-option-box-field-default menu-option-box-field-inactive' %>">
+                <%- (typeof path_active !== 'undefined' && path_active === 'report_list') ? 'Lista dei report' : '<a href="/report/list">List dei report</a>' %>
+            </div>
+            <div class="<%= (typeof path_active !== 'undefined' && path_active === 'users') ? 'menu-option-box-field-active menu-option-box-field-default' : 'menu-option-box-field-default menu-option-box-field-inactive' %>">
+                <%- (typeof path_active !== 'undefined' && path_active === 'users') ? 'Lista utenti' : '<a href="/user/list">Lista utenti</a>' %>
+            </div>
+            <% } %>  
         </div>
         <div class="menu-option-box">
             <div class="menu-option-box-title">
                 Account
             </div>
-            <div class="menu-option-box-field">
-                Il mio profilo
+            <div class="<%= (typeof path_active !== 'undefined' && path_active === 'profile') ? 'menu-option-box-field-active menu-option-box-field-default' : 'menu-option-box-field-default menu-option-box-field-inactive' %>">
+                <%- (typeof path_active !== 'undefined' && path_active === 'profile') ? 'Profilo' : '<a href="/profile">Profilo</a>' %>
             </div>
             <div class="menu-option-box-field">
                 <form action="/logout" method="post">
@@ -129,7 +268,6 @@
 <script type="text/javascript">
     var menu_open = false;
     document.getElementById('menu-control-status').addEventListener('click', function() {
-        console.log('Menu clicked');
         if (menu_open) {
             document.getElementById('menu-box').style.display = 'none';
             document.getElementById('menu-control-status').innerHTML = `<i class="fa-solid fa-bars"></i>`
@@ -138,6 +276,19 @@
             document.getElementById('menu-box').style.display = 'block';
             document.getElementById('menu-control-status').innerHTML = `<i class="fa-solid fa-times"></i>`
             menu_open = true;
+        }
+    });
+
+    var report_menu_open = false;
+    document.getElementById('poll-report').addEventListener('click', function() {
+        if (report_menu_open) {
+            document.getElementById('report-box').style.display = 'none';
+            document.getElementById('poll-report').innerHTML = '<i class="fa-solid fa-exclamation-circle"></i>';
+            report_menu_open = false;
+        } else {
+            document.getElementById('report-box').style.display = 'flex';
+            document.getElementById('poll-report').innerHTML = '<i class="fa-solid fa-times"></i>';
+            report_menu_open = true;
         }
     });
 </script>

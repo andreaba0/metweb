@@ -25,8 +25,61 @@
                 flex-direction: column;
                 justify-content: flex-start;
                 align-items: center;
+                gap: 10px;
+            }
+
+            h1 {
+                display: block;
+                padding: 10px 30px;
+                font-size: var(--text-size-m);
+                font-weight: var(--text-bold);
+            }
+
+            div.poll {
+                width: 100%;
+                max-width: 300px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: flex-start;
+                gap: 3px;
+            }
+
+            div.poll h2 {
+                line-height: 1;
+                margin: 0;
+                padding: 0;
+                display: block;
+                font-size: var(--text-size-s);
+                font-weight: var(--text-bold);
+                color: var(--black-color);
+            }
+
+            div.poll p {
+                line-height: 1;
+                margin: 0;
+                padding: 0;
+                display: block;
+                font-size: var(--text-size-xs);
+                font-weight: var(--text-normal);
+                color: var(--black-color);
             }
         </style>
+
+        <div class="body">
+            <h1>Lista dei sondaggi</h1>
+            <% if (polls.length > 0) { %>
+                <% polls.forEach(function(poll) { %>
+                    <div class="poll">
+                        <h2><%= poll.title.substring(0, 20) %></h2>
+                        <p><%= poll.description.substring(0, 50) %></p>
+                        <a href="/poll/<%= poll.id %>" class="button">Vai al sondaggio</a>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <p>Non ci sono sondaggi</p>
+            <% } %>
+        </div>
 </body>
 
 </html>

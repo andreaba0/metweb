@@ -174,6 +174,15 @@ insert into user_account (id, email, first_name, last_name, hashed_password, pas
     '369da63ea82b00dd96daeb',
     'usr',
     datetime()
+), (
+    'aaaaffff-aaaa-aaaa-ffff-1b3b3b3b3b3c',
+    'simone.forlini@gmail.com',
+    'Simone',
+    'Forlini',
+    'e58815a2d289354c28c7c1ab17a247ba9a84f396fefde72eb3a929fa3a5727c1',
+    '369da63ea82b00dd96daeb',
+    'adm',
+    datetime()
 );
 
 insert into user_customer (user_id, user_role) values (
@@ -182,6 +191,20 @@ insert into user_customer (user_id, user_role) values (
 ), (
     'f1b3b3b3-1b3b-4b3b-8b3b-1b3b3b3b3b3c',
     'usr'
+), (
+    'f1b3b3b3-ffff-4b3b-8b3b-1b3b3b3b3b3c',
+    'usr'
+), (
+    'f1b3b3b3-1b3b-ffff-aaaa-1b3b3b3b3b3c',
+    'usr'
+), (
+    'f1b3b3b3-aaaa-aaaa-ffff-1b3b3b3b3b3c',
+    'usr'
+);
+
+insert into user_admin (user_id, user_role) values (
+    'aaaaffff-aaaa-aaaa-ffff-1b3b3b3b3b3c',
+    'adm'
 );
 
 insert into vote_page (id, vote_type, vote_description, title, created_by, available, option_type, compile_start_at, compile_end_at) values (
@@ -230,7 +253,7 @@ insert into voter (vote_page_id, voter_id, created_at) values (
     datetime()
 ), (
     '685c9ebe-6e29-4149-a3d7-64a27b40f37f',
-    'f1b3b3b3-aaaa-aaaa-ffff-1b3b3b3b3b3c',
+    'f1b3b3b3-1b3b-ffff-aaaa-1b3b3b3b3b3c',
     datetime()
 ), (
     '5ff1d9ef-f37a-4c54-abe9-3688d3692976',
@@ -238,7 +261,11 @@ insert into voter (vote_page_id, voter_id, created_at) values (
     datetime()
 ), (
     '5ff1d9ef-f37a-4c54-abe9-3688d3692976',
-    'f1b3b3b3-1b3b-4b3b-8b3b-1b3b3b3b3b3c',
+    'f1b3b3b3-1b3b-ffff-aaaa-1b3b3b3b3b3c',
+    datetime()
+), (
+    '5ff1d9ef-f37a-4c54-abe9-3688d3692976',
+    'f1b3b3b3-aaaa-aaaa-ffff-1b3b3b3b3b3c',
     datetime()
 );
 

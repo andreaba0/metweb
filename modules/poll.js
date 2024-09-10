@@ -2,9 +2,10 @@ const {Cache, CacheHit, CacheMiss, CacheError} = require('../cache')
 const {Database} = require('../db_store')
 const {FrontendError} = require('../utility/error')
 const {CustomDate} = require('../date.js')
+const {v4: uuidv4, validate: isValidUUID} = require('uuid')
 
 async function myPolls(req, res) {
-    const query = 'SELECT title, vote_description, compile_start_at, compile_end_at, available from vote_page where created_by = ?'
+    const query = 'SELECT id, title, vote_description, compile_start_at, compile_end_at, available from vote_page where created_by = ?'
     const [err, result] = await Database.query(query, [req.user.id])
     if (err) {
         res.status(500).send('Service temporarily unavailable')
@@ -28,6 +29,7 @@ async function myPolls(req, res) {
         }
         status = `available from ${new Date(start_date)} to ${new Date(end_date)}`
         polls.push({
+            id: poll.id,
             title: poll.title,
             description: poll.vote_description,
             start_date: start_date,
@@ -38,7 +40,9 @@ async function myPolls(req, res) {
     }
     console.log(polls)
     res.render('poll/list', {
-        polls: result
+        path_active: 'my_polls',
+        role: req.user.role,
+        polls: polls
     })
 }
 
@@ -57,10 +61,11 @@ async function pollCompile(req, res) {
             available,
             compile_start_at,
             compile_end_at,
-            coalesce((select 1 from voter where voter.voter_id = ? and voter.vote_page_id = vote_page.id), 0) as voted
+            coalesce((select 1 from voter where voter.voter_id = ? and voter.vote_page_id = vote_page.id), 0) as voted,
+            coalesce((select 1 from report where report.created_by = ? and report.vote_page_id = vote_page.id), 0) as reported
         FROM vote_page 
         WHERE id = ?`
-    let [err1, result1] = await Database.query(query, [user_id, id])
+    let [err1, result1] = await Database.query(query, [user_id, user_id, id])
     if (err1) {
         console.log(err1)
         res.status(500).send('Service temporarily unavailable')
@@ -73,6 +78,10 @@ async function pollCompile(req, res) {
     }
     console.log(result1)
     const poll_page = result1[0]
+    if (poll_page.reported == 1) {
+        res.status(403).send('This poll has been reported by you, so you cannot compile it')
+        return
+    }
     if (poll_page.voted == 1) {
         res.status(403).send('You have already voted')
         return
@@ -114,6 +123,8 @@ async function pollCompile(req, res) {
     console.log(options)
     res.render('poll/compile', {
         id: id,
+        role: req.user.role,
+        path_active: 'compile_poll',
         title: poll_page.title,
         description: poll_page.vote_description,
         options: options,
@@ -188,16 +199,17 @@ async function createPollCompilation(req, res) {
 }
 
 function uploadTransaction(answers, user_id, poll_id, vote_type) {
+    /*
+    This transaction run in a new sqlite3 database connection, so it is safe to use with async/await
+    */
     return (db) => {
         return new Promise(async (resolve, reject) => {
-            console.log("ok 0")
             let query1 = 'BEGIN TRANSACTION'
             var err = await Database.non_returning_query(db, query1, [])
             if (err) {
                 reject(err)
                 return
             }
-            console.log("ok 1")
             let query2 = 'INSERT INTO voter(voter_id, vote_page_id) VALUES (?, ?)'
             var err = await Database.non_returning_query(db, query2, [user_id, poll_id])
             if (err) {
@@ -244,7 +256,8 @@ async function getCreatePoll(req, res) {
         return
     }
     res.render('poll/create', {
-        id: uuid
+        id: uuid,
+        path_active: 'create_poll'
     })
 }
 
@@ -311,10 +324,25 @@ async function uploadPollTransaction(db, uuid, userUUID, user_visibility, title,
     })
 }
 
+async function postReport(req, res) {
+    const body = req.body
+    const poll_id = body.poll_id
+    const reason = body.report
+    const user_id = req.user.id
+    const query = 'INSERT INTO report(vote_page_id, created_by, report_text) VALUES (?, ?, ?)'
+    const [err, result] = await Database.query(query, [poll_id, user_id, reason])
+    if (err) {
+        res.status(500).send('Service temporarily unavailable')
+        return
+    }
+    res.status(204).send('Reported')
+}
+
 module.exports = {
     myPolls: myPolls,
     pollCompile: pollCompile,
     createPollCompilation: createPollCompilation,
     getCreatePoll: getCreatePoll,
-    postCreatePoll: postCreatePoll
+    postCreatePoll: postCreatePoll,
+    postReport: postReport
 }

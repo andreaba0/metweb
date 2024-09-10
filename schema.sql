@@ -65,7 +65,7 @@ create table vote_page (
 
 create table vote_option (
     option_index smallint not null,
-    vote_page_id varchar(36) not null references vote_page(id),
+    vote_page_id varchar(36) not null references vote_page(id) on delete cascade,
     option_text text not null,
     created_at timestamp not null default current_timestamp,
     primary key (option_index, vote_page_id),
@@ -85,7 +85,7 @@ create table vote (
     
     check (vote_option_index >= 0),
     primary key (vote_page_id, created_by, vote_option_index),
-    foreign key (vote_page_id, vote_option_index) references vote_option(option_index, vote_page_id),
+    foreign key (vote_page_id, vote_option_index) references vote_option(option_index, vote_page_id) on delete cascade,
     foreign key (vote_page_id, vote_type) references vote_page(id, option_type) on delete no action
 );
 
@@ -93,15 +93,16 @@ create table vote (
 /* Dropping this table and adding a new column with a random value in table vote to group a set of answers for each user would also solve the problem */
 /* but make it impossible to know who voted for an anonyous poll. Hence, a user may vote multiple times for an anonymous poll */
 create table voter (
-    vote_page_id varchar(36) not null references vote_page(id),
-    voter_id varchar(36) not null references user_account(id),
+    vote_page_id varchar(36) not null references vote_page(id) on delete cascade,
+    voter_id varchar(36) not null references user_customer(user_id) on delete cascade,
     created_at timestamp not null default current_timestamp,
     primary key (vote_page_id, voter_id)
 );
 
 create table report (
-    vote_page_id varchar(36) not null references vote_page(id),
+    vote_page_id varchar(36) not null references vote_page(id) on delete cascade,
     report_text text not null,
     created_at timestamp not null default current_timestamp,
-    created_by varchar(36) not null references user_customer(user_id)
+    created_by varchar(36) not null references user_customer(user_id),
+    primary key (vote_page_id, created_by)
 );

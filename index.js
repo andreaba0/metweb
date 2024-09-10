@@ -12,7 +12,7 @@ const {Database} = require('./db_store')
 const {parseJwt, JwtBadToken} = require('./jwt_utility')
 const {CustomDate} = require('./date')
 const {pollSanitizer} = require('./middleware/poll_sanitizer')
-const { pollCompile, createPollCompilation, myPolls, getCreatePoll, postCreatePoll } = require('./modules/poll')
+const { pollCompile, createPollCompilation, myPolls, getCreatePoll, postCreatePoll, postReport } = require('./modules/poll')
 const { FrontendError } = require('./utility/error')
 const { pollList } = require('./modules/poll_list')
 
@@ -32,6 +32,30 @@ app.get('/', (req, res) => {
 
 app.get('/signup', (req, res) => {
     res.sendFile(__dirname + '/views/signup.html')
+})
+
+app.get('/profile', authenticate, authorize('*'), (req, res) => {
+    res.status(200).render('profile', {
+        title: 'Il tuo profilo',
+        role: req.user.role,
+        path_active: 'profile'
+    })
+})
+
+app.get('/report/list', authenticate, authorize('admin'), async (req, res) => {
+    res.status(200).render('poll/report', {
+        title: 'Lista segnalazioni',
+        role: req.user.role,
+        path_active: 'report_list'
+    })
+})
+
+app.get('/user/list', authenticate, authorize('admin'), async (req, res) => {
+    res.status(200).render('users', {
+        title: 'Lista utenti',
+        role: req.user.role,
+        path_active: 'users'
+    })
 })
 
 app.post('/signup', async (req, res) => {
@@ -99,6 +123,7 @@ app.get('/confirm', (req, res) => {
 
 app.get('/poll/compile/:id', authenticate, authorize('user'), pollCompile)
 app.post('/poll/compile', authenticate, authorize('user'), createPollCompilation)
+app.post('/poll/report', authenticate, authorize('user'), postReport)
 
 app.get('/signin', (req, res) => {
     res.sendFile(__dirname + '/views/signin.html')
@@ -295,7 +320,7 @@ app.post('/logout', authenticate, (req, res) => {
 
 app.get('/my-polls', authenticate, authorize('user'), myPolls)
 
-app.get('/poll/list', pollList)
+app.get('/polls', pollList)
 
 app.get('/poll/:uuid', authenticate, authorize('*'), (req, res) => {
     res.sendStatus(204)
