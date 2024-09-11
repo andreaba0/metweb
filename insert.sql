@@ -129,143 +129,386 @@ YLU7UiB8YY/ZM3B0gsF+M7o=
 
 insert into email_type (id) values ('reset_password'), ('verify_email');
 
-insert into user_account (id, email, first_name, last_name, hashed_password, password_salt, user_role, account_barrier) values (
-    'f1b3b3b3-1b3b-4b3b-8b3b-1b3b3b3b3b3b',
+insert into user_account (id, email, first_name, last_name, hashed_password, password_salt, user_role, account_barrier, date_of_birth) values (
+    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
     'andrea.gabbani@gmail.com',
     'Andrea',
     'Gabbani',
     '8d80795c93293316b50d89654eae5b376b8f6e45e0f672a3d4e4b1d96c9adbe6',
     '0a41902f36a8b71132cbfd',
     'usr',
-    datetime()
+    datetime(),
+    date('now', '-20 years')
 ), (
-    'f1b3b3b3-1b3b-4b3b-8b3b-1b3b3b3b3b3c',
+    'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
     'pietro.lombardi@gmail.com',
     'Pietro',
     'Lombardi',
     'e58815a2d289354c28c7c1ab17a247ba9a84f396fefde72eb3a929fa3a5727c1',
     '369da63ea82b00dd96daeb',
     'usr',
-    datetime()
+    datetime(),
+    date('now', '-19 years')
 ), (
-    'f1b3b3b3-ffff-4b3b-8b3b-1b3b3b3b3b3c',
+    'cccccccc-cccc-cccc-cccc-cccccccccccc',
     'marco.ascani@gmail.com',
     'Marco',
     'Ascani',
     'e58815a2d289354c28c7c1ab17a247ba9a84f396fefde72eb3a929fa3a5727c1',
     '369da63ea82b00dd96daeb',
     'usr',
-    datetime()
+    datetime(),
+    date('now', '-38 years')
 ), (
-    'f1b3b3b3-1b3b-ffff-aaaa-1b3b3b3b3b3c',
+    'dddddddd-dddd-dddd-dddd-dddddddddddd',
     'pietro.franchi@gmail.com',
     'Pietro',
     'Franchi',
     'e58815a2d289354c28c7c1ab17a247ba9a84f396fefde72eb3a929fa3a5727c1',
     '369da63ea82b00dd96daeb',
     'usr',
-    datetime()
+    datetime(),
+    date('now', '-50 years')
 ), (
-    'f1b3b3b3-aaaa-aaaa-ffff-1b3b3b3b3b3c',
+    'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee',
     'giuseppe.lombardi@gmail.com',
     'Giuseppe',
     'Lombardi',
     'e58815a2d289354c28c7c1ab17a247ba9a84f396fefde72eb3a929fa3a5727c1',
     '369da63ea82b00dd96daeb',
     'usr',
-    datetime()
+    datetime(),
+    date('now', '-45 years')
 ), (
-    'aaaaffff-aaaa-aaaa-ffff-1b3b3b3b3b3c',
+    'ffffffff-ffff-ffff-ffff-ffffffffffff',
     'simone.forlini@gmail.com',
     'Simone',
     'Forlini',
     'e58815a2d289354c28c7c1ab17a247ba9a84f396fefde72eb3a929fa3a5727c1',
     '369da63ea82b00dd96daeb',
     'adm',
-    datetime()
+    datetime(),
+    date('now', '-31 years')
+), (
+    '00000000-0000-0000-0000-000000000000',
+    'pietro.fernando@gmail.com',
+    'Pietro',
+    'Fernando',
+    'e58815a2d289354c28c7c1ab17a247ba9a84f396fefde72eb3a929fa3a5727c1',
+    '369da63ea82b00dd96daeb',
+    'usr',
+    datetime(),
+    date('now', '-18 years')
+), (
+    '11111111-1111-1111-1111-111111111111',
+    'matteo.gigo@gmail.com',
+    'Matteo',
+    'Gigo',
+    'e58815a2d289354c28c7c1ab17a247ba9a84f396fefde72eb3a929fa3a5727c1',
+    '369da63ea82b00dd96daeb',
+    'usr',
+    datetime(),
+    date('now', '-22 years')
+), (
+    '22222222-2222-2222-2222-222222222222',
+    'mattia.federico@gmail.com',
+    'Mattia',
+    'Federico',
+    'e58815a2d289354c28c7c1ab17a247ba9a84f396fefde72eb3a929fa3a5727c1',
+    '369da63ea82b00dd96daeb',
+    'usr',
+    datetime(),
+    date('now', '-60 years')
+), (
+    '33333333-3333-3333-3333-333333333333',
+    'marco.pezzali@gmail.com',
+    'Marco',
+    'Pezzali',
+    'e58815a2d289354c28c7c1ab17a247ba9a84f396fefde72eb3a929fa3a5727c1',
+    '369da63ea82b00dd96daeb',
+    'usr',
+    datetime(),
+    date('now', '-25 years')
+), (
+    '44444444-4444-4444-4444-444444444444',
+    'manu.rios@gmail.com',
+    'Manu',
+    'Rios',
+    'e58815a2d289354c28c7c1ab17a247ba9a84f396fefde72eb3a929fa3a5727c1',
+    '369da63ea82b00dd96daeb',
+    'usr',
+    datetime(),
+    date('now', '-30 years')
+), (
+    '55555555-5555-5555-5555-555555555555',
+    'alessandra.amoroso@gmail.com',
+    'Alessandra',
+    'Amoroso',
+    'e58815a2d289354c28c7c1ab17a247ba9a84f396fefde72eb3a929fa3a5727c1',
+    '369da63ea82b00dd96daeb',
+    'usr',
+    datetime(),
+    date('now', '-28 years')
 );
 
 insert into user_customer (user_id, user_role) values (
-    'f1b3b3b3-1b3b-4b3b-8b3b-1b3b3b3b3b3b',
+    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
     'usr'
 ), (
-    'f1b3b3b3-1b3b-4b3b-8b3b-1b3b3b3b3b3c',
+    'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
     'usr'
 ), (
-    'f1b3b3b3-ffff-4b3b-8b3b-1b3b3b3b3b3c',
+    'cccccccc-cccc-cccc-cccc-cccccccccccc',
     'usr'
 ), (
-    'f1b3b3b3-1b3b-ffff-aaaa-1b3b3b3b3b3c',
+    'dddddddd-dddd-dddd-dddd-dddddddddddd',
     'usr'
 ), (
-    'f1b3b3b3-aaaa-aaaa-ffff-1b3b3b3b3b3c',
+    'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee',
+    'usr'
+), (
+    '00000000-0000-0000-0000-000000000000',
+    'usr'
+), (
+    '11111111-1111-1111-1111-111111111111',
+    'usr'
+), (
+    '22222222-2222-2222-2222-222222222222',
+    'usr'
+), (
+    '33333333-3333-3333-3333-333333333333',
+    'usr'
+), (
+    '44444444-4444-4444-4444-444444444444',
+    'usr'
+), (
+    '55555555-5555-5555-5555-555555555555',
     'usr'
 );
 
 insert into user_admin (user_id, user_role) values (
-    'aaaaffff-aaaa-aaaa-ffff-1b3b3b3b3b3c',
+    'ffffffff-ffff-ffff-ffff-ffffffffffff',
     'adm'
 );
 
 insert into vote_page (id, vote_type, vote_description, title, created_by, available, option_type, compile_start_at, compile_end_at) values (
-    '685c9ebe-6e29-4149-a3d7-64a27b40f37f',
-    'public',
+    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    'anymus',
     'Votazione per verificare il supporto delle persone verso la proposta sull Eutanasia legale proposta da Marco Cappato',
     'Sei favorevole alla proposta di legge sull Eutanasia legale proposta da Marco Cappato?',
-    'f1b3b3b3-1b3b-4b3b-8b3b-1b3b3b3b3b3b',
+    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
     true,
     'single',
     datetime(datetime(), '-1 day'),
     datetime(datetime(), '+1 day')
 ), (
-    '5ff1d9ef-f37a-4c54-abe9-3688d3692976',
+    'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
     'public',
-    'Votazione per misurare il consenso dell attuale governo in carica',
-    'Supporti l operato del governo attuale?',
-    'f1b3b3b3-1b3b-4b3b-8b3b-1b3b3b3b3b3c',
-    true,
+    'Votazione per misurare il consenso dell''attuale governo in carica',
+    'Supporti l''operato del governo attuale?',
+    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    false,
     'single',
+    datetime(datetime(), '-1 day'),
+    datetime(datetime(), '+1 day')
+), (
+    'cccccccc-cccc-cccc-cccc-cccccccccccc',
+    'public',
+    'Sondaggio per capire quali esami sono stati sostenuti al terzo anno di università',
+    'Quali esami hai sostenuto al terzo anno di università?',
+    'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+    true,
+    'multiple',
     datetime(datetime(), '-1 day'),
     datetime(datetime(), '+1 day')
 );
 
 insert into vote_option (option_index, vote_page_id, option_text) values (
     0,
-    '685c9ebe-6e29-4149-a3d7-64a27b40f37f',
+    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
     'Si, sono favorevole'
 ), (
     1,
-    '685c9ebe-6e29-4149-a3d7-64a27b40f37f',
+    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
     'No, sono contrario'
 ), (
     0,
-    '5ff1d9ef-f37a-4c54-abe9-3688d3692976',
+    'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
     'Si, approvo l operato del governo'
 ), (
     1,
-    '5ff1d9ef-f37a-4c54-abe9-3688d3692976',
+    'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
     'No, non approvo l operato del governo'
+), (
+    0,
+    'cccccccc-cccc-cccc-cccc-cccccccccccc',
+    'Analisi Matematica 3'
+), (
+    1,
+    'cccccccc-cccc-cccc-cccc-cccccccccccc',
+    'Fisica 3'
+), (
+    2,
+    'cccccccc-cccc-cccc-cccc-cccccccccccc',
+    'Elettronica'
+), (
+    3,
+    'cccccccc-cccc-cccc-cccc-cccccccccccc',
+    'Sistemi Operativi'
+), (
+    4,
+    'cccccccc-cccc-cccc-cccc-cccccccccccc',
+    'Inglese'
+), (
+    5,
+    'cccccccc-cccc-cccc-cccc-cccccccccccc',
+    'Sistemi Distribuiti'
+), (
+    6,
+    'cccccccc-cccc-cccc-cccc-cccccccccccc',
+    'Reti di Calcolatori'
+), (
+    7,
+    'cccccccc-cccc-cccc-cccc-cccccccccccc',
+    'Sistemi di Basi di Dati I'
+), (
+    8,
+    'cccccccc-cccc-cccc-cccc-cccccccccccc',
+    'Sistemi di Basi di Dati II'
+), (
+    9,
+    'cccccccc-cccc-cccc-cccc-cccccccccccc',
+    'Analisi Numerica'
+);
+
+insert into vote (vote_page_id, vote_type, vote_option_index, created_by) values (
+    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    'anymus',
+    0,
+    null
+), (
+    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    'anymus',
+    1,
+    null
+), (
+    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    'anymus',
+    0,
+    null
+), (
+    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    'anymus',
+    1,
+    null
+), (
+    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    'anymus',
+    0,
+    null
+), (
+    'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+    'public',
+    0,
+    '00000000-0000-0000-0000-000000000000'
+), (
+    'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+    'public',
+    1,
+    'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
+), (
+    'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+    'public',
+    0,
+    'cccccccc-cccc-cccc-cccc-cccccccccccc'
+), (
+    'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+    'public',
+    1,
+    'dddddddd-dddd-dddd-dddd-dddddddddddd'
+), (
+    'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+    'public',
+    0,
+    'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee'
+), (
+    'cccccccc-cccc-cccc-cccc-cccccccccccc',
+    'public',
+    0,
+    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+), (
+    'cccccccc-cccc-cccc-cccc-cccccccccccc',
+    'public',
+    1,
+    'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee'
+), (
+    'cccccccc-cccc-cccc-cccc-cccccccccccc',
+    'public',
+    2,
+    'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee'
+), (
+    'cccccccc-cccc-cccc-cccc-cccccccccccc',
+    'public',
+    3,
+    'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee'
+), (
+    'cccccccc-cccc-cccc-cccc-cccccccccccc',
+    'public',
+    4,
+    'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee'
 );
 
 insert into voter (vote_page_id, voter_id, created_at) values (
-    '685c9ebe-6e29-4149-a3d7-64a27b40f37f',
-    'f1b3b3b3-ffff-4b3b-8b3b-1b3b3b3b3b3c',
+    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
     datetime()
 ), (
-    '685c9ebe-6e29-4149-a3d7-64a27b40f37f',
-    'f1b3b3b3-1b3b-ffff-aaaa-1b3b3b3b3b3c',
+    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    'cccccccc-cccc-cccc-cccc-cccccccccccc',
     datetime()
 ), (
-    '5ff1d9ef-f37a-4c54-abe9-3688d3692976',
-    'f1b3b3b3-ffff-4b3b-8b3b-1b3b3b3b3b3c',
+    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    'dddddddd-dddd-dddd-dddd-dddddddddddd',
     datetime()
 ), (
-    '5ff1d9ef-f37a-4c54-abe9-3688d3692976',
-    'f1b3b3b3-1b3b-ffff-aaaa-1b3b3b3b3b3c',
+    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee',
     datetime()
 ), (
-    '5ff1d9ef-f37a-4c54-abe9-3688d3692976',
-    'f1b3b3b3-aaaa-aaaa-ffff-1b3b3b3b3b3c',
+    'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+    'cccccccc-cccc-cccc-cccc-cccccccccccc',
     datetime()
+), (
+    'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+    'dddddddd-dddd-dddd-dddd-dddddddddddd',
+    datetime()
+), (
+    'cccccccc-cccc-cccc-cccc-cccccccccccc',
+    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    datetime()
+), (
+    'cccccccc-cccc-cccc-cccc-cccccccccccc',
+    'cccccccc-cccc-cccc-cccc-cccccccccccc',
+    datetime()
+), (
+    'cccccccc-cccc-cccc-cccc-cccccccccccc',
+    'dddddddd-dddd-dddd-dddd-dddddddddddd',
+    datetime()
+), (
+    'cccccccc-cccc-cccc-cccc-cccccccccccc',
+    'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee',
+    datetime()
+);
+
+insert into report (vote_page_id, report_text, created_at, created_by) values (
+    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    'Il voto non è stato condotto in modo corretto',
+    datetime(),
+    '00000000-0000-0000-0000-000000000000'
+), (
+    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    'Il tema in oggetto è troppo delicato per essere trattato in questo modo',
+    datetime(),
+    '11111111-1111-1111-1111-111111111111'
 );
 

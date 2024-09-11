@@ -210,7 +210,7 @@
 <div class="report-box" id="report-box">
     <form action="/poll/report" method="POST">
         <label for="report">Motivo della segnalazione</label>
-        <textarea name="report" placeholder="Contenuto della segnalazione" required></textarea>
+        <textarea name="report" id="report" placeholder="Contenuto della segnalazione" required></textarea>
         <input type="hidden" name="poll_id" value="<%- (typeof id !== 'undefined') ? id : '' %>">
         <button type="submit" class="btn btn-danger">Invia</button>
     </form>

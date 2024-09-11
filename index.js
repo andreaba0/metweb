@@ -12,9 +12,10 @@ const {Database} = require('./db_store')
 const {parseJwt, JwtBadToken} = require('./jwt_utility')
 const {CustomDate} = require('./date')
 const {pollSanitizer} = require('./middleware/poll_sanitizer')
-const { pollCompile, createPollCompilation, myPolls, getCreatePoll, postCreatePoll, postReport } = require('./modules/poll')
+const { pollCompile, createPollCompilation, myPolls, getCreatePoll, postCreatePoll, postReport, deletePoll, getVoters } = require('./modules/poll')
 const { FrontendError } = require('./utility/error')
 const { pollList } = require('./modules/poll_list')
+const { getReportList } = require('./modules/report')
 
 app.set('view engine', 'ejs')
 app.use('/static', express.static(__dirname + '/static'))
@@ -34,7 +35,7 @@ app.get('/signup', (req, res) => {
     res.sendFile(__dirname + '/views/signup.html')
 })
 
-app.get('/profile', authenticate, authorize('*'), (req, res) => {
+app.get('/profile', authenticate, renewExpired, authorize('*'), (req, res) => {
     res.status(200).render('profile', {
         title: 'Il tuo profilo',
         role: req.user.role,
@@ -42,15 +43,9 @@ app.get('/profile', authenticate, authorize('*'), (req, res) => {
     })
 })
 
-app.get('/report/list', authenticate, authorize('admin'), async (req, res) => {
-    res.status(200).render('poll/report', {
-        title: 'Lista segnalazioni',
-        role: req.user.role,
-        path_active: 'report_list'
-    })
-})
+app.get('/report/list', authenticate, renewExpired, authorize('admin'), getReportList)
 
-app.get('/user/list', authenticate, authorize('admin'), async (req, res) => {
+app.get('/user/list', authenticate, renewExpired, authorize('admin'), async (req, res) => {
     res.status(200).render('users', {
         title: 'Lista utenti',
         role: req.user.role,
@@ -121,9 +116,9 @@ app.get('/confirm', (req, res) => {
     res.sendFile(__dirname + '/views/confirm.html')
 })
 
-app.get('/poll/compile/:id', authenticate, authorize('user'), pollCompile)
-app.post('/poll/compile', authenticate, authorize('user'), createPollCompilation)
-app.post('/poll/report', authenticate, authorize('user'), postReport)
+app.get('/poll/compile/:id', authenticate, renewExpired, authorize('user'), pollCompile)
+app.post('/poll/compile', authenticate, renewExpired, authorize('user'), createPollCompilation)
+app.post('/poll/report', authenticate, renewExpired, authorize('user'), postReport)
 
 app.get('/signin', (req, res) => {
     res.sendFile(__dirname + '/views/signin.html')
@@ -182,7 +177,11 @@ app.post('/signin', async (req, res) => {
         maxAge: 30 * 24 * 60 * 60 * 1000
     })
     //res.redirect(302, '/')
-    res.status(200).send('Authenticated')
+    res.status(200).render('profile', {
+        title: 'Il tuo profilo',
+        role: user.user_role,
+        path_active: 'profile'
+    })
 })
 
 app.get('/inbox', async (req, res) => {
@@ -216,14 +215,17 @@ app.get('/about', (req, res) => {
     res.sendFile(__dirname + '/views/about.html')
 })
 
-app.get('/poll/create/:uuid', authenticate, authorize('user'), getCreatePoll)
+app.get('/poll/create/:uuid', authenticate, renewExpired, authorize('user'), getCreatePoll)
 
 app.post('/poll/create/:uuid', authenticate, renewExpired, authorize('user'), pollSanitizer, postCreatePoll)
+app.delete('/poll/delete/:id', authenticate, renewExpired, authorize('user'), deletePoll)
 
-app.get('/poll/create', authenticate, authorize('user'), async (req, res) => {
+app.get('/poll/create', authenticate, renewExpired, authorize('user'), async (req, res) => {
     const uuid = uuidv4()
     res.redirect(302, `/poll/create/${uuid}`)
 })
+
+app.get('/poll/voters/:id', authenticate, renewExpired, authorize('user'), getVoters)
 
 app.get('/signup/confirm/:token', (req, res) => {
     const token = req.params.token
@@ -315,14 +317,14 @@ app.post('/signup/confirm', async (req, res) => {
 
 app.post('/logout', authenticate, (req, res) => {
     res.clearCookie('token')
-    res.status(200).send('Logged out')
+    res.status(200).sendFile(__dirname + '/views/signin.html')
 })
 
-app.get('/my-polls', authenticate, authorize('user'), myPolls)
+app.get('/my-polls', authenticate, renewExpired, authorize('user'), myPolls)
 
 app.get('/polls', pollList)
 
-app.get('/poll/:uuid', authenticate, authorize('*'), (req, res) => {
+app.get('/poll/:uuid', authenticate, renewExpired, authorize('*'), (req, res) => {
     res.sendStatus(204)
 })
 

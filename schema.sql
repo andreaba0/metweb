@@ -11,6 +11,7 @@ create table user_account (
     created_at timestamptz not null default current_timestamp,
     user_role varchar(3) not null check (user_role = 'adm' or user_role = 'usr') default 'usr',
     account_barrier timestamptz not null default current_timestamp,
+    date_of_birth date not null,
     unique (id, user_role)
 );
 
@@ -57,10 +58,13 @@ create table vote_page (
     option_type varchar(6) not null check (option_type = 'single' or option_type = 'multiple') default 'single',
     compile_start_at timestamp not null,
     compile_end_at timestamp not null,
+    public_stats boolean not null default false,
 
     /* A json object with the filter restrictions imposed on the vote */
     restrict_filter jsonb not null default '{}',
-    unique (id, option_type)
+
+    /* Enforce vote to be anonymous or public */
+    unique (id, vote_type)
 );
 
 create table vote_option (
@@ -69,24 +73,25 @@ create table vote_option (
     option_text text not null,
     created_at timestamp not null default current_timestamp,
     primary key (option_index, vote_page_id),
-    check (option_index >= 0),
-    unique (option_index, vote_page_id)
+    check (option_index >= 0)
 );
 
 create table vote (
+    vote_id integer primary key autoincrement,
     vote_page_id varchar(36) not null references vote_page(id),
-    vote_type varchar(6) not null,
+    vote_type varchar(6) not null check (vote_type = 'anymus' or vote_type = 'public'),
     vote_option_index smallint not null,
     created_at timestamp not null default current_timestamp,
-
-    /* This check constraint is to ensure that the voter is hidden if the vote is anymus */
     created_by varchar(36) null references user_customer(user_id),
-    check ((created_by is null and vote_type = 'anymus') or (created_by is not null and vote_type = 'public')),
     
+
     check (vote_option_index >= 0),
-    primary key (vote_page_id, created_by, vote_option_index),
-    foreign key (vote_page_id, vote_option_index) references vote_option(option_index, vote_page_id) on delete cascade,
-    foreign key (vote_page_id, vote_type) references vote_page(id, option_type) on delete no action
+    foreign key (vote_page_id, vote_option_index) references vote_option(vote_page_id, option_index) on delete cascade,
+    
+    /* Enforce vote to be anonymous with created_by = null or public with created_by = not null */
+    /* and reference vote_page to enforce the same vote_type */
+    check ((created_by is null and vote_type = 'anymus') or (created_by is not null and vote_type = 'public')),
+    foreign key (vote_page_id, vote_type) references vote_page(id, vote_type) on delete cascade
 );
 
 /* This table is required to be able to check if a user has voted on a specific poll */
@@ -103,6 +108,7 @@ create table report (
     vote_page_id varchar(36) not null references vote_page(id) on delete cascade,
     report_text text not null,
     created_at timestamp not null default current_timestamp,
+    approved varchar(1) not null check (approved = 'y' or approved = 'n' or approved = 'p') default 'p',
     created_by varchar(36) not null references user_customer(user_id),
     primary key (vote_page_id, created_by)
 );

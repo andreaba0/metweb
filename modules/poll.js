@@ -5,7 +5,19 @@ const {CustomDate} = require('../date.js')
 const {v4: uuidv4, validate: isValidUUID} = require('uuid')
 
 async function myPolls(req, res) {
-    const query = 'SELECT id, title, vote_description, compile_start_at, compile_end_at, available from vote_page where created_by = ?'
+    const query = `
+        SELECT 
+            id, 
+            title, 
+            vote_description, 
+            compile_start_at, 
+            compile_end_at, 
+            available,
+            (select count(voter.voter_id) from voter where voter.vote_page_id = vote_page.id) as total_voter
+        from 
+            vote_page 
+        where 
+            created_by = ?`
     const [err, result] = await Database.query(query, [req.user.id])
     if (err) {
         res.status(500).send('Service temporarily unavailable')
@@ -35,7 +47,8 @@ async function myPolls(req, res) {
             start_date: start_date,
             end_date: end_date,
             status: status,
-            available: poll.available
+            available: poll.available,
+            total_voter: poll.total_voter
         })
     }
     console.log(polls)
@@ -79,7 +92,8 @@ async function pollCompile(req, res) {
     console.log(result1)
     const poll_page = result1[0]
     if (poll_page.reported == 1) {
-        res.status(403).send('This poll has been reported by you, so you cannot compile it')
+        const err = new FrontendError(403, 'You cannot compile a poll you reported')
+        err.render(res)
         return
     }
     if (poll_page.voted == 1) {
@@ -91,14 +105,21 @@ async function pollCompile(req, res) {
         return
     }
     if (poll_page.available == false) {
-        res.status(403).send('This poll has been suspended')
+        const err = new FrontendError(403, 'This poll has been suspended')
+        err.render(res)
         return
     }
     const validFrom = CustomDate.from_UTC_timestamp(poll_page.compile_start_at).getTime()
     const validTo = CustomDate.from_UTC_timestamp(poll_page.compile_end_at).getTime()
     const now = new Date().getTime()
-    if (now < validFrom || now > validTo) {
-        res.status(403).send('Poll is not available at the moment')
+    if (now < validFrom) {
+        const err = new FrontendError(403, 'Poll is not yet available')
+        err.render(res)
+        return
+    }
+    if (now > validTo) {
+        const err = new FrontendError(403, 'Poll is no longer available')
+        err.render(res)
         return
     }
     query = `SELECT option_index, option_text FROM vote_option WHERE vote_page_id = ? ORDER BY option_index ASC`
@@ -257,7 +278,8 @@ async function getCreatePoll(req, res) {
     }
     res.render('poll/create', {
         id: uuid,
-        path_active: 'create_poll'
+        path_active: 'create_poll',
+        role: req.user.role
     })
 }
 
@@ -338,11 +360,130 @@ async function postReport(req, res) {
     res.status(204).send('Reported')
 }
 
+async function deletePoll(req, res) {
+    const poll_id = req.params.id
+    const user_id = req.user.id
+    if (!isValidUUID(poll_id)) {
+        res.status(400).send('Invalid request')
+        return
+    }
+
+    const query = `
+        DELETE FROM vote_page WHERE id = ? AND created_by = ?
+    `
+    const [err, result] = await Database.query(query, [poll_id, user_id])
+    if (err) {
+        console.log(err)
+        res.status(500).send('Service temporarily unavailable')
+        return
+    }
+    res.status(204).send('Deleted')
+}
+
+async function getVoters(req, res) {
+    const poll_id = req.params.id
+    const poll_data_sql = `
+        select
+            vote_type,
+            available
+        from
+            vote_page
+        where
+            id = ?
+    `
+    var [err, result] = await Database.query(poll_data_sql, [poll_id])
+    if (err) {
+        const page = new FrontendError(500, 'Database error')
+        page.render(res)
+        return
+    }
+    if (result.length == 0) {
+        const page = new FrontendError(404, 'Poll not found')
+        page.render(res)
+        return
+    }
+    const poll_data = result[0]
+    const sql = `
+        select
+            vote.vote_page_id as poll_id,
+            option_text as answer,
+            coalesce(user_account.first_name, '') as first_name,
+            coalesce(user_account.last_name, '') as last_name,
+            created_by
+        from
+            vote 
+                inner join 
+            vote_option 
+                on 
+                    vote.vote_option_index = vote_option.option_index and 
+                    vote.vote_page_id = vote_option.vote_page_id
+                left join
+            user_account
+                on
+                    vote.created_by = user_account.id
+        where
+            vote.vote_page_id = ?
+    `
+    var [err, result] = await Database.query(sql, [poll_id])
+    if (err) {
+        console.log(err)
+        const page = new FrontendError(500, 'Database error')
+        page.render(res)
+        return
+    }
+    var votes = []
+    var voters = {}
+    console.log(result)
+    for (var i = 0; i < result.length; i++) {
+        if (poll_data.vote_type == 'anymus') {
+            votes.push({
+                poll_id: result[i].poll_id,
+                answer: [result[i].answer],
+                created_by: 'anonymous'
+            })
+            continue
+        }
+        if (poll_data.vote_type == 'public') {
+            if (voters[result[i].created_by] == null) {
+                voters[result[i].created_by] = {
+                    first_name: result[i].first_name,
+                    last_name: result[i].last_name,
+                    answers: []
+                }
+            }
+            voters[result[i].created_by].answers.push(result[i].answer)
+        }
+    }
+    if (poll_data.vote_type == 'public') {
+        for (var key in voters) {
+            votes.push({
+                poll_id: poll_id,
+                created_by: key,
+                first_name: (voters[key].first_name == '') ? 'anonymous' : voters[key].first_name,
+                last_name: (voters[key].last_name == '') ? 'anonymous' : voters[key].last_name,
+                answers: voters[key].answers
+            })
+        }
+    }
+    console.log(result)
+    console.log(voters)
+    console.log(votes)
+    res.status(200).render('poll/voters', {
+        title: 'Voters',
+        path_active: 'voters',
+        role: req.user.role,
+        votes: votes,
+        vote_type: poll_data.vote_type
+    })
+}
+
 module.exports = {
     myPolls: myPolls,
     pollCompile: pollCompile,
     createPollCompilation: createPollCompilation,
     getCreatePoll: getCreatePoll,
     postCreatePoll: postCreatePoll,
-    postReport: postReport
+    postReport: postReport,
+    deletePoll: deletePoll,
+    getVoters: getVoters
 }

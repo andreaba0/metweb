@@ -1,20 +1,13 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-    <title>
-
-    </title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-    <link rel="stylesheet" type="text/css" href="/static/common/style.css" />
-
-    <script src="https://kit.fontawesome.com/49ec009d21.js" crossorigin="anonymous"></script>
-</head>
-
-<body>
-    <%- include('../partials/menu.ejs') %>
+    <head>
+        <title>
+            <%= title %>
+        </title>
+        <%- include('../partials/common_head.ejs') %>
+    </head>
+    <body>
+        <%- include('../partials/menu.ejs') %>
 
         <style type="text/css">
 
@@ -175,54 +168,15 @@
         </style>
 
         <div class="body">
-            <h1>Lista dei sondaggi</h1>
-            <% if (polls.length > 0) { %>
-                <% polls.forEach(function(poll) { %>
-                    <div class="poll" id="<%= 'poll-' + poll.id %>">
-                        <h2><%= poll.title %></h2>
-                        <div class="description"><%= poll.description %></div>
-                        <div class="total_voter">voti attuali: <%= poll.total_voter %></div>
-                        <div class="action">
-                            <div class="container-a">
-                                <div class="a">
-                                    <a href="/poll/stats/<%= poll.id %>">
-                                        <i class="fa-solid fa-edit"></i>
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="container-a">
-                                <div class="a">
-                                    <a href="/poll/voters/<%= poll.id %>">
-                                        <i class="fa-solid fa-users"></i>
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="container-d">
-                                <div class="d" onclick="deletePoll('<%= poll.id %>')">
-                                    <i class="fa-solid fa-trash"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                <% }); %>
-            <% } else { %>
-                <p>Non ci sono sondaggi</p>
-            <% } %>
+            <h1>Lista votanti</h1>
+
+            <div class="poll">
+                <h2>
+                    Giuseppe Lombardi
+                </h2>
+            </div>
         </div>
 
-        <script type="text/javascript">
-            function deletePoll(id) {
-                fetch('/poll/delete/' + id, {
-                    method: 'DELETE'
-                }).then(function(response) {
-                    if(!response.ok) {
-                        alert('Errore durante l\'eliminazione del sondaggio');
-                        return
-                    }
-                    document.getElementById('poll-' + id).remove();
-                });
-            }
-        </script>
-</body>
 
+    </body>
 </html>
