@@ -8,10 +8,16 @@ describe('JwtUtility', () => {
     })
 
     it('should return parsed token if token is valid', () => {
-        const token = 'header.payload.signature'
+        const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
         const parsed = parseJwt(token)
-        expect(parsed.header).toBe('header')
-        expect(parsed.payload).toBe('payload')
-        expect(parsed.signature).toBe('signature')
+        expect(JSON.stringify(parsed.header)).toBe(JSON.stringify({
+            "alg": "HS256",
+            "typ": "JWT"
+          }))
+        expect(JSON.stringify(parsed.payload)).toBe(JSON.stringify({
+            "sub": "1234567890",
+            "name": "John Doe",
+            "iat": 1516239022
+          }))
     })
 })

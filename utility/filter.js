@@ -21,8 +21,19 @@ class Filter {
             filterRegex += '[a-zA-Z0-9.]+';
         }
         let domainHierarchy = domain.split('.');
+        if(domain[0]==='*') {
+            domainHierarchy.shift();
+        }
         domainHierarchy.forEach((domain) => {
-            filterRegex += '.';
+            if(domain==='*') {
+                throw new Error('Invalid domain format');
+            }
+            if(filterRegex!=='^') {
+                filterRegex += '.';
+            }
+            if(!domain.match(/^[a-zA-Z0-9]+$/)) {
+                throw new Error('Invalid domain string');
+            }
             filterRegex += domain;
         })
         filterRegex += '$';
