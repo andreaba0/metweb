@@ -13,13 +13,14 @@ async function myPolls(req, res) {
             compile_start_at, 
             compile_end_at, 
             available,
-            (select count(voter.voter_id) from voter where voter.vote_page_id = vote_page.id) as total_voter
+            (select count(distinct voter.voter_id) from voter where voter.vote_page_id = vote_page.id) as total_voter
         from 
             vote_page 
         where 
             created_by = ?`
     const [err, result] = await Database.query(query, [req.user.id])
     if (err) {
+        console.log(err)
         res.status(500).send('Service temporarily unavailable')
         return
     }

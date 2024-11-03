@@ -83,6 +83,7 @@ create table vote (
     vote_option_index smallint not null,
     created_at timestamp not null default current_timestamp,
     created_by varchar(36) null references user_customer(user_id),
+    user_group varchar(36) not null, /* A random value to group a set of answers for each user, especially if the user is anonymous */
     
 
     check (vote_option_index >= 0),
@@ -91,7 +92,8 @@ create table vote (
     /* Enforce vote to be anonymous with created_by = null or public with created_by = not null */
     /* and reference vote_page to enforce the same vote_type */
     check ((created_by is null and vote_type = 'anymus') or (created_by is not null and vote_type = 'public')),
-    foreign key (vote_page_id, vote_type) references vote_page(id, vote_type) on delete cascade
+    foreign key (vote_page_id, vote_type) references vote_page(id, vote_type) on delete cascade,
+    unique (vote_page_id, user_group, vote_option_index)
 );
 
 /* This table is required to be able to check if a user has voted on a specific poll */

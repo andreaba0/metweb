@@ -381,81 +381,96 @@ insert into vote_option (option_index, vote_page_id, option_text) values (
     'Analisi Numerica'
 );
 
-insert into vote (vote_page_id, vote_type, vote_option_index, created_by) values (
+insert into vote (vote_page_id, vote_type, vote_option_index, created_by, user_group) values (
     'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
     'anymus',
     0,
-    null
-), (
-    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-    'anymus',
-    1,
-    null
-), (
-    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-    'anymus',
-    0,
-    null
+    null,
+    '203ab347-119b-4396-9334-4abf64c38a62'
 ), (
     'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
     'anymus',
     1,
-    null
+    null,
+    'b0e0ba73-1aa2-477c-9ed0-73fc05593a9d'
 ), (
     'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
     'anymus',
     0,
-    null
+    null,
+    '85f97aad-eb7b-4e92-a2bf-11ea2eab8882'
+), (
+    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    'anymus',
+    1,
+    null,
+    '81679e93-3210-4f38-960c-0888bbcd8232'
+), (
+    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    'anymus',
+    0,
+    null,
+    '20675258-dcae-4573-b1cd-b9720de5159b'
 ), (
     'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
     'public',
     0,
-    '00000000-0000-0000-0000-000000000000'
+    '00000000-0000-0000-0000-000000000000',
+    '132f2655-f689-4485-857f-f954f1b9540b'
 ), (
     'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
     'public',
     1,
-    'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
+    'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+    '5579bfbf-2f79-449b-95ed-1c92986d36d7'
 ), (
     'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
     'public',
     0,
-    'cccccccc-cccc-cccc-cccc-cccccccccccc'
+    'cccccccc-cccc-cccc-cccc-cccccccccccc',
+    'cbd59f2e-556d-4bf2-8c21-90cd6c3a7014'
 ), (
     'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
     'public',
     1,
-    'dddddddd-dddd-dddd-dddd-dddddddddddd'
+    'dddddddd-dddd-dddd-dddd-dddddddddddd',
+    '8b2d4900-7af2-4aeb-b921-93abe2e22dda'
 ), (
     'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
     'public',
     0,
-    'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee'
+    'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee',
+    '8b516f51-b183-4249-b7e6-b6a8bd4b7228'
 ), (
     'cccccccc-cccc-cccc-cccc-cccccccccccc',
     'public',
     0,
-    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    '2eb27e08-e3ce-49ec-b917-c8657d880279'
 ), (
     'cccccccc-cccc-cccc-cccc-cccccccccccc',
     'public',
     1,
-    'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee'
+    'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee',
+    '28459784-5cd6-488b-86c0-2ef373b8d2df'
 ), (
     'cccccccc-cccc-cccc-cccc-cccccccccccc',
     'public',
     2,
-    'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee'
+    'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee',
+    '28459784-5cd6-488b-86c0-2ef373b8d2df'
 ), (
     'cccccccc-cccc-cccc-cccc-cccccccccccc',
     'public',
     3,
-    'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee'
+    'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee',
+    '28459784-5cd6-488b-86c0-2ef373b8d2df'
 ), (
     'cccccccc-cccc-cccc-cccc-cccccccccccc',
     'public',
     4,
-    'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee'
+    'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee',
+    '28459784-5cd6-488b-86c0-2ef373b8d2df'
 );
 
 insert into voter (vote_page_id, voter_id, created_at) values (
@@ -485,14 +500,6 @@ insert into voter (vote_page_id, voter_id, created_at) values (
 ), (
     'cccccccc-cccc-cccc-cccc-cccccccccccc',
     'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-    datetime()
-), (
-    'cccccccc-cccc-cccc-cccc-cccccccccccc',
-    'cccccccc-cccc-cccc-cccc-cccccccccccc',
-    datetime()
-), (
-    'cccccccc-cccc-cccc-cccc-cccccccccccc',
-    'dddddddd-dddd-dddd-dddd-dddddddddddd',
     datetime()
 ), (
     'cccccccc-cccc-cccc-cccc-cccccccccccc',
