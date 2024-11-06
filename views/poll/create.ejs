@@ -38,14 +38,21 @@
                 gap: 10px;
             }
 
-            form .form-group {
+            form .form-group, form .form-group-checkbox {
                 width: 100%;
                 display: flex;
                 flex-direction: row;
-                justify-content: center;
-                align-items: center;
                 gap: 10px;
                 height: auto;
+            }
+
+            form .form-group {
+                justify-content: center;
+            }
+
+            form .form-group-checkbox {
+                justify-content: flex-start;
+                padding-left: 20px;
             }
 
             form .form-submit {
@@ -66,6 +73,7 @@
                 align-items: center;
                 gap: 10px;
             }
+
             form .datetime-group input {
                 width: 50%;
             }
@@ -108,6 +116,10 @@
                 text-align: center;
             }
 
+            form input[type="checkbox"] {
+                zoom: 1.5;
+            }
+
             button.manage_questions {
                 background-color: var(--black-color);
                 color: var(--gray-color);
@@ -127,11 +139,16 @@
                 gap: 10px;
                 width: 100%;
             }
-            
+
             div.option_container label.option_number {
                 font-weight: var(--text-bold);
                 font-size: var(--text-size-m);
                 color: var(--black-color);
+            }
+
+            label input[type="checkbox"] {
+                zoom: 1.5;
+                vertical-align: middle;
             }
 
             div.option-group {
@@ -147,11 +164,11 @@
         <div class="body">
             <form action="/poll/create/<%= id %>" method="POST">
                 <div class="form-group">
-                    <textarea id="title" name="title" placeholder="Testo della domanda"></textarea>
+                    <textarea id="title" name="title" placeholder="Testo della domanda"><%= (typeof old !== 'undefined' && old.title) ? old.title : '' %></textarea>
                 </div>
                 <div class="form-group">
                     <textarea id="description" name="description"
-                        placeholder="Descrizione a scopo informativo"></textarea>
+                        placeholder="Descrizione a scopo informativo"><%= (typeof old !== 'undefined' && old.description) ? old.description : '' %></textarea>
                 </div>
                 <div class="option-group" id="option_list">
                     <div class="option_container" id="option_container_1">
@@ -159,21 +176,22 @@
                         <textarea id="option_1" name="option_1" placeholder="Testo della risposta"></textarea>
                     </div>
                 </div>
-                <div class="form-group" id="option_list">
-                    <div>
-                        <input type="checkbox" id="multiple" name="multiple_choice" />
-                        <label for="multiple">Abilita risposte multiple</label>
-                    </div>
+                <div class="form-group-checkbox" id="option_list">
+                    <label for="multiple"><input type="checkbox" id="multiple" name="multiple_choice" <% if (typeof old !== 'undefined' && old.multiple_choice) { %>checked<% } %> />
+                    Abilita risposte multiple </label>
                 </div>
-                <div class="form-group" id="option_list">
-                    <div>
-                        <input type="checkbox" id="anonymous" name="anonymous_compilation" />
-                        <label for="anonymous">Abilita risposte anonime</label>
-                    </div>
+                <div class="form-group-checkbox" id="option_list">
+                    <label for="anonymous"><input type="checkbox" id="anonymous" name="anonymous_compilation" <% if (typeof old !== 'undefined' &&old.anonymous_compilation) { %>checked<% } %> />
+                        risposte anonime</label>
+                </div>
+                <div class="form-group-checkbox" id="adult_restrict">
+                    <label for="adult"><input type="checkbox" id="adult" name="adult_only" <% if (typeof old !== 'undefined' && old.adult_only) { %>checked<% } %> />
+                        Abilita compilazione per soli
+                        maggiorenni</label>
                 </div>
                 <div class="form-group" id="option_list">
                     <textarea id="domain_filter" name="domain_filter"
-                        placeholder="Restringi compilazione per domain email"></textarea>
+                        placeholder="Restringi compilazione per domain email"><%= (typeof old !== 'undefined' && old.domain_filter) ? old.domain_filter : '' %></textarea>
                 </div>
                 <div class="datetime-group">
                     <input type="date" name="start_date" id="date-start" placeholder="Valido dal:" />

@@ -1,4 +1,4 @@
-const {CustomDate} = require('../date')
+const {CustomDate} = require('../utility/date')
 
 function pollSanitizer(req, res, next) {
   const body = req.body

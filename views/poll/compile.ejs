@@ -152,7 +152,7 @@
             <div class="compile-title">
                 <%= description %>
             </div>
-            <form method="POST" action="/poll/compile">
+            <form method="POST">
                 <input type="hidden" name="poll_id" value="<%= id %>" />
                 <% for (let i=0; i < options.length; i++) { %>
                     <div class="compile-answer" id="box-<%= i %>">

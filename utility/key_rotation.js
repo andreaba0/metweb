@@ -17,6 +17,7 @@ class KeySchema {
     }
 
     get signing() {
+        // [<old key>, <current key>, <future key>]
         return this.#keys[1]
     }
 

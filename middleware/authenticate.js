@@ -1,7 +1,7 @@
-const {parseJwt, JwtBadToken} = require('../jwt_utility')
-const {Cache, CacheHit, CacheMiss, CacheError, CacheEmpty, SharedCache} = require('../cache')
-const {Database} = require('../db_store')
-const {KeyManager, KeySchema, KeyManagerError} = require('../key_rotation')
+const {parseJwt, JwtBadToken} = require('../utility/jwt_utility')
+const {Cache, CacheHit, CacheMiss, CacheError, CacheEmpty, SharedCache} = require('../utility/cache')
+const {Database} = require('../utility/db_store')
+const {KeyManager, KeySchema, KeyManagerError} = require('../utility/key_rotation')
 require('dotenv').config()
 
 async function renew_expired_token(req, res, next) {

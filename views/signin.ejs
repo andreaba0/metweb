@@ -8,9 +8,21 @@
 
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-    <link rel="stylesheet" type="text/css" href="/static/common/style.css" />
     <link rel="stylesheet" type="text/css" href="/static/signin/style.css" />
+
+    <%- include('./partials/common_head.ejs') %>
+
+    <style type="text/css">
+        .error {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 20px 10px;
+            background: var(--red-color);
+            color: var(--gray-color);
+        }
+    </style>
 </head>
 
 <body>
@@ -22,7 +34,7 @@
         <form method="POST" action="/signin">
             <div>
                 <label for="email">Email</label>
-                <input type="email" placeholder="La tua email" id="email" name="email" />
+                <input type="email" placeholder="La tua email" id="email" name="email" value="<%= typeof old !== 'undefined' ? old.email : '' %>" />
             </div>
             <div>
                 <label for="password">Password</label>
@@ -31,6 +43,11 @@
             <div>
                 <button type="submit">Accedi</button>
             </div>
+            <% if (typeof error !== 'undefined') { %>
+            <div class="error">
+                <%= error %>
+            </div>
+            <% } %>
         </form>
     </div>
 </body>

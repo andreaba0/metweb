@@ -5,10 +5,35 @@
             <%= title %>
         </title>
 
+        <style type="text/css">
+
+        </style>
+
         <%- include('./partials/common_head.ejs') %>
     </head>
     <body>
         <%- include('./partials/menu.ejs') %>
-        
+        <div>
+            <form method="PATCH" action="/profile">
+                <label for="name">Nome</label>
+                <input type="text" name="first_name" value="<%= user.first_name %>">
+                <label for="surname">Cognome</label>
+                <input type="text" name="last_name" value="<%= user.last_name %>">
+                <label for="email">Email</label>
+                <input type="email" name="email" value="<%= user.email %>">
+                <label for="password">Password</label>
+                <input type="password" name="password">
+                <label for="password_confirmation">Password Confirmation</label>
+                <input type="password" name="password_confirmation">
+                <button type="submit">Update</button>
+            </form>
+            <form method="PATCH" action="/sessions/clear">
+                <input type="checkbox" name="keep_current" value="true">
+                <label for="keep_current">Mantieni attiva questa sessione</label>
+                <button type="submit">Disconnetti tutte le sessioni attive</button>
+            </form>
+            <div>
+            </div>
+        </div>
     </body>
 </html>
