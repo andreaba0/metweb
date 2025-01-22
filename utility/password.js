@@ -1,7 +1,8 @@
 const crypto = require('crypto')
 
 function calculate_hash(password, salt) {
-    return crypto.pbkdf2Sync(password, salt, 100000, 32, 'sha256').toString('hex')
+    const res = crypto.pbkdf2Sync(password, salt, 100000, 32, 'sha256').toString('hex')
+    return res
 }
 
 function create_salt() {

@@ -2,6 +2,7 @@ const {parseJwt, JwtBadToken} = require('../utility/jwt_utility')
 const {Cache, CacheHit, CacheMiss, CacheError, CacheEmpty, SharedCache} = require('../utility/cache')
 const {Database} = require('../utility/db_store')
 const {KeyManager, KeySchema, KeyManagerError} = require('../utility/key_rotation')
+const {calculate_hash} = require('../utility/password')
 require('dotenv').config()
 
 async function renew_expired_token(req, res, next) {
@@ -148,8 +149,68 @@ function authorize(role) {
     }
 }
 
+function localStrategy(email, password, done) {
+    const query = 'SELECT id, hashed_password, password_salt FROM user_account WHERE email = ?'
+    Database.query(query, [email])
+    .then(([err, rows]) => {
+        if (err) {
+            done(err)
+            return
+        }
+        if (rows.length == 0) {
+            done(null, false)
+            return
+        }
+        const user = rows[0]
+        const salt = user.password_salt
+        const hashed_password = calculate_hash(password, salt)
+        if (hashed_password != user.hashed_password) {
+            done(null, false)
+            return
+        }
+        done(null, {
+            id: user.id
+        })
+    })
+    .catch(err => {
+        done(err)
+    })
+}
+
+function serializeUser(user, done) {
+    done(null, user.id)
+}
+
+function deserializeUser(id, done) {
+    const query = 'SELECT id, first_name, last_name, user_role FROM user_account WHERE id = ?'
+    Database.query(query, [id])
+    .then(([err, rows]) => {
+        if (err) {
+            done(err)
+            return
+        }
+        if (rows.length == 0) {
+            done(null, false)
+            return
+        }
+        const user = rows[0]
+        done(null, {
+            id: user.id,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            role: user.user_role
+        })
+    })
+    .catch(err => {
+        done(err)
+    })
+}
+
 module.exports = {
     authenticate: authenticate,
     renewExpired: renewExpired,
-    authorize: authorize
+    authorize: authorize,
+    localStrategy: localStrategy,
+    serializeUser: serializeUser,
+    deserializeUser: deserializeUser
 }

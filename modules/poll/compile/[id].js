@@ -1,6 +1,7 @@
 const {Database} = require('../../../utility/db_store.js')
 const {FrontendError} = require('../../../utility/error')
 const {CustomDate} = require('../../../utility/date.js')
+const {v4: uuidv4} = require('uuid')
 
 function uploadTransaction(answers, user_id, poll_id, vote_type) {
     /*
@@ -20,9 +21,10 @@ function uploadTransaction(answers, user_id, poll_id, vote_type) {
                 reject(err)
                 return
             }
-            let query3 = 'INSERT INTO vote(vote_page_id, vote_type, vote_option_index, created_by) VALUES'
+            let query3 = 'INSERT INTO vote(vote_page_id, user_group, vote_type, vote_option_index, created_by) VALUES'
             let author = (vote_type == 'anymus') ? null : user_id
             let values = []
+            const user_group = uuidv4() // is used to group a set of votes if poll is anonymous
             for (let i = 0; i < answers.length; i++) {
                 let int_answer = parseInt(answers[i])
                 let string_answer = int_answer.toString()
@@ -30,7 +32,7 @@ function uploadTransaction(answers, user_id, poll_id, vote_type) {
                     reject(new Error('Invalid answer'))
                     return
                 }
-                values.push(`("${poll_id}", "${vote_type}", ${int_answer}, "${author}")`)
+                values.push(`("${poll_id}", "${user_group}", "${vote_type}", ${int_answer}, "${author}")`)
             }
             query3 += values.join(',')
             var err = await Database.non_returning_query(db, query3, [])
@@ -140,7 +142,8 @@ class PollCompileId {
             title: poll_page.title,
             description: poll_page.vote_description,
             options: options,
-            multiple_choice: (poll_page.option_type == 'multiple') ? true : false
+            multiple_choice: (poll_page.option_type == 'multiple') ? true : false,
+            anonymous: (poll_page.vote_type == 'anymus') ? true : false
         })
     }
 

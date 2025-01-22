@@ -146,9 +146,24 @@
                 background: var(--black-color);
                 color: var(--gray-color);
             }
+
+            .public_vote {
+                width: 100%;
+                max-width: 400px;
+                padding: 20px;
+                box-sizing: border-box;
+                vertical-align: middle;
+                text-align: center;
+                background: var(--red-color);
+                color: var(--gray-color);
+                font-size: var(--text-size-xs);
+            }
         </style>
 
         <div class="poll-body">
+            <div class="public_vote">
+                La compilazione di questo voto non &egrave; anonima, pertanto il voto che darai potr&agrave; essere associato al tuo account.
+            </div>
             <div class="compile-title">
                 <%= description %>
             </div>

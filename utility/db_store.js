@@ -8,7 +8,7 @@ class Database {
 
     static database() {
         if (this.#dbms == null) {
-            this.#dbms = new sqlite3.Database(process.env.DB_NAME)
+            this.#dbms = new sqlite3.Database(process.env.DATA_DB_NAME)
         }
         return this.#dbms
     }
