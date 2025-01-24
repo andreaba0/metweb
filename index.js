@@ -37,7 +37,7 @@ const sqliteSession = require('connect-sqlite3')(session)
 const passport = require('passport')
 const LocalStrategy = require('passport-local').Strategy
 const {Cache, CacheHit, CacheMiss, CacheError} = require('./utility/cache')
-const {authenticate, renewExpired, authorize, localStrategy, serializeUser, deserializeUser} = require('./middleware/authenticate')
+const {authenticate, renewExpired, authorize, localStrategy, serializeUser, deserializeUser, loggedIn} = require('./middleware/authenticate')
 const {KeyManager, KeySchema, KeyManagerError} = require('./utility/key_rotation')
 const {v4: uuidv4, validate: isValidUUID} = require('uuid')
 const crypto = require('crypto')
@@ -74,6 +74,7 @@ app.use('/static', express.static(__dirname + '/static'))
 app.use(cookieParser())
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: true}))
+app.use(passport.initialize())
 app.use(session({
     secret: session_secret,
     resave: false,
@@ -81,7 +82,8 @@ app.use(session({
     cookie: {secure: false},
     store: new sqliteSession({
         db: session_db_name,
-        dir: './'
+        dir: './',
+        table: 'user_session'
     })
 }))
 app.use(passport.authenticate('session'))
@@ -101,7 +103,7 @@ app.get('/signup', Signup.Get)
 app.post('/signup', Signup.Post)
 
 //app.get('/profile', authenticate, renewExpired, authorize('*'), Profile.Get)
-app.get('/profile', passport.authenticate('session'), authorize('*'), Profile.Get)
+app.get('/profile', loggedIn, authorize('*'), Profile.Get)
 app.post('/profile', authenticate, renewExpired, authorize('*'), Profile.Post)
 
 //app.get('/report/list', authenticate, renewExpired, authorize('admin'), ReportList.Get)

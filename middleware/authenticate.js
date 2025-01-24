@@ -150,7 +150,7 @@ function authorize(role) {
 }
 
 function localStrategy(email, password, done) {
-    const query = 'SELECT id, hashed_password, password_salt FROM user_account WHERE email = ?'
+    const query = 'SELECT id, first_name, last_name, user_role, hashed_password, password_salt FROM user_account WHERE email = ?'
     Database.query(query, [email])
     .then(([err, rows]) => {
         if (err) {
@@ -158,7 +158,7 @@ function localStrategy(email, password, done) {
             return
         }
         if (rows.length == 0) {
-            done(null, false)
+            done(new Error('User not found'), null)
             return
         }
         const user = rows[0]
@@ -169,33 +169,8 @@ function localStrategy(email, password, done) {
             return
         }
         done(null, {
-            id: user.id
-        })
-    })
-    .catch(err => {
-        done(err)
-    })
-}
-
-function serializeUser(user, done) {
-    done(null, user.id)
-}
-
-function deserializeUser(id, done) {
-    const query = 'SELECT id, first_name, last_name, user_role FROM user_account WHERE id = ?'
-    Database.query(query, [id])
-    .then(([err, rows]) => {
-        if (err) {
-            done(err)
-            return
-        }
-        if (rows.length == 0) {
-            done(null, false)
-            return
-        }
-        const user = rows[0]
-        done(null, {
             id: user.id,
+            email: email,
             first_name: user.first_name,
             last_name: user.last_name,
             role: user.user_role
@@ -206,11 +181,59 @@ function deserializeUser(id, done) {
     })
 }
 
+function serializeUser(user, done) {
+    console.log('serializeUser')
+    done(null, {
+        id: user.id,
+        email: user.email,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        role: user.role
+    })
+}
+
+function deserializeUser(user, done) {
+    console.log('deserializeUser')
+    const query = 'SELECT id, email, first_name, last_name, user_role FROM user_account WHERE id = ?'
+    Database.query(query, [user.id])
+    .then(([err, rows]) => {
+        if (err) {
+            console.log(err)
+            done(err)
+            return
+        }
+        if (rows.length == 0) {
+            done(new Error('User not found'), null)
+            return
+        }
+        const user = rows[0]
+        done(null, {
+            id: user.id,
+            email: user.email,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            role: user.user_role
+        })
+    })
+    .catch(err => {
+        done(err)
+    })
+}
+
+function loggedIn(req, res, next) {
+    if (req.isAuthenticated()) {
+        next()
+        return
+    }
+    res.redirect('/signin')
+}
+
 module.exports = {
     authenticate: authenticate,
     renewExpired: renewExpired,
     authorize: authorize,
     localStrategy: localStrategy,
     serializeUser: serializeUser,
-    deserializeUser: deserializeUser
+    deserializeUser: deserializeUser,
+    loggedIn: loggedIn
 }

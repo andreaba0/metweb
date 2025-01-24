@@ -21,8 +21,6 @@ class Profile {
         if (result.length === 0) {
             return res.status(404).json({error: 'User not found'})
         }
-        console.log(result)
-        console.log("debug")
         res.render('profile', {
             title: 'Il tuo profilo',
             role: req.user.role,
