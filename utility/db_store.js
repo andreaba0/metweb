@@ -1,6 +1,31 @@
 const sqlite3 = require('sqlite3').verbose();
 require('dotenv').config();
 
+class SessionDatabase {
+    static #dbms = null
+    static database() {
+        if (this.#dbms == null) {
+            this.#dbms = new sqlite3.Database(process.env.SESSION_DB_NAME)
+        }
+        return this.#dbms
+    }
+
+    static async query(query, args) {
+        const db = SessionDatabase.database()
+        return new Promise((resolve, reject) => {
+            db.exec('PRAGMA foreign_keys = ON', (err) => {
+                if (err) {
+                    console.log(err)
+                    resolve([err, null])
+                }
+            })
+            db.all(query, args, (err, rows) => {
+                resolve([err, rows])
+            })
+        })
+    }
+}
+
 class Database {
     static #dbms = null
 
@@ -93,5 +118,6 @@ class Database {
 }
 
 module.exports = {
-    Database: Database
+    Database: Database,
+    SessionDatabase: SessionDatabase
 }

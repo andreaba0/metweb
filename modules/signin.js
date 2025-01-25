@@ -75,6 +75,19 @@ class Signin {
         })
         res.redirect(302, '/profile')
     }
+
+    static sanitizeSigninData(req, res, next) {
+        const body = req.body
+        const email = body.email
+        const password = body.password
+        if (!email || !password) {
+            res.status(400).render('signin', {
+                error: 'All fields are required'
+            })
+            return
+        }
+        next()
+    }
 }
 
 module.exports = {

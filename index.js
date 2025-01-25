@@ -37,7 +37,16 @@ const sqliteSession = require('connect-sqlite3')(session)
 const passport = require('passport')
 const LocalStrategy = require('passport-local').Strategy
 const {Cache, CacheHit, CacheMiss, CacheError} = require('./utility/cache')
-const {authenticate, renewExpired, authorize, localStrategy, serializeUser, deserializeUser, loggedIn} = require('./middleware/authenticate')
+const {
+    authenticate, 
+    renewExpired, 
+    authorize, 
+    localStrategy, 
+    serializeUser, 
+    deserializeUser, 
+    loggedIn, 
+    storeMetadata
+} = require('./middleware/authenticate')
 const {KeyManager, KeySchema, KeyManagerError} = require('./utility/key_rotation')
 const {v4: uuidv4, validate: isValidUUID} = require('uuid')
 const crypto = require('crypto')
@@ -75,11 +84,21 @@ app.use(cookieParser())
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: true}))
 app.use(passport.initialize())
+
+
+// Even if saveUninitialized is set to false, a new useless session record is created
+// in the database when a user issues a logout request. This is caused by passportjs logOut method in
+// https://github.com/jaredhanson/passport/blob/master/lib/sessionmanager.js
+// where a new session is explicitly created causing the express session middleware to create a new session record
+// The issue is the following: waste of space in the database for a useless session record
 app.use(session({
     secret: session_secret,
-    resave: false,
-    saveUninitialized: true,
-    cookie: {secure: false},
+    resave: true,
+    saveUninitialized: false, // do not store session in DB until a signin is issued
+    cookie: {
+        secure: false,
+        maxAge: 1000 * 60 * 60 * 24 * 21 // 3 weeks
+    },
     store: new sqliteSession({
         db: session_db_name,
         dir: './',
@@ -123,11 +142,17 @@ app.post('/poll/report', authenticate, renewExpired, authorize('user'), /*postRe
 
 app.get('/signin', Signin.Get)
 //app.post('/signin', Signin.Post)
-app.post('/signin', passport.authenticate('local', {
-    successRedirect: '/profile',
-    failureRedirect: '/signin',
-    failureFlash: true
-}))
+app.post('/signin', Signin.sanitizeSigninData, passport.authenticate('local', {
+    //successRedirect: '/profile',
+    //failureRedirect: '/signin',
+    //failureFlash: true
+}), storeMetadata, (req, res, next) => {
+    if(req.isAuthenticated()) {
+        res.redirect('/profile')
+    } else {
+        next()
+    }
+}, Signin.Post)
 
 app.get('/inbox', async (req, res) => {
     const query = 'SELECT id, email_type, content FROM email_inbox order by created_at desc limit 10'
@@ -175,11 +200,6 @@ app.get('/poll/voters/:id', authenticate, renewExpired, authorize('user'), PollV
 app.get('/signup/confirm/:token', SignupConfirmToken.Get)
 
 app.post('/signup/confirm/:token', SignupConfirmToken.Post)
-
-app.post('/logout', authenticate, (req, res) => {
-    res.clearCookie('token')
-    res.status(200).render('signin')
-})
 
 app.get('/my-polls', authenticate, renewExpired, authorize('user'), MyPolls.Get)
 
@@ -265,6 +285,28 @@ app.get('/pdf', async (req, res) => {
         valign: 'center'
     })
     doc.end()
+})
+
+async function logout(req) {
+    return new Promise((resolve, reject) => {
+        req.logout((err) => {
+            if (err) {
+                console.log(err)
+                reject(err)
+            }
+            resolve()
+        })
+    })
+}
+
+app.post('/logout', loggedIn, async (req, res) => {
+    try {
+        console.log('logging out')
+        await logout(req)
+        res.redirect('/signin')
+    } catch (err) {
+        res.status(500).send('Service temporarily unavailable')
+    }
 })
 
 app.get('*', (req, res) => {

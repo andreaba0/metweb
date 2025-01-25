@@ -1,6 +1,6 @@
 const {parseJwt, JwtBadToken} = require('../utility/jwt_utility')
 const {Cache, CacheHit, CacheMiss, CacheError, CacheEmpty, SharedCache} = require('../utility/cache')
-const {Database} = require('../utility/db_store')
+const {Database, SessionDatabase} = require('../utility/db_store')
 const {KeyManager, KeySchema, KeyManagerError} = require('../utility/key_rotation')
 const {calculate_hash} = require('../utility/password')
 require('dotenv').config()
@@ -150,6 +150,11 @@ function authorize(role) {
 }
 
 function localStrategy(email, password, done) {
+    console.log('localStrategy')
+    if(!email || !password) {
+        done(new Error('Email and password are required'), null)
+        return
+    }
     const query = 'SELECT id, first_name, last_name, user_role, hashed_password, password_salt FROM user_account WHERE email = ?'
     Database.query(query, [email])
     .then(([err, rows]) => {
@@ -228,6 +233,31 @@ function loggedIn(req, res, next) {
     res.redirect('/signin')
 }
 
+async function saveMetadata(req) {
+    return new Promise((resolve, reject) => {
+        req.session.save(err => {
+            if (err) {
+                reject(err)
+                return
+            }
+            resolve()
+        })
+    })
+}
+
+async function storeMetadata(req, res, next) {
+   req.session.metadata = {
+       user_agent: req.headers['user-agent']
+   }
+   try {
+       await saveMetadata(req)
+       next()
+   } catch(err) {
+       console.log(err)
+       res.status(500).send('Service temporarily unavailable')
+   }
+}
+
 module.exports = {
     authenticate: authenticate,
     renewExpired: renewExpired,
@@ -235,5 +265,6 @@ module.exports = {
     localStrategy: localStrategy,
     serializeUser: serializeUser,
     deserializeUser: deserializeUser,
-    loggedIn: loggedIn
+    loggedIn: loggedIn,
+    storeMetadata: storeMetadata
 }
