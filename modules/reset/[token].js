@@ -5,7 +5,7 @@ const crypto = require('crypto')
 const {KeyManager, KeySchema, KeyManagerError} = require('../../utility/key_rotation')
 const {parseJwt, JwtBadToken} = require('../../utility/jwt_utility')
 
-class SignupConfirmToken {
+class PasswordReset {
     static async Get(req, res) {
         const token = req.params.token
         if (token == null) {
@@ -20,13 +20,10 @@ class SignupConfirmToken {
     static async Post(req, res) {
         console.log('confirming email')
         const formBody = req.body
-        const token = req.params.token
-        const first_name = formBody.first_name
-        const last_name = formBody.last_name
+        const token = formBody.token
         const password = formBody.password
         const confirm_password = formBody.confirm_password
         const email = formBody.email
-        const birthdate = formBody.birthdate
         if (!token || !first_name || !last_name || !birthdate || !password || !confirm_password || !email) {
             res.status(400).send('All fields are required')
             return
@@ -96,5 +93,5 @@ class SignupConfirmToken {
 }
 
 module.exports = {
-    SignupConfirmToken: SignupConfirmToken
+    PasswordReset: PasswordReset
 }

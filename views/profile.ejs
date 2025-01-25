@@ -1,39 +1,240 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>
-            <%= title %>
-        </title>
+
+<head>
+    <title>
+        <%= title %>
+    </title>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <%- include('./partials/common_head.ejs') %>
 
         <style type="text/css">
+            .body {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+            }
 
+            h1 {
+                font-size: var(--text-size-xl);
+                color: var(--black-color);
+            }
+
+            form {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                max-width: 600px;
+            }
+
+            form div {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            form div label {
+                display: block;
+                font-size: var(--text-size-s);
+                color: var(--black-color);
+            }
+
+            form div input {
+                display: block;
+                padding: 10px;
+                margin-top: 5px;
+                border: 1px solid var(--gray-color);
+                border-radius: 5px;
+            }
+
+            form.profile button[type="submit"] {
+                padding: 10px;
+                margin-top: 10px;
+                border: none;
+                border-radius: 5px;
+                background: var(--blue-color);
+                color: var(--gray-color);
+                font-size: var(--text-size-s);
+                cursor: pointer;
+            }
+
+            div.sessions {
+                display: flex;
+                flex-grow: 1;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+                width: 100%;
+                max-width: 400px;
+            }
+
+            div.sessions_header {
+                text-align: center;
+                width: 100%;
+            }
+
+            div.session {
+                display: flex;
+                gap: 10px;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                width: 100%;
+                border-bottom: 1px solid var(--navy-color);
+            }
+
+            div.session div.cell {
+                padding: 10px 0;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: flex-start;
+                width: 100px;
+            }
+
+            div.session div.disconnect {
+                display: flex;
+                flex-basis: 50px;
+                flex-direction: row;
+                align-items: center;
+                justify-content: flex-end;
+                width: 60px;
+            }
+
+            div.session div.disconnect button {
+                padding: 5px 15px;
+                border: none;
+                border-radius: 5px;
+                background: var(--red-color);
+                color: var(--gray-color);
+                font-size: var(--text-size-s);
+                cursor: pointer;
+                text-align: center;
+            }
+
+            div.session div.cell i {
+                margin-right: 3px;
+            }
         </style>
 
         <%- include('./partials/common_head.ejs') %>
-    </head>
-    <body>
-        <%- include('./partials/menu.ejs') %>
-        <div>
-            <form method="PATCH" action="/profile">
-                <label for="name">Nome</label>
-                <input type="text" name="first_name" value="<%= user.first_name %>">
-                <label for="surname">Cognome</label>
-                <input type="text" name="last_name" value="<%= user.last_name %>">
-                <label for="email">Email</label>
-                <input type="email" name="email" value="<%= user.email %>">
-                <label for="password">Password</label>
-                <input type="password" name="password">
-                <label for="password_confirmation">Password Confirmation</label>
-                <input type="password" name="password_confirmation">
+</head>
+
+<body>
+    <script type="text/javascript">
+        function sessionDeleteFormSubmission(e) {
+            const sid = e.target.querySelector('input[name="session_id"]').value;
+            if (!sid || sid.length === 0) {
+                return;
+            }
+            fetch('/profile/session', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        sid: sid
+                    })
+                })
+                .then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        document.getElementById(sid).remove();
+                    }
+                });
+        }
+    </script>
+    <%- include('./partials/menu.ejs') %>
+        <div class="body">
+            <div>
+                <h1>Il tuo profilo</h1>
+            </div>
+            <form method="PATCH" action="/profile" class="profile">
+                <div>
+                    <h2>
+                        Anagrafica
+                    </h2>
+                </div>
+                <div>
+                    <label for="name">Nome</label>
+                    <input type="text" name="first_name" value="<%= user.first_name %>">
+                </div>
+                <div>
+                    <label for="surname">Cognome</label>
+                    <input type="text" name="last_name" value="<%= user.last_name %>">
+                </div>
                 <button type="submit">Update</button>
             </form>
-            <form method="PATCH" action="/sessions/clear">
-                <input type="checkbox" name="keep_current" value="true">
-                <label for="keep_current">Mantieni attiva questa sessione</label>
-                <button type="submit">Disconnetti tutte le sessioni attive</button>
-            </form>
             <div>
+                <div class="sessions_header">
+                    <h2>Sessioni attive</h2>
+                </div>
+                <div class="sessions">
+                    <% if (sessions.length> 0) { %>
+                        <% sessions.forEach(function(session) { %>
+                            <div class="session" id=<%= session.sid %>>
+                                <div class="cell">
+                                    <% if (session.os.toLowerCase()==='windows' ) { %>
+                                        <i class="fa-brands fa-windows"></i> Windows
+                                        <% } else if (session.os.toLowerCase()==='mac' ) { %>
+                                            <i class="fa-brands fa-apple"></i>
+                                            <% } else if (session.os.toLowerCase()==='linux' ) { %>
+                                                <i class="fa-brands fa-linux"></i>
+                                                <% } else if (session.os.toLowerCase()==='android' ) { %>
+                                                    <i class="fa-brands fa-android"></i> Android
+                                                    <% } else if (session.os.toLowerCase()==='ios' ) { %>
+                                                        <i class="fa-brands fa-apple"></i> iOS
+                                                        <% } else { %>
+                                                            <i class="fa-brands fa-question"></i>OS sconosciuto
+                                                            <% } %>
+                                </div>
+                                <div class="cell">
+                                    <% if (session.browser.toLowerCase()==='chrome' || session.browser.toLowerCase() === 'mobile chrome' ) { %>
+                                        <i class="fa-brands fa-chrome"></i> Chrome
+                                        <% } else if (session.browser.toLowerCase()==='firefox' ) { %>
+                                            <i class="fa-brands fa-firefox"></i> Firefox
+                                            <% } else if (session.browser.toLowerCase()==='safari' ) { %>
+                                                <i class="fa-brands fa-safari"></i> Safari
+                                                <% } else if (session.browser.toLowerCase()==='edge' ) { %>
+                                                    <i class="fa-brands fa-edge"></i> Edge
+                                                    <% } else if (session.browser.toLowerCase()==='opera' ) { %>
+                                                        <i class="fa-brands fa-opera"></i> Opera
+                                                        <% } else if (session.browser.toLowerCase()==='ie' ) { %>
+                                                            <i class="fa-brands fa-internet-explorer"></i> Internet
+                                                            Explorer
+                                                            <% } else { %>
+                                                                <i class="fa-brands fa-question"></i> Browser
+                                                                sconosciuto
+                                                                <% } %>
+                                </div>
+                                <div class="disconnect">
+                                    <form method="DELETE" action="/profile/session" onsubmit="event.preventDefault(); sessionDeleteFormSubmission(event)">
+                                        <input type="hidden" name="session_id" value="<%= session.sid %>">
+                                        <button type="submit">
+                                            <i class="fa-solid fa-xmark"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            <% }) %>
+                                <% } else { %>
+                                    <div>
+                                        Questa &egrave; la tua unica sessione attiva
+                                    </div>
+                                    <% } %>
+                </div>
             </div>
         </div>
-    </body>
+</body>
+
 </html>

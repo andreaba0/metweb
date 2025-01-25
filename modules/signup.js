@@ -6,7 +6,7 @@ const {calculate_hash} = require('../utility/password')
 
 class Signup {
     static async Get(req, res) {
-        res.sendFile(__dirname + '/views/signup.html')
+        res.render('signup', {})
     }
     
     static async Post(req, res) {

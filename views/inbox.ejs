@@ -4,70 +4,49 @@
 <head>
     <title>Inbox</title>
 
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <%- include('./partials/common_head.ejs') %>
 
-    <link rel="stylesheet" type="text/css" href="/static/common/style.css" />
-    <link rel="stylesheet" type="text/css" href="/static/inbox/style.css" />
+        <style type="text/css">
+            body {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            }
 
-    <script src="https://kit.fontawesome.com/49ec009d21.js" crossorigin="anonymous"></script>
+            div.inbox {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                width: 100vw;
+                overflow-x: hidden;
+                overflow-y: auto;
+                gap: 10px;
+                max-width: 800px;
+            }
+
+            div.message {
+                width: 100%;
+                box-sizing: border-box;
+                text-align: center;
+                cursor: pointer;
+                padding: 21px 0;
+            }
+
+            div.message:hover {
+                color: solid 3px var(--accent-color-blue);
+            }
+        </style>
 </head>
 
 <body>
     <div class="inbox">
-        <% messages.forEach((message) => { %>
+        <% messages.forEach((message)=> { %>
             <div class="message">
-                <div class="icon">
-                    <i class="fa-regular fa-star"></i>
-                </div>
-                <div class="icon">
-                    <i class="fa-regular fa-bookmark"></i>
-                </div>
-                <div class="sender">
-                    PollEd Team
-                </div>
-                <div class="subject">
-                    <%= message.subject %>
-                </div>
-                <div class="body">
-                    <%- message.body %>
-                </div>
+                <%- message.body %>
             </div>
-        <% }) %>
-        <div class="message">
-            <div class="icon">
-                <i class="fa-regular fa-star"></i>
-            </div>
-            <div class="icon">
-                <i class="fa-regular fa-bookmark"></i>
-            </div>
-            <div class="sender">
-                PollEd Team
-            </div>
-            <div class="subject">
-                Benvenuto su PollEd. Completa il tuo profilo.
-            </div>
-            <div class="body">
-                PollEd ti da il benvenuto. Per poter continuare clicca sul link sottostante e completa i dati del profilo
-            </div>
-        </div>
-        <div class="message">
-            <div class="icon">
-                <i class="fa-regular fa-star"></i>
-            </div>
-            <div class="icon">
-                <i class="fa-regular fa-bookmark"></i>
-            </div>
-            <div class="sender">
-                PollEd Team
-            </div>
-            <div class="subject">
-                Benvenuto su PollEd. Completa il tuo profilo.
-            </div>
-            <div class="body">
-                PollEd ti da il benvenuto. Per poter continuare clicca sul link sottostante e completa i dati del profilo
-            </div>
-        </div>
+            <% }) %>
     </div>
 </body>
 

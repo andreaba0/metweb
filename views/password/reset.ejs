@@ -3,7 +3,7 @@
 
 <head>
     <title>
-        Pagina di accesso
+        Modificare la password
     </title>
 
     <%- include('./partials/common_head.ejs') %>
@@ -170,23 +170,12 @@
     <div class="access-panel">
         <h1>Completa i dati</h1>
         <div class="banner">
-            La tua email e&grave; stata confermata. Ora puoi procedere con la creazione del tuo account.
+            Procedi con la modifica della tua password
         </div>
         <div>
             <img src="/static/icon/signup.svg" alt="Icona accedi" />
         </div>
-        <form method="POST" action=<%='/signup/confirm/' + token %>>
-            <div class="multi">
-                <div>
-                    <input type="text" placeholder="Nome" id="name" name="first_name" />
-                </div>
-                <div>
-                    <input type="text" placeholder="Cognome" id="surname" name="last_name" />
-                </div>
-            </div>
-            <div class="mono">
-                <input type="date" name="birthdate" id="birthdate" placeholder="Data di nascita" />
-            </div>
+        <form method="POST" action=<%= '/signup/confirm/' + token %>>
             <div class="mono">
                 <input type="email" placeholder="Ripeti la tua email" id="email" name="email" />
             </div>
@@ -194,11 +183,10 @@
                 <input type="password" placeholder="La tua password" id="password" name="password" />
             </div>
             <div class="mono">
-                <input type="password" placeholder="Riscrivi la tua password" id="password-check"
-                    name="confirm_password" />
+                <input type="password" placeholder="Riscrivi la tua password" id="password-check" name="confirm_password" />
             </div>
             <div>
-                <button type="submit">Crea Account</button>
+                <button type="submit">Cambia password</button>
             </div>
         </form>
     </div>

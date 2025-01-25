@@ -13,12 +13,12 @@ class SessionDatabase {
     static async query(query, args) {
         const db = SessionDatabase.database()
         return new Promise((resolve, reject) => {
-            db.exec('PRAGMA foreign_keys = ON', (err) => {
+            /*db.exec('PRAGMA foreign_keys = ON', (err) => {
                 if (err) {
                     console.log(err)
                     resolve([err, null])
                 }
-            })
+            })*/
             db.all(query, args, (err, rows) => {
                 resolve([err, rows])
             })

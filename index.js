@@ -68,7 +68,9 @@ const {Polls} = require('./modules/polls')
 const {Signin} = require('./modules/signin')
 const {Signup} = require('./modules/signup')
 const {SignupConfirmToken} = require('./modules/signup/confirm/[token]')
+const {PasswordReset} = require('./modules/reset/[token]')
 const {Users} = require('./modules/users')
+const {Session} = require('./modules/profile/session')
 
 const { FrontendError } = require('./utility/error')
 
@@ -94,6 +96,7 @@ app.use(passport.initialize())
 app.use(session({
     secret: session_secret,
     resave: true,
+    rolling: true, // renew session expiration on every request
     saveUninitialized: false, // do not store session in DB until a signin is issued
     cookie: {
         secure: false,
@@ -118,41 +121,45 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + '/views/index.html')
 })
 
+app.get('/signup/confirm/:token', SignupConfirmToken.Get)
+app.post('/signup/confirm', SignupConfirmToken.Post)
 app.get('/signup', Signup.Get)
 app.post('/signup', Signup.Post)
+app.get('/password/reset/:token', PasswordReset.Get)
+app.post('/password/reset/:token', PasswordReset.Post)
 
-//app.get('/profile', authenticate, renewExpired, authorize('*'), Profile.Get)
+app.delete('/profile/session', loggedIn, authorize('*'), Session.Delete)
 app.get('/profile', loggedIn, authorize('*'), Profile.Get)
-app.post('/profile', authenticate, renewExpired, authorize('*'), Profile.Post)
+app.patch('/profile', loggedIn, authorize('*'), Profile.Patch)
 
 //app.get('/report/list', authenticate, renewExpired, authorize('admin'), ReportList.Get)
-app.get('/report/list', passport.authenticate('session'), authorize('admin'), ReportList.Get)
+app.get('/report/list', loggedIn, authorize('admin'), ReportList.Get)
 
-app.get('/users', authenticate, renewExpired, authorize('admin'), Users.Get)
+app.get('/users', loggedIn, authorize('admin'), Users.Get)
 
 app.get('/confirm', (req, res) => {
     res.sendFile(__dirname + '/views/confirm.html')
 })
 
 //app.get('/poll/compile/:id', authenticate, renewExpired, authorize('user'), /*pollCompile*/ PollCompileId.Get)
-app.get('/poll/compile/:id', passport.authenticate('session'), authorize('user'), PollCompileId.Get)
+app.get('/poll/compile/:id', loggedIn, authorize('user'), PollCompileId.Get)
 
-app.post('/poll/compile/:id', authenticate, renewExpired, authorize('user'), /*createPollCompilation*/ PollCompileId.Post)
-app.post('/poll/report', authenticate, renewExpired, authorize('user'), /*postReport*/ PollReport.Post)
+app.post('/poll/compile/:id', loggedIn, authorize('user'), /*createPollCompilation*/ PollCompileId.Post)
+app.post('/poll/report', loggedIn, authorize('user'), /*postReport*/ PollReport.Post)
 
 app.get('/signin', Signin.Get)
 //app.post('/signin', Signin.Post)
 app.post('/signin', Signin.sanitizeSigninData, passport.authenticate('local', {
     //successRedirect: '/profile',
-    //failureRedirect: '/signin',
+    failureRedirect: '/signin',
     //failureFlash: true
-}), storeMetadata, (req, res, next) => {
+}), storeMetadata, (req, res) => {
     if(req.isAuthenticated()) {
         res.redirect('/profile')
     } else {
-        next()
+        res.redirect('/signin')
     }
-}, Signin.Post)
+})
 
 app.get('/inbox', async (req, res) => {
     const query = 'SELECT id, email_type, content FROM email_inbox order by created_at desc limit 10'
@@ -165,15 +172,17 @@ app.get('/inbox', async (req, res) => {
     let messages = []
     emails.forEach(email => {
         const content = JSON.parse(email.content)
-        if (email.email_type != 'verify_email') {
+        if (!(email.email_type === 'verify_email'|| email.email_type === 'reset_password')) {
             return
         }
+        const base_uri = `http://${process.env.BOUND_IP}:${process.env.PORT}`
+        const body = email.email_type === 'verify_email' ? 
+            `<a href="${base_uri}/signup/confirm/${content.token}">Accedi al seguente link per confermare la mail</a>` 
+            : 
+            `<a href="${base_uri}/password/reset/${content.token}">Accedi al seguente link per cambiare la password</a>`;
         messages.push({
             id: email.id,
-            subject: 'Conferma la tua email',
-            body: `Per confermare la tua email clicca il link seguente:
-            <a href="http://${process.env.BOUND_IP}:${process.env.PORT}/signup/confirm/${content.token}">Conferma email</a>
-            `
+            body: body,
         })
     })
     res.render('inbox', {
@@ -185,27 +194,23 @@ app.get('/about', (req, res) => {
     res.sendFile(__dirname + '/views/about.html')
 })
 
-app.get('/poll/create/:uuid', authenticate, renewExpired, authorize('user'), PollCreateUuid.Get)
+app.get('/poll/create/:uuid', loggedIn, authorize('user'), PollCreateUuid.Get)
 
-app.post('/poll/create/:uuid', authenticate, renewExpired, authorize('user'), /*pollSanitizer,*/ PollCreateUuid.Post)
-app.delete('/poll/:id', authenticate, renewExpired, authorize('user'), PollId.Delete)
+app.post('/poll/create/:uuid', loggedIn, authorize('user'), /*pollSanitizer,*/ PollCreateUuid.Post)
+app.delete('/poll/:id', loggedIn, authorize('user'), PollId.Delete)
 
-app.get('/poll/create', authenticate, renewExpired, authorize('user'), async (req, res) => {
+app.get('/poll/create', loggedIn, authorize('user'), async (req, res) => {
     const uuid = uuidv4()
     res.redirect(302, `/poll/create/${uuid}`)
 })
 
-app.get('/poll/voters/:id', authenticate, renewExpired, authorize('user'), PollVotersId.Get)
+app.get('/poll/voters/:id', loggedIn, authorize('user'), PollVotersId.Get)
 
-app.get('/signup/confirm/:token', SignupConfirmToken.Get)
-
-app.post('/signup/confirm/:token', SignupConfirmToken.Post)
-
-app.get('/my-polls', authenticate, renewExpired, authorize('user'), MyPolls.Get)
+app.get('/my-polls', loggedIn, authorize('user'), MyPolls.Get)
 
 app.get('/polls', Polls.Get)
 
-app.get('/poll/:uuid', authenticate, renewExpired, authorize('*'), (req, res) => {
+app.get('/poll/:uuid', loggedIn, authorize('*'), (req, res) => {
     res.sendStatus(204)
 })
 
