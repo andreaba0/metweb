@@ -153,13 +153,40 @@
                     }
                 });
         }
+
+        function updateProfileInfoFormSubmission(e) {
+            e.preventDefault();
+            const first_name = e.target.querySelector('input[name="first_name"]').value;
+            const last_name = e.target.querySelector('input[name="last_name"]').value;
+            if (!first_name || first_name.length === 0 || !last_name || last_name.length === 0) {
+                return;
+            }
+            fetch('/profile', {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        first_name: first_name,
+                        last_name: last_name
+                    })
+                })
+                .then(async (response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        window.location.reload();
+                    } else {
+                        const text = await response.text();
+                        alert('Errore: ' + text);
+                    }
+                });
+        }
     </script>
     <%- include('./partials/menu.ejs') %>
         <div class="body">
             <div>
                 <h1>Il tuo profilo</h1>
             </div>
-            <form method="PATCH" action="/profile" class="profile">
+            <form method="PATCH" action="/profile" class="profile" onsubmit="updateProfileInfoFormSubmission(event)">
                 <div>
                     <h2>
                         Anagrafica

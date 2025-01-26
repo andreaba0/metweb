@@ -110,7 +110,7 @@ create table report (
     vote_page_id varchar(36) not null references vote_page(id) on delete cascade,
     report_text text not null,
     created_at timestamp not null default current_timestamp,
-    approved varchar(1) not null check (approved = 'y' or approved = 'n' or approved = 'p') default 'p',
+    approved varchar(1) not null check (approved = 'y' or approved = 'p') default 'p',
     created_by varchar(36) not null references user_customer(user_id),
     primary key (vote_page_id, created_by)
 );

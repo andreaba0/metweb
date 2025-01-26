@@ -1,9 +1,9 @@
-const {calculate_hash, create_salt} = require('../../utility/password')
+const {calculate_hash, create_salt} = require('../../../utility/password')
 const {v4: uuidv4} = require('uuid')
-const {Database} = require('../../utility/db_store')
+const {Database} = require('../../../utility/db_store')
 const crypto = require('crypto')
-const {KeyManager, KeySchema, KeyManagerError} = require('../../utility/key_rotation')
-const {parseJwt, JwtBadToken} = require('../../utility/jwt_utility')
+const {KeyManager, KeySchema, KeyManagerError} = require('../../../utility/key_rotation')
+const {parseJwt, JwtBadToken} = require('../../../utility/jwt_utility')
 
 class SignupConfirmToken {
     static async Get(req, res) {

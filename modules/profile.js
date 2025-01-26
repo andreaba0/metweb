@@ -58,7 +58,30 @@ class Profile {
     }
 
     static async Patch(req, res) {
-
+        const id = req.user.id
+        const body = req.body
+        const first_name = body.first_name
+        const last_name = body.last_name
+        if (!first_name || !last_name) {
+            return res.status(400).json({error: 'Invalid request'})
+        }
+        const query = `
+            update 
+                user_account 
+            set 
+                first_name = ?, 
+                last_name = ?
+            where 
+                id = ?
+        `
+        const [err, result] = await Database.query(query, [first_name, last_name, id])
+        if (err) {
+            return res.status(500).json({error: 'Internal server error'})
+        }
+        if (result.affectedRows === 0) {
+            return res.status(404).json({error: 'User not found'})
+        }
+        res.status(200).json({message: 'Profile updated'})
     }
 }
 

@@ -192,6 +192,22 @@
         text-decoration: none;
         color: var(--black-color);
     }
+
+    form.logout {
+        box-sizing: border-box;
+        border-left: solid 12px var(--red-color);
+    }
+
+    form.logout button[type="submit"] {
+        background: none;
+        color: var(--black-color);
+        border: none;
+        border-radius: 6px;
+        padding: 10px 20px;
+        font-weight: var(--text-bold);
+        font-size: var(--text-size-s);
+        cursor: pointer;
+    }
 </style>
 
 
@@ -207,8 +223,29 @@
     </div>
 </div>
 
+<script type="text/javascript">
+    async function reportPollSubmit(e) {
+        e.preventDefault();
+        const form = e.target;
+        const data = new URLSearchParams();
+        for (const pair of new FormData(form)) {
+            data.append(pair[0], pair[1]);
+        }
+        const res = await fetch('/poll/report', {
+            method: 'POST',
+            body: data
+        });
+        if (res.status >= 200 && res.status < 300) {
+            console.log('Report inviato');
+            window.location.href = window.location.href;
+        } else {
+            alert('Errore nell\'invio del report');
+        }
+    }
+</script>
+
 <div class="report-box" id="report-box">
-    <form action="/poll/report" method="POST">
+    <form action="/poll/report" method="POST" onsubmit="reportPollSubmit(event)">
         <label for="report">Motivo della segnalazione</label>
         <textarea name="report" id="report" placeholder="Contenuto della segnalazione" required></textarea>
         <input type="hidden" name="poll_id" value="<%- (typeof id !== 'undefined') ? id : '' %>">
@@ -257,8 +294,8 @@
                 <%- (typeof path_active !== 'undefined' && path_active === 'profile') ? 'Profilo' : '<a href="/profile">Profilo</a>' %>
             </div>
             <div class="menu-option-box-field">
-                <form action="/logout" method="post">
-                    <button type="submit" class="btn btn-danger">Logout</button>
+                <form action="/logout" class="logout" method="post">
+                    <button type="submit" class="btn btn-danger">Disconnetti</button>
                 </form>
             </div>
         </div>

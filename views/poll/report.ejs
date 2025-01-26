@@ -6,9 +6,113 @@
         </title>
 
         <%- include('../partials/common_head.ejs') %>
+
+        <style type="text/css">
+            .polls {
+                width: 100%;
+                max-width: 600px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .header {
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+
+            h1 {
+                margin: 0;
+                padding: 25px 0;
+                color: var(--navy-color);
+                font-size: var(--text-size-l);
+            }
+
+            .poll {
+                width: 100%;
+                max-width: 400px;
+                padding: 12px 0;
+                border-bottom: solid 1px var(--black-color);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 9px;
+            }
+
+            .poll .id {
+                width: 100%;
+                text-align: center;
+                color: var(--navy-color);
+                font-size: var(--text-size-s);
+                font-weight: var(--text-bold);
+            }
+
+            .poll .info {
+                width: 100%;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .poll .info .count {
+                color: var(--navy-color);
+                font-size: var(--text-size-s);
+                width: 150px;
+                text-align: center;
+            }
+
+            .poll .info .link {
+                color: var(--blue-color);
+                font-size: var(--text-size-m);
+                text-align: center;
+                width: 45px;
+            }
+
+            .poll .info .link a {
+                color: var(--green-color);
+                text-decoration: none;
+            }
+        </style>
     </head>
     <body>
         <%- include('../partials/menu.ejs') %>
+
+        <div class="polls">
+            <div class="header">
+                <h1>
+                    Lista dei sondaggi segnalati
+                </h1>
+            </div>
+            <% if (reports.length == 0) { %>
+                <div>
+                    Nessun sondaggio segnalato
+                </div>
+            <% } else { %>
+                <% for (var i = 0; i < reports.length; i++) { %>
+                    <div class="poll">
+                        <div class="id">
+                            <%= reports[i].id %>
+                        </div>
+                        <div class="info">
+                            <div class="count">
+                                <%= reports[i].report_count %> <%= reports[i].report_count == 1 ? 'segnalazione' : 'segnalazioni' %>
+                            </div>
+                            <div class="link">
+                                <a href="/poll/report/<%= reports[i].id %>">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+            <% } %>
+        </div>
 
     </body>
 </html>

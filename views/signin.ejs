@@ -6,35 +6,179 @@
         Pagina di accesso
     </title>
 
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" type="text/css" href="/static/signin/style.css" />
-
     <%- include('./partials/common_head.ejs') %>
 
-    <style type="text/css">
-        .error {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            padding: 20px 10px;
-            background: var(--red-color);
-            color: var(--gray-color);
-        }
-    </style>
+        <style type="text/css">
+            @media only screen and (min-width: 800px) and (min-height: 500px) {
+                body {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    width: 100vw;
+                    height: 100vh;
+                }
+            }
+
+            @media only screen and (min-width: 800px) and (max-height: 500px) {
+                body {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: start;
+                    align-items: center;
+                    width: 100vw;
+                }
+            }
+
+            @media only screen and (max-width: 800px) {
+                body {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: start;
+                    align-items: center;
+                    width: 100vw;
+                }
+            }
+
+            .access-panel {
+                width: 100%;
+                max-width: 400px;
+                display: flex;
+                gap: 20px;
+                flex-direction: column;
+            }
+
+            form {
+                display: flex;
+                gap: 20px;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+
+            h1 {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            form div {
+                display: flex;
+                flex-direction: column;
+                margin: 10px 0;
+                align-items: start;
+                justify-content: center;
+                width: 100%;
+                max-width: 270px;
+            }
+
+            form div label {
+                font-size: var(--text-size-s);
+                font-weight: var(--text-bold);
+                padding-left: 9px;
+            }
+
+            form div input {
+                width: 100%;
+                padding: 15px 9px;
+                font-size: var(--text-size-s);
+                border: 2px solid transparent;
+                border-bottom: 2px solid var(--accent-color-blue);
+                background-color: var(--main-bg-color);
+                box-sizing: border-box;
+            }
+
+            form div input:focus {
+                outline: none;
+                border: solid 2px var(--accent-color-blue);
+            }
+
+            form.signin button[type="submit"] {
+                width: 100%;
+                padding: 15px 9px;
+                font-size: var(--text-size-s);
+                font-weight: var(--text-bold);
+                border: none;
+                background-color: var(--accent-color-blue);
+                color: var(--text-color-light);
+                cursor: pointer;
+                border-radius: 5px;
+            }
+
+            .access-panel img {
+                width: 100%;
+                max-width: 200px;
+                margin: 0 auto;
+                display: block;
+            }
+
+            .error {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 100%;
+                padding: 20px 10px;
+                background: var(--red-color);
+                color: var(--gray-color);
+            }
+
+            .options {
+                display: flex;
+                gap: 20px;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+            }
+
+            .option {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 100%;
+            }
+
+            .option a {
+                color: var(--blue-color);
+                text-decoration: underline;
+                font-size: var(--text-size-s);
+            }
+
+            form.recovery button[type="submit"] {
+                cursor: pointer;
+                border: none;
+                background: none;
+                color: var(--blue-color);
+                text-decoration: underline;
+                font-size: var(--text-size-s);
+            }
+
+
+        </style>
 </head>
 
 <body>
+    <script type="text/javascript">
+        async function submitRecoveryForm(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            if (!email) {
+                alert('Inserisci un indirizzo email valido');
+                return;
+            }
+            document.getElementById('recovery_email').value = email;
+            e.target.submit();
+        }
+    </script>
     <div class="access-panel">
         <h1>Esegui l'accesso</h1>
         <div>
             <img src="/static/icon/access_account.svg" alt="Icona accedi" />
         </div>
-        <form method="POST" action="/signin">
+        <form method="POST" action="/signin" class="signin">
             <div>
                 <label for="email">Email</label>
-                <input type="email" placeholder="La tua email" id="email" name="email" value="<%= typeof old !== 'undefined' ? old.email : '' %>" />
+                <input type="email" placeholder="La tua email" id="email" name="email"
+                    value="<%= typeof old !== 'undefined' ? old.email : '' %>" />
             </div>
             <div>
                 <label for="password">Password</label>
@@ -43,12 +187,23 @@
             <div>
                 <button type="submit">Accedi</button>
             </div>
-            <% if (typeof error !== 'undefined') { %>
+        </form>
+        <div class="options">
+            <div class="option">
+                <a href="/signup">Non hai un account? Registrati</a>
+            </div>
+            <div class="option">
+                <form method="POST" action="/password/reset" class="recovery" onsubmit="submitRecoveryForm(event)">
+                    <input type="hidden" id="recovery_email" name="email" />
+                    <button type="submit">Password dimenticata?</button>
+                </form>
+            </div>
+        </div>
+        <% if (typeof error !=='undefined' ) { %>
             <div class="error">
                 <%= error %>
             </div>
             <% } %>
-        </form>
     </div>
 </body>
 

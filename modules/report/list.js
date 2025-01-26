@@ -9,7 +9,7 @@ class ReportList {
                 vote_page_id as id, 
                 count(vote_page_id) as report_count 
             from 
-                report 
+                report
             where
                 approved = 'p'
             group by 

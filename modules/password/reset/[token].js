@@ -1,9 +1,9 @@
-const {calculate_hash, create_salt} = require('../../utility/password')
+const {calculate_hash, create_salt} = require('../../../utility/password')
 const {v4: uuidv4} = require('uuid')
-const {Database} = require('../../utility/db_store')
+const {Database} = require('../../../utility/db_store')
 const crypto = require('crypto')
-const {KeyManager, KeySchema, KeyManagerError} = require('../../utility/key_rotation')
-const {parseJwt, JwtBadToken} = require('../../utility/jwt_utility')
+const {KeyManager, KeySchema, KeyManagerError} = require('../../../utility/key_rotation')
+const {parseJwt, JwtBadToken} = require('../../../utility/jwt_utility')
 
 class PasswordReset {
     static async Get(req, res) {
@@ -12,23 +12,21 @@ class PasswordReset {
             res.status(400).send('Invalid token')
             return
         }
-        res.render('confirm', {
+        res.render('password/reset', {
             token: token
         })
     }
 
     static async Post(req, res) {
-        console.log('confirming email')
         const formBody = req.body
-        const token = formBody.token
+        const token = req.params.token
         const password = formBody.password
         const confirm_password = formBody.confirm_password
         const email = formBody.email
-        if (!token || !first_name || !last_name || !birthdate || !password || !confirm_password || !email) {
+        if (!token || !password || !confirm_password || !email) {
             res.status(400).send('All fields are required')
             return
         }
-        console.log(birthdate)
         if (password != confirm_password) {
             res.status(400).send('Passwords do not match')
             return
@@ -41,12 +39,12 @@ class PasswordReset {
         }
         const groups = parseJwt(token)
         if (groups instanceof JwtBadToken) {
-            res.status(400).send('Invalid token')
+            res.status(400).send('Token non valido o scaduto')
             return
         }
         const kid = groups.header?.kid
         if (kid == null) {
-            res.status(400).send('Invalid token')
+            res.status(400).send('Token non valido')
             return
         }
         const validatingKey = keySchema.validation(kid)
@@ -65,6 +63,7 @@ class PasswordReset {
             res.status(400).send('Invalid token')
             return
         }
+        const iat = decoded.iat
         const email_hash = decoded.hashed_email
         const hash = crypto.createHash('sha256')
         hash.update(email)
@@ -74,21 +73,35 @@ class PasswordReset {
             return
         }
         const id = uuidv4()
-        const query = 'INSERT INTO user_account (id, first_name, last_name, date_of_birth, email, hashed_password, password_salt) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id'
+        const query = `
+            update 
+                user_account 
+            set 
+                hashed_password = ?, 
+                password_salt = ?, 
+                account_barrier = ? 
+            where 
+                email = ? and
+                account_barrier < ?
+            returning id
+        `
         const salt = create_salt()
         const hashed_password = calculate_hash(password, salt)
-        const args = [id, first_name, last_name, birthdate, email, hashed_password, salt]
+        const account_barrier = iat * 1000
+        const date_from_iat_epoch = new Date(account_barrier).toUTCString()
+        const args = [hashed_password, salt, date_from_iat_epoch, email, date_from_iat_epoch]
         const [err, result] = await Database.query(query, args)
         if (err) {
-            console.log(err.message)
-            if (err.message.includes('UNIQUE constraint') && err.message.includes('user_account.email')) {
-                res.status(400).send('Email already exists')
-                return
-            }
-            res.status(500).send('Service temporarily unavailable')
+            console.log(err)
+            res.status(500).send('Impossibile modificare la password')
             return
         }
-        res.status(201).send('Account created')
+        if (result.length == 0) {
+            res.status(400).send('Il token potrebbe essere scaduto')
+            return
+        }
+        console.log(result)
+        res.status(201).send('Password modificata con successo')
     }
 }
 

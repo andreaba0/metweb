@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>
+        <%= title %>
+    </title>
+
+    <%- include('../../partials/common_head.ejs') %>
+
+        <style type="text/css">
+            .body {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+            }
+
+            .reports {
+                width: 100%;
+                max-width: 600px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .header {
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+
+            h1 {
+                margin: 0;
+                padding: 25px 0;
+                color: var(--navy-color);
+                font-size: var(--text-size-l);
+            }
+
+            .section {
+                width: 100%;
+                text-align: left;
+                padding-left: 18px;
+                padding-top: 12px;
+                padding-bottom: 12px;
+                box-sizing: border-box;
+                color: var(--navy-color);
+                font-size: var(--text-size-s);
+                font-weight: var(--text-bold);
+                border-top: solid 1px var(--black-color);
+                margin-top: 36px;
+            }
+
+            .section i {
+                color: var(--lime-color);
+                margin-right: 6px;
+            }
+
+            .title,
+            .description {
+                width: 100%;
+                text-align: center;
+                color: var(--navy-color);
+                font-size: var(--text-size-s);
+                max-width: 400px;
+                padding: 12px 0;
+            }
+
+            .title {
+                font-weight: var(--text-bold);
+            }
+
+            .description {
+                font-weight: var(--text-normal);
+            }
+
+            .option_text {
+                width: 100%;
+                max-width: 400px;
+                text-align: left;
+                color: var(--black-color);
+                font-size: var(--text-size-s);
+                font-weight: var(--text-normal);
+                padding: 3px 12px;
+                box-sizing: border-box;
+            }
+
+            .option_text i {
+                color: var(--blue-color);
+                margin-right: 6px;
+            }
+
+            .report_text {
+                width: 100%;
+                max-width: 400px;
+                text-align: left;
+                color: var(--black-color);
+                border-left: solid 4px var(--red-color);
+                font-size: var(--text-size-s);
+                font-weight: var(--text-normal);
+                padding: 3px 12px;
+                margin: 6px 0;
+                box-sizing: border-box;
+            }
+
+            form.block button[type="submit"] {
+                width: 100%;
+                max-width: 400px;
+                padding: 21px 15px;
+                color: var(--gray-color);
+                background-color: var(--red-color);
+                border-radius: 6px;
+                border: none;
+                font-size: var(--text-size-s);
+                font-weight: var(--text-bold);
+                cursor: pointer;
+            }
+        </style>
+</head>
+
+<body>
+    <%- include('../../partials/menu.ejs') %>
+
+        <div class="body">
+            <div class="reports">
+                <div class="header">
+                    <h1>
+                        Info sul sondaggio
+                    </h1>
+                </div>
+                <div class="section">
+                    <i class="fas fa-info-circle"></i>Info sul sondaggio
+                </div>
+                <div class="title">
+                    <%= poll_info.title %>
+                </div>
+                <div class="description">
+                    <%= poll_info.vote_description %>
+                </div>
+                <div class="section">
+                    <i class="fas fa-info-circle"></i>Elenco delle opzioni
+                </div>
+                <% for (var i=0;i<poll_options.length;i++) { %>
+                    <div class="option_text">
+                        <i class="fas fa-circle"></i>
+                        <%= poll_options[i].option_text %>
+                    </div>
+                    <% } %>
+                    <div class="section">
+                        <i class="fas fa-info-circle"></i>Elenco delle segnalazioni
+                    </div>
+                        <% for (var i=0;i<poll_reports.length;i++) { %>
+                            <div class="report_text">
+                                <%= poll_reports[i].report_text %>
+                            </div>
+                            <% } %>
+                    <div class="section">
+                        <i class="fas fa-info-circle"></i>Azioni
+                    </div>
+                    <form method="POST" class="block" action="/poll/report/<%= id %>">
+                        <button type="submit">
+                            Blocca il sondaggio
+                        </button>
+                    </form>
+            </div>
+        </div>
+
+</body>
+
+</html>

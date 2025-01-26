@@ -62,13 +62,15 @@ const {PollId} = require('./modules/poll/[id]')
 const {MyPolls} = require('./modules/my-polls')
 const {PollCompileId} = require('./modules/poll/compile/[id]')
 const {PollReport} = require('./modules/poll/report')
+const {PollReportId} = require('./modules/poll/report/[id]')
 const {Profile} = require('./modules/profile')
 const {ReportList} = require('./modules/report/list')
 const {Polls} = require('./modules/polls')
 const {Signin} = require('./modules/signin')
 const {Signup} = require('./modules/signup')
 const {SignupConfirmToken} = require('./modules/signup/confirm/[token]')
-const {PasswordReset} = require('./modules/reset/[token]')
+const {PasswordReset} = require('./modules/password/reset/[token]')
+const {PasswordRecovery} = require('./modules/password/reset')
 const {Users} = require('./modules/users')
 const {Session} = require('./modules/profile/session')
 
@@ -127,6 +129,7 @@ app.get('/signup', Signup.Get)
 app.post('/signup', Signup.Post)
 app.get('/password/reset/:token', PasswordReset.Get)
 app.post('/password/reset/:token', PasswordReset.Post)
+app.post('/password/reset', PasswordRecovery.Post)
 
 app.delete('/profile/session', loggedIn, authorize('*'), Session.Delete)
 app.get('/profile', loggedIn, authorize('*'), Profile.Get)
@@ -145,6 +148,9 @@ app.get('/confirm', (req, res) => {
 app.get('/poll/compile/:id', loggedIn, authorize('user'), PollCompileId.Get)
 
 app.post('/poll/compile/:id', loggedIn, authorize('user'), /*createPollCompilation*/ PollCompileId.Post)
+
+app.get('/poll/report/:id', loggedIn, authorize('admin'), PollReportId.Get)
+app.post('/poll/report/:id', loggedIn, authorize('admin'), PollReportId.Post)
 app.post('/poll/report', loggedIn, authorize('user'), /*postReport*/ PollReport.Post)
 
 app.get('/signin', Signin.Get)
@@ -162,7 +168,16 @@ app.post('/signin', Signin.sanitizeSigninData, passport.authenticate('local', {
 })
 
 app.get('/inbox', async (req, res) => {
-    const query = 'SELECT id, email_type, content FROM email_inbox order by created_at desc limit 10'
+    const query = `
+        SELECT 
+            id, 
+            email_type, 
+            content 
+        FROM 
+            email_inbox 
+        order by 
+            created_at desc
+    `
     const [err, result] = await Database.query(query, [])
     if (err) {
         res.status(500).send('Service temporarily unavailable')

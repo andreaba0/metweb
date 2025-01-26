@@ -33,10 +33,18 @@ class Polls {
         }
 
         var sql = `
-            select vote_page.id, title, vote_description, first_name, last_name, count(voter_id) as votes, vote_page.created_at
-            from vote_page left join voter on vote_page.id = voter.vote_page_id
-            left join user_customer on vote_page.created_by = user_customer.user_id
-            inner join user_account on user_customer.user_id = user_account.id and user_account.user_role = user_customer.user_role
+            select 
+                vote_page.id as id, 
+                title, 
+                vote_description, 
+                first_name, 
+                last_name, 
+                count(voter_id) as votes, 
+                vote_page.created_at as created_at
+            from 
+                vote_page left join voter on vote_page.id = voter.vote_page_id
+                left join user_customer on vote_page.created_by = user_customer.user_id
+                inner join user_account on user_customer.user_id = user_account.id and user_account.user_role = user_customer.user_role
             ${where}
             group by vote_page.id
             ${order_by}

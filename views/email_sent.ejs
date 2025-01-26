@@ -2,6 +2,28 @@
 <html>
 <head>
     <title><%= action_title %></title>
+
+    <%- include('./partials/common_head.ejs') %>
+
+    <style type="text/css">
+        h1 {
+            width: 100%;
+            text-align: center;
+            font-size: var(--text-size-xl);
+            color: var(--navy-color);
+            padding: 20px 0;
+            margin: 0;
+        }
+
+        p {
+            width: 100%;
+            text-align: center;
+            font-size: var(--text-size-s);
+            color: var(--black-color);
+            padding: 6px 0;
+            margin: 0;
+        }
+    </style>
 </head>
 <body>
     <h1>Email inviata</h1>

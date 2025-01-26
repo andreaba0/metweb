@@ -6,7 +6,7 @@
         Modificare la password
     </title>
 
-    <%- include('./partials/common_head.ejs') %>
+    <%- include('../partials/common_head.ejs') %>
 
     <style type="text/css">
         @media only screen and (min-width: 800px) and (min-height: 500px) {
@@ -113,7 +113,7 @@
             text-align: center;
             font-size: var(--text-size-s);
             font-weight: var(--text-normal);
-            text-spacing: 1px;
+            letter-spacing: 1px;
         }
 
         form div {
@@ -167,6 +167,34 @@
 </head>
 
 <body>
+    <script type="text/javascript">
+        async function recoveryPasswordSubmit(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const passwordCheck = document.getElementById('password-check').value;
+            if (password !== passwordCheck) {
+                alert('Le password non corrispondono');
+                return;
+            }
+            const data = new URLSearchParams();
+            for (const pair of new FormData(e.target)) {
+                data.append(pair[0], pair[1]);
+            }
+            const response = await fetch('/password/reset/<%= token %>', {
+                method: 'POST',
+                body: data
+            });
+            if (response.status >= 200 && response.status < 300) {
+                alert('Password modificata con successo');
+                window.location.href = '/signin';
+            } else {
+                var text = await response.text();
+                alert('Errore: ' + text);
+            }
+        }
+    </script>
+
     <div class="access-panel">
         <h1>Completa i dati</h1>
         <div class="banner">
@@ -175,7 +203,7 @@
         <div>
             <img src="/static/icon/signup.svg" alt="Icona accedi" />
         </div>
-        <form method="POST" action=<%= '/signup/confirm/' + token %>>
+        <form method="POST" action=<%= '/password/reset/' + token %> onsubmit="recoveryPasswordSubmit(event)">
             <div class="mono">
                 <input type="email" placeholder="Ripeti la tua email" id="email" name="email" />
             </div>

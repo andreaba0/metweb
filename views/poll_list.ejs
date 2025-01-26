@@ -12,6 +12,12 @@
 
 <body>
 
+    <script type="text/javascript">
+        function redirect(url) {
+            window.location = url;
+        }
+    </script>
+
     <style type="text/css">
         .body {
             width: 100vw;
@@ -23,18 +29,128 @@
             align-items: center;
             box-sizing: border-box;
         }
+
+        .header {
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+            padding: 20px;
+        }
+
+        .header h1 {
+            font-size: var(--text-size-xl);
+            font-weight: var(--text-bold);
+            color: var(--black-color);
+            line-height: 1;
+        }
+
+        .poll-list {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+            padding: 20px;
+            gap: 21px;
+        }
+
+        .poll {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            border: solid 1px var(--black-color);
+            border-radius: 9px;
+            padding: 15px 0;
+            cursor: pointer;
+        }
+
+        .votes-container {
+            width: 90px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .votes-container .votes {
+            font-size: var(--text-size-xl);
+            font-weight: var(--text-bold);
+            color: var(--black-color);
+            line-height: 1;
+        }
+
+        .votes-container .votes-label {
+            font-size: var(--text-size-xs);
+            font-weight: var(--text-normal);
+            color: var(--navy-color);
+        }
+
+        .info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 6px;
+        }
+
+        .info .title {
+            font-size: var(--text-size-s);
+            font-weight: var(--text-bold);
+            color: var(--black-color);
+            line-height: 1;
+            padding-right: 12px;
+            box-sizing: border-box;
+        }
+
+        .info .description {
+            font-size: var(--text-size-xs);
+            font-weight: var(--text-normal);
+            color: var(--navy-color);
+            line-height: 1;
+            padding-right: 12px;
+            box-sizing: border-box;
+        }
+
+        .info .created_at {
+            font-size: var(--text-size-xs);
+            font-weight: var(--text-normal);
+            color: var(--lime-color);
+            line-height: 1;
+            padding-right: 12px;
+            box-sizing: border-box;
+        }
     </style>
 
     <!-- Lista dei sondaggi -->
     <div class="body">
-        <h1>Lista dei sondaggi</h1>
+        <div class="header">
+            <h1>Lista dei sondaggi</h1>
+        </div>
         <div class="poll-list">
             <% if (poll_list.length > 0) { %>
                 <% poll_list.forEach(function(poll) { %>
-                    <div class="poll">
-                        <h2><%= poll.title %></h2>
-                        <p><%= poll.description %></p>
-                        <a href="/poll/<%= poll.id %>" class="button">Vai al sondaggio</a>
+                    <div class="poll" onclick="redirect('/poll/compile/<%= poll.id %>')">
+                        <div class="votes-container">
+                            <div class="votes">
+                                <%= poll.votes %>
+                            </div>
+                            <div class="votes-label">
+                                voti
+                            </div>
+                        </div>
+                        <div class="info">
+                            <div class="title"><%= poll.title %></div>
+                            <div class="description"><%= poll.vote_description %></div>
+                            <div class="created_at"><%= poll.created_at %></div>
+                        </div>
                     </div>
                 <% }); %>
             <% } else { %>
