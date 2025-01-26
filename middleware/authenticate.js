@@ -155,7 +155,7 @@ function localStrategy(email, password, done) {
         done(new Error('Email and password are required'), null)
         return
     }
-    const query = 'SELECT id, first_name, last_name, user_role, hashed_password, password_salt FROM user_account WHERE email = ?'
+    const query = 'SELECT id, banned, first_name, last_name, user_role, hashed_password, password_salt FROM user_account WHERE email = ?'
     Database.query(query, [email])
     .then(([err, rows]) => {
         if (err) {
@@ -171,6 +171,10 @@ function localStrategy(email, password, done) {
         const hashed_password = calculate_hash(password, salt)
         if (hashed_password != user.hashed_password) {
             done(null, false)
+            return
+        }
+        if (user.banned) {
+            done(new Error('Your account has been banned'), null)
             return
         }
         done(null, {
@@ -225,12 +229,20 @@ function deserializeUser(user, done) {
     })
 }
 
-function loggedIn(req, res, next) {
-    if (req.isAuthenticated()) {
-        next()
+async function loggedIn(req, res, next) {
+    if (!req.isAuthenticated()) {
+        res.redirect('/signin')
         return
     }
-    res.redirect('/signin')
+    req.session.access = {
+        last_access: new Date().toISOString()
+    }
+    try {
+        await saveMetadata(req)
+    } catch(err) {
+        console.log(err)
+    }
+    next()
 }
 
 async function saveMetadata(req) {
@@ -246,16 +258,21 @@ async function saveMetadata(req) {
 }
 
 async function storeMetadata(req, res, next) {
-   req.session.metadata = {
-       user_agent: req.headers['user-agent']
-   }
-   try {
-       await saveMetadata(req)
-       next()
-   } catch(err) {
-       console.log(err)
-       res.status(500).send('Service temporarily unavailable')
-   }
+    req.session.metadata = {
+        
+        // user-agent could be a useful way to detect potential session hijacking
+        // e.g. if user-agent switch during a session between different OS or browser
+        // it could be a sign of session hijacking
+        user_agent: req.headers['user-agent'],
+        created_at: new Date().toISOString()
+    }
+    try {
+        await saveMetadata(req)
+        next()
+    } catch(err) {
+        console.log(err)
+        res.status(500).send('Service temporarily unavailable')
+    }
 }
 
 module.exports = {

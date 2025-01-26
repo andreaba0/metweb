@@ -159,10 +159,122 @@
                 align-items: flex-start;
                 gap: 10px;
             }
+
+            div.error {
+                display: none;
+                width: 100%;
+                text-align: center;
+                background: var(--red-color);
+                color: var(--gray-color);
+                font-weight: var(--text-normal);
+                font-size: var(--text-size-s);
+                padding: 21px;
+                box-sizing: border-box;
+                margin-top: 21px;
+                max-width: 400px;
+            }
         </style>
 
+        <script type="text/javascript">
+            var errorDisplay = false;
+            function displayError(message) {
+                var error = document.getElementById('error');
+                error.innerText = message;
+                if (!errorDisplay) {
+                    error.style.display = 'block';
+                    errorDisplay = true;
+                }
+            }
+            function hideError() {
+                var error = document.getElementById('error');
+                error.style.display = 'none';
+                errorDisplay = false;
+            }
+            async function checkPollBeforeSubmit(e) {
+                e.preventDefault();
+                const title = document.getElementById('title').value;
+                const description = document.getElementById('description').value;
+                if (!title || !description) {
+                    displayError('Il titolo e la descrizione non possono essere vuoti');
+                    return;
+                }
+                const options = [];
+                for (let i = 1; i <= option_id; i++) {
+                    const option = document.getElementById('option_' + i).value;
+                    if (!option) {
+                        displayError('Inserisci il testo di tutte le risposte');
+                        return;
+                    }
+                    options.push(option);
+                }
+                if (options.length < 2) {
+                    displayError('Inserisci almeno due risposte');
+                    return;
+                }
+                const start_date = document.getElementById('date-start')._flatpickr.selectedDates[0];
+                const end_date = document.getElementById('date-end')._flatpickr.selectedDates[0];
+                if (!start_date || !end_date) {
+                    displayError('Inserisci la data di inizio e di fine del sondaggio');
+                    return;
+                }
+                if (start_date >= end_date) {
+                    displayError('La data di inizio deve essere precedente a quella di fine');
+                    return;
+                }
+                const domains = document.getElementById('domain_filter').value;
+                if (!domains) {
+                    e.target.submit();
+                    return;
+                }
+                var parts = domains.split(',').map(function (item) {
+                    return item.trim();
+                });
+                for (let i = 0; i < parts.length; i++) {
+                    const domain = parts[i];
+                    const domainParts = domain.split('.');
+                    if(domainParts.length < 2) {
+                        displayError('Il dominio \'' + domain + '\' non è valido');
+                        return;
+                    }
+                    for(var j=0;j<domainParts.length;j++) {
+                        if(j==0&&!(domainParts[j]=='*' || domainParts[j].match(/^[a-z0-9\-]+$/))) {
+                            displayError('Il dominio \'' + domain + '\' non è valido');
+                            return;
+                        }
+                        if(j==domainParts.length-1&&!(domainParts[j].match(/^[a-z]+$/))) {
+                            displayError('Il dominio \'' + domain + '\' non è valido');
+                            return;
+                        }
+                        if(j>0&&!(domainParts[j].match(/^[a-z0-9\-]+$/))) {
+                            displayError('Il dominio \'' + domain + '\' non è valido');
+                            return;
+                        }
+                    }
+                }
+                e.target.submit();
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                document.getElementById('title').oninput = function() {
+                    hideError();
+                }
+                document.getElementById('description').oninput = function() {
+                    hideError();
+                }
+                document.getElementById('domain_filter').oninput = function() {
+                    hideError();
+                }
+                document.getElementById('date-start').oninput = function() {
+                    hideError();
+                }
+                document.getElementById('date-end').oninput = function() {
+                    hideError();
+                }
+            })
+        </script>
+
         <div class="body">
-            <form action="/poll/create/<%= id %>" method="POST">
+            <form action="/poll/create/<%= id %>" method="POST" onsubmit="checkPollBeforeSubmit(event)">
                 <div class="form-group">
                     <textarea id="title" name="title" placeholder="Testo della domanda"><%= (typeof old !== 'undefined' && old.title) ? old.title : '' %></textarea>
                 </div>
@@ -173,14 +285,14 @@
                 <div class="option-group" id="option_list">
                     <div class="option_container" id="option_container_1">
                         <label class="option_number" for="option_1">1.</label>
-                        <textarea id="option_1" name="option_1" placeholder="Testo della risposta"></textarea>
+                        <textarea id="option_1" name="option_1" oninput="hideError()" placeholder="Testo della risposta"></textarea>
                     </div>
                 </div>
-                <div class="form-group-checkbox" id="option_list">
+                <div class="form-group-checkbox" id="multiple_restrict">
                     <label for="multiple"><input type="checkbox" id="multiple" name="multiple_choice" <% if (typeof old !== 'undefined' && old.multiple_choice) { %>checked<% } %> />
                     Abilita risposte multiple </label>
                 </div>
-                <div class="form-group-checkbox" id="option_list">
+                <div class="form-group-checkbox" id="anonymous_restrict">
                     <label for="anonymous"><input type="checkbox" id="anonymous" name="anonymous_compilation" <% if (typeof old !== 'undefined' &&old.anonymous_compilation) { %>checked<% } %> />
                         risposte anonime</label>
                 </div>
@@ -189,9 +301,13 @@
                         Abilita compilazione per soli
                         maggiorenni</label>
                 </div>
-                <div class="form-group" id="option_list">
+                <div class="form-group-checkbox" id="public_stats">
+                    <label for="public"><input type="checkbox" id="public" name="public_stats" <% if (typeof old !== 'undefined' && old.public_stats) { %>checked<% } %> />
+                        Rendi pubbliche le statistiche</label>
+                </div>
+                <div class="form-group" id="domain_filter">
                     <textarea id="domain_filter" name="domain_filter"
-                        placeholder="Restringi compilazione per domain email"><%= (typeof old !== 'undefined' && old.domain_filter) ? old.domain_filter : '' %></textarea>
+                        placeholder="Restringi compilazione per domini email. Separa i domini da una ','. Es. 'test.com,*.google.com'"><%= (typeof old !== 'undefined' && old.domain_filter) ? old.domain_filter : '' %></textarea>
                 </div>
                 <div class="datetime-group">
                     <input type="date" name="start_date" id="date-start" placeholder="Valido dal:" />
@@ -204,6 +320,9 @@
             <div>
                 <button class="manage_questions" onclick="addOption()"><i class="fa-solid fa-plus"></i></button>
                 <button class="manage_questions" onclick="removeOption()"><i class="fa-solid fa-minus"></i></button>
+            </div>
+            <div class="error" id="error">
+                test
             </div>
         </div>
 
@@ -230,6 +349,9 @@
                 textarea.id = 'option_' + option_id;
                 textarea.name = 'option_' + option_id;
                 textarea.placeholder = 'Risposta numero ' + option_id;
+                textarea.oninput = function () {
+                    hideError();
+                }
                 option_container.appendChild(label);
                 option_container.appendChild(textarea);
                 var option_list = document.getElementById('option_list');

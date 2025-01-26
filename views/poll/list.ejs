@@ -212,7 +212,7 @@
 
         <script type="text/javascript">
             function deletePoll(id) {
-                fetch('/poll/delete/' + id, {
+                fetch('/poll/' + id, {
                     method: 'DELETE'
                 }).then(function(response) {
                     if(!response.ok) {

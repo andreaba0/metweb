@@ -1,4 +1,4 @@
-const {Email, EmailFieldMissing, SignupEmail, ChangePasswordEmail} = require('../email');
+const {Email, EmailFieldMissing, SignupEmail, ChangePasswordEmail} = require('../utility/email');
 
 describe('Email', () => {
     it('should throw an error if recipient is missing', () => {

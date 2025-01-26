@@ -11,6 +11,7 @@ create table user_account (
     created_at timestamptz not null default current_timestamp,
     user_role varchar(3) not null check (user_role = 'adm' or user_role = 'usr') default 'usr',
     account_barrier timestamptz not null default current_timestamp,
+    banned boolean not null default false,
     date_of_birth date not null,
     unique (id, user_role)
 );

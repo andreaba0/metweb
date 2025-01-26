@@ -1,4 +1,4 @@
-const {Cache, CacheHit, CacheMiss, CacheError, CacheEmpty} = require('../cache');
+const {Cache, CacheHit, CacheMiss, CacheError, CacheEmpty} = require('../utility/cache');
 
 describe('Cache', () => {
     it('should return CacheMiss if key is not found', () => {

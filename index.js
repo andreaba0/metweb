@@ -1,5 +1,8 @@
 require('dotenv').config()
+const {checkEnvironment} = require('./utility/env')
 
+const environment = process.env.NODE_ENV
+checkEnvironment(environment)
 const port = process.env.PORT
 if (port == null || port == "") {
     throw new Error('PORT is not defined in .env file')
@@ -151,6 +154,7 @@ app.post('/poll/compile/:id', loggedIn, authorize('user'), /*createPollCompilati
 
 app.get('/poll/report/:id', loggedIn, authorize('admin'), PollReportId.Get)
 app.post('/poll/report/:id', loggedIn, authorize('admin'), PollReportId.Post)
+app.delete('/poll/report/:id', loggedIn, authorize('admin'), PollReportId.Delete)
 app.post('/poll/report', loggedIn, authorize('user'), /*postReport*/ PollReport.Post)
 
 app.get('/signin', Signin.Get)
@@ -211,7 +215,7 @@ app.get('/about', (req, res) => {
 
 app.get('/poll/create/:uuid', loggedIn, authorize('user'), PollCreateUuid.Get)
 
-app.post('/poll/create/:uuid', loggedIn, authorize('user'), /*pollSanitizer,*/ PollCreateUuid.Post)
+app.post('/poll/create/:uuid', loggedIn, authorize('user'), pollSanitizer, PollCreateUuid.Post)
 app.delete('/poll/:id', loggedIn, authorize('user'), PollId.Delete)
 
 app.get('/poll/create', loggedIn, authorize('user'), async (req, res) => {

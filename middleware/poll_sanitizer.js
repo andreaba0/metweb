@@ -26,6 +26,12 @@ function pollSanitizer(req, res, next) {
     if (body.multiple_choice && body.multiple_choice!=='on') {
         return res.status(400).json({ error: 'multiple_choice must be false or "on"' })
     }
+    if(body.adult_restrict && body.adult_restrict!=='on') {
+        return res.status(400).json({ error: 'adult_restrict must be false or "on"' })
+    }
+    if(body.public_stats && body.public_stats!=='on') {
+        return res.status(400).json({ error: 'public_stats must be false or "on"' })
+    }
     if(!body.start_date) {
         return res.status(400).json({ error: 'missing start_date' })
     }

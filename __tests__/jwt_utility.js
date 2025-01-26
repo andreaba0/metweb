@@ -1,4 +1,4 @@
-const {parseJwt, JwtBadToken} = require('../jwt_utility')
+const {parseJwt, JwtBadToken} = require('../utility/jwt_utility')
 
 describe('JwtUtility', () => {
     it('should return bad token if token is invalid', () => {

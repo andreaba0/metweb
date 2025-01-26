@@ -1,6 +1,49 @@
 class Filter {
+
+    #regex_full_domains = '^[a-z0-9.\*, ]+$';
+    #regex_single_domain = '^(\*.)?([a-z0-9]+\.)?[a-z]$';
+
     constructor(json) {
         this.json = json;
+    }
+
+    static parse(string) {
+        var res = []
+        if (!string) {
+            return res;
+        }
+        var parts = string.split(',').map(function (item) {
+            return item.trim();
+        });
+        if (parts.length === 0) {
+            return res;
+        }
+        for (let i = 0; i < parts.length; i++) {
+            const domain = parts[i];
+            const domainParts = domain.split('.');
+            if(domainParts.length < 2) {
+                continue;
+            }
+            var ok = true;
+            for(var j=0;j<domainParts.length;j++) {
+                if(j==0&&!(domainParts[j]=='*' || domainParts[j].match(/^[a-z0-9\-]+$/))) {
+                    ok = false;
+                    break;
+                }
+                if(j==domainParts.length-1&&!(domainParts[j].match(/^[a-z]+$/))) {
+                    ok = false;
+                    break;
+                }
+                if(j>0&&!(domainParts[j].match(/^[a-z0-9\-]+$/))) {
+                    ok = false;
+                    break;
+                }
+            }
+            if(ok) {
+                res.push(domain);
+            }
+        }
+        return res;
     }
 
     /**
@@ -9,37 +52,27 @@ class Filter {
      * @param {email string to check} email 
      * @returns 
      */
-    static domainMatchEmail(domain, email) {
-        if (email === undefined || email === null || email === '') {
+    static domainMatchEmail(domain_string, email) {
+        if (!email) {
             return false;
         }
-        let filterRegex = '^';
-        if (domain === undefined || domain === null || domain === '') {
-            return true;
-        }
-        if (domain[0] === '*') {
-            filterRegex += '[a-zA-Z0-9.]+';
-        }
-        let domainHierarchy = domain.split('.');
-        if(domain[0]==='*') {
-            domainHierarchy.shift();
-        }
-        domainHierarchy.forEach((domain) => {
-            if(domain==='*') {
-                throw new Error('Invalid domain format');
+        const domainParts = domain_string.split('.').reverse();
+        const emailParts = email.split('@')[1].split('.').reverse();
+        for(let i=0;i<domainParts.length;i++) {
+            if(i>emailParts.length-1) {
+                return false;
             }
-            if(filterRegex!=='^') {
-                filterRegex += '.';
+            if(i==0&&domainParts[i]!=emailParts[i]) {
+                return false;
             }
-            if(!domain.match(/^[a-zA-Z0-9]+$/)) {
-                throw new Error('Invalid domain string');
+            if(i>0&&domainParts[i]=='*') {
+                return true;
             }
-            filterRegex += domain;
-        })
-        filterRegex += '$';
-        const regex = new RegExp(filterRegex);
-        const email_domain = email.match(/@(.*)$/)[1];
-        return regex.test(email_domain);
+            if(i>0&&domainParts[i]!=emailParts[i]) {
+                return false;
+            }
+        }
+        return true;
     }
 
     domainMatch(email) {

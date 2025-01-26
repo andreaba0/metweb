@@ -1,44 +1,74 @@
 const {Database} = require('../../../utility/db_store')
 const {v4: uuidv4, validate: isValidUUID} = require('uuid')
+const {Filter} = require('../../../utility/filter')
 
-
-async function uploadPollTransaction(db, uuid, userUUID, user_visibility, title, description, options, multipleChoice, start_date, end_date, filter) {
-    return new Promise((resolve, reject) => {
-        db.run('BEGIN TRANSACTION', function(err) {
-            db.run('insert into vote_page(id, created_by, vote_type, title, vote_description, restrict_filter, option_type, compile_start_at, compile_end_at) values(?, ?, ?, ?, ?, ?, ?, ?, ?)', [uuid, userUUID, user_visibility, title, description, filter, multipleChoice, start_date, end_date], function(err) {
-                if (err) {
-                    console.log(err)
-                    db.run('ROLLBACK', function(err) {
-                        resolve(null)
-                    })
-                    return
-                }
-                var op_insert = []
-                var op_list = []
-                for (var i = 0; i < options.length; i++) {
-                    op_insert.push(`(?, ?, ?)`)
-                    op_list.push(uuid, i, options[i])
-                }
-                op_insert = op_insert.join(',')
-                db.run(`insert into vote_option(vote_page_id, option_index, option_text) values ${op_insert}`, op_list, function(err) {
-                    if (err) {
-                        console.log(err)
-                        db.run('ROLLBACK', function(err) {
-                            resolve(null)
-                        })
-                        return
-                    }
-                    db.run('COMMIT', function(err) {
-                        resolve(uuid)
-                    })
-                })
-            })
-
+function uploadPollTransaction(uuid, userUUID, user_visibility, title, description, options, multipleChoice, start_date, end_date, filter, public_stats) {
+    return (db) => {
+        return new Promise(async (resolve, reject) => {
+            var err;
+            err = await Database.non_returning_query(db, 'BEGIN TRANSACTION', [])
+            if (err) {
+                reject(err)
+                return
+            }
+            err = await Database.non_returning_query(db, `
+                insert into vote_page(
+                    id, 
+                    public_stats, 
+                    created_by, 
+                    vote_type, 
+                    title, 
+                    vote_description, 
+                    restrict_filter, 
+                    option_type, 
+                    compile_start_at, 
+                    compile_end_at
+                ) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
+            [
+                uuid, 
+                public_stats, 
+                userUUID, 
+                user_visibility, 
+                title, 
+                description, 
+                filter, 
+                multipleChoice, 
+                start_date, 
+                end_date
+            ])
+            if (err) {
+                console.log(1, err)
+                reject(err)
+                return
+            }
+            var op_insert = []
+            var op_list = []
+            for (var i = 0; i < options.length; i++) {
+                op_insert.push(`(?, ?, ?)`)
+                op_list.push(uuid, i, options[i])
+            }
+            op_insert = op_insert.join(',')
+            err = await Database.non_returning_query(db, `
+                insert into vote_option(
+                    vote_page_id, 
+                    option_index, 
+                    option_text
+                ) values ${op_insert}`, 
+            op_list)
+            if (err) {
+                console.log(2, err)
+                reject(err)
+                return
+            }
+            err = await Database.non_returning_query(db, 'COMMIT', [])
+            if (err) {
+                reject(err)
+                return
+            }
+            resolve(1)
         })
-    })
+    }
 }
-
-
 
 class PollCreateUuid {
     static Get(req, res) {
@@ -84,7 +114,12 @@ class PollCreateUuid {
         if (start_date == null) error = 'Start date is required'
         let end_date = body.end_date
         if (end_date == null) error = 'End date is required'
+        let domain_filter = body.domain_filter
+        let allowed_domains = []
+        allowed_domains = Filter.parse(domain_filter)
+        let public_stats = (body.public_stats == 'on') ? true : false
         if (error != null) {
+            console.log(error)
             res.status(400).render('poll/create', {
                 id: poll_id,
                 error: error,
@@ -94,8 +129,11 @@ class PollCreateUuid {
             })
             return
         }
-        const upload = await uploadPollTransaction(Database.database(), poll_id, req.user.id, compilation_type, title, description, options, multiple_choice, start_date, end_date, '{}')
-        if (upload == null) {
+        let uploadT = uploadPollTransaction(poll_id, req.user.id, compilation_type, title, description, options, multiple_choice, start_date, end_date, JSON.stringify({allowed_domains: allowed_domains}), public_stats)
+        //const upload = await uploadPollTransaction(Database.database(), poll_id, req.user.id, compilation_type, title, description, options, multiple_choice, start_date, end_date, JSON.stringify({allowed_domains: allowed_domains}), public_stats)
+        var [err, upload] = await Database.run_scoped_transaction(uploadT)
+        if (err) {
+            console.log(err)
             res.status(500).render('poll/create', {
                 id: poll_id,
                 error: 'Service temporarily unavailable',
@@ -105,27 +143,7 @@ class PollCreateUuid {
             })
             return
         }
-        res.redirect(302, '/polls/my_polls')
-    }
-
-    static async Delete(req, res) {
-        const poll_id = req.params.id
-        const user_id = req.user.id
-        if (!isValidUUID(poll_id)) {
-            res.status(400).send('Invalid request')
-            return
-        }
-
-        const query = `
-            DELETE FROM vote_page WHERE id = ? AND created_by = ?
-        `
-        const [err, result] = await Database.query(query, [poll_id, user_id])
-        if (err) {
-            console.log(err)
-            res.status(500).send('Service temporarily unavailable')
-            return
-        }
-        res.status(204).send('Deleted')
+        res.redirect(302, '/my-polls')
     }
 }
 

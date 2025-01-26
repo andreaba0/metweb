@@ -11,9 +11,9 @@ class PollVotersId {
             from
                 vote_page
             where
-                id = ?
+                id = ? and created_by = ?
         `
-        var [err, result] = await Database.query(poll_data_sql, [poll_id])
+        var [err, result] = await Database.query(poll_data_sql, [poll_id, req.user.id])
         if (err) {
             const page = new FrontendError(500, 'Database error')
             page.render(res)

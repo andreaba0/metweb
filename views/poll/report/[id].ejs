@@ -24,6 +24,7 @@
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
+                gap: 21px;
             }
 
             .header {
@@ -164,6 +165,11 @@
                     <form method="POST" class="block" action="/poll/report/<%= id %>">
                         <button type="submit">
                             Blocca il sondaggio
+                        </button>
+                    </form>
+                    <form method="POST" class="block" action="/poll/report/<%= id %>">
+                        <button type="submit">
+                            Annulla segnalazioni
                         </button>
                     </form>
             </div>

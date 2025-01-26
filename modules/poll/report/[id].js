@@ -92,6 +92,29 @@ class PollReportId {
         }
         res.redirect('/report/list')
     }
+
+    static async Delete(req, res) {
+        const id = req.params.id
+        const delete_report_query = `
+            delete from
+                report
+            where
+                vote_page_id = ?
+            returning count(*) as count
+        `
+        const [err_delete_report, rows_affected] = await Database.query(delete_report_query, [id])
+        if (err_delete_report) {
+            const err = new FrontendError(500, 'Maybe this is a server error')
+            err.render(res)
+            return
+        }
+        if (rows_affected[0].count == 0) {
+            const err = new FrontendError(403, 'This poll has no report. Maybe it does not exist?')
+            err.render(res)
+            return
+        }
+        res.status(204).send('Deleted')
+    }
 }
 
 module.exports = {
