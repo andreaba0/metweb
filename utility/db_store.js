@@ -1,33 +1,18 @@
 const sqlite3 = require('sqlite3').verbose();
 require('dotenv').config();
 
-class SessionDatabase {
-    static #dbms = null
-
-    static database() {
-        if (this.#dbms == null) {
-            this.#dbms = new sqlite3.Database(process.env.SESSION_DB_NAME)
-        }
-        return this.#dbms
-    }
-
-    static async query(query, args) {
-        const db = SessionDatabase.database()
-        return new Promise((resolve, reject) => {
-            /*db.exec('PRAGMA foreign_keys = ON', (err) => {
-                if (err) {
-                    console.log(err)
-                    resolve([err, null])
-                }
-            })*/
-            db.all(query, args, (err, rows) => {
-                resolve([err, rows])
-            })
-        })
-    }
-}
-
-class Database {
+/**
+ * This class aims to provide an interface to interact with a database.
+ * It is designed to handle both shared and dedicated database connections.
+ * Shared connections are used for simple and non-transactional queries.
+ * Dedicated connections are used for transactional queries.
+ * 
+ * Reasons to use a dedicated connection for a transactional query:
+ * - Be able to run multiple transactions concurrently
+ * - No overhead in case of a broken transaction
+ * 
+ */
+class DatabaseManager {
     static #dbms = null
 
     /**
@@ -59,17 +44,15 @@ class Database {
 
     constructor() {}
 
-    static database() {
+    static database(env_name) {
         if (this.#dbms == null) {
-            this.#dbms = new sqlite3.Database(process.env.DATA_DB_NAME)
+            //this.#dbms = new sqlite3.Database(process.env.DATA_DB_NAME)
+            this.#dbms = new sqlite3.Database(env_name)
         }
         return this.#dbms
     }
 
-    static async dedicated_query(db, query, args) {
-        if (this.#dbms == db) {
-            throw new Error('Cannot use a shared database connection for a dedicated query')
-        }
+    static async #query_runner(db, query, args) {
         return new Promise((resolve, reject) => {
             db.all(query, args, (err, rows) => {
                 resolve([err, rows])
@@ -77,36 +60,21 @@ class Database {
         })
     }
 
-    static async shared_query(query, args) {
+    static async dedicated_query(db_shared, db_dedicated, query, args) {
+        if (db_shared == db_dedicated) {
+            throw new Error('Cannot use a shared database connection for a dedicated query')
+        }
+        return DatabaseManager.#query_runner(db_dedicated, query, args)
+    }
+
+    static async shared_query(db, query, args) {
         if (this.isTransactionStatement(query)) {
             throw new Error('Cannot use a shared database connection for a transaction statement')
         }
-        const db = Database.database()
-        return Database.query(db, query, args)
+        return DatabaseManager.#query_runner(db, query, args)
     }
 
-    static async query() {
-        if (arguments.length == 2) {
-            return Database.shared_query(arguments[0], arguments[1])
-        }
-        if (arguments.length == 3) {
-            return Database.dedicated_query(arguments[0], arguments[1], arguments[2])
-        }
-
-        throw new Error('Invalid number of arguments')
-    }
-
-    /**
-     * 
-     * @param {string} query 
-     * @param {Array<any>} args 
-     * @returns {Promise<any>}
-     * @description Run a non-returning query within a shared database connection.
-     */
-    static async dedicated_non_returning_query(db, query, args) {
-        if (this.#dbms == db) {
-            throw new Error('Cannot use a shared database connection for a dedicated query')
-        }
+    static async non_returning_query_runner(db, query, args) {
         return new Promise((resolve, reject) => {
             db.run(query, args, (err) => {
                 if (err) {
@@ -118,24 +86,25 @@ class Database {
         })
     }
 
-    static async shared_non_returning_query(query, args) {
+    /**
+     * 
+     * @param {string} query 
+     * @param {Array<any>} args 
+     * @returns {Promise<any>}
+     * @description Run a non-returning query within a shared database connection.
+     */
+    static async dedicated_non_returning_query(db_shared, db_dedicated, query, args) {
+        if (db_shared == db_dedicated) {
+            throw new Error('Cannot use a shared database connection for a dedicated query')
+        }
+        return DatabaseManager.non_returning_query_runner(db_dedicated, query, args)
+    }
+
+    static async shared_non_returning_query(db, query, args) {
         if (this.isTransactionStatement(query)) {
             throw new Error('Cannot use a shared database connection for a transaction statement')
         }
-        const db = Database.database()
-        return Database.dedicated_non_returning_query(db, query, args)
-    }
-
-    static async non_returning_query() {
-        if (arguments.length == 2) {
-            return Database.shared_non_returning_query(arguments[0], arguments[1])
-        }
-        if (arguments.length == 3) {
-            console.log('Dedicated non-returning query')
-            return Database.dedicated_non_returning_query(arguments[0], arguments[1], arguments[2])
-        }
-
-        throw new Error('Invalid number of arguments')
+        return DatabaseManager.non_returning_query_runner(db, query, args)
     }
 
     /**
@@ -143,8 +112,8 @@ class Database {
      * @returns {Promise<[Error, any]>}
      * @description Run a transaction within a new database connection. This avoid query to interfere with a running transaction
      */
-    static async run_scoped_transaction(callback) {
-        const db = new sqlite3.Database(process.env.DATA_DB_NAME)
+    static async run_scoped_transaction(env_db_name, callback) {
+        const db = new sqlite3.Database(env_db_name)
         let res = []
         try {
             const data = await callback(db)
@@ -155,6 +124,88 @@ class Database {
         }
         db.close()
         return res
+    }
+}
+
+class Database extends DatabaseManager {
+    static #db = null
+    
+    constructor() {
+        super()
+    }
+
+    static database() {
+        if (this.#db == null) {
+            this.#db = new sqlite3.Database(process.env.DATA_DB_NAME)
+        }
+        return this.#db
+    }
+
+    static async query() {
+        const db = this.database()
+        if (arguments.length == 2) {
+            return super.shared_query(db, arguments[0], arguments[1])
+        }
+        if (arguments.length == 3) {
+            return super.dedicated_query(db, arguments[0], arguments[1], arguments[2])
+        }
+
+        throw new Error('Invalid number of arguments')
+    }
+
+    static async non_returning_query() {
+        const db = this.database()
+        if (arguments.length == 2) {
+            return super.shared_non_returning_query(db, arguments[0], arguments[1])
+        }
+        if (arguments.length == 3) {
+            return super.dedicated_non_returning_query(db, arguments[0], arguments[1], arguments[2])
+        }
+
+        throw new Error('Invalid number of arguments')
+    }
+
+    static async run_scoped_transaction(callback) {
+        return super.run_scoped_transaction(process.env.DATA_DB_NAME, callback)
+    }
+
+}
+
+class SessionDatabase extends DatabaseManager {
+    static #db = null
+    constructor() {
+        super()
+    }
+
+    static database() {
+        if (this.#db == null) {
+            this.#db = new sqlite3.Database(process.env.SESSION_DB_NAME)
+        }
+        return this.#db
+    }
+
+    static async query() {
+        const db = this.database()
+        if (arguments.length == 2) {
+            return super.shared_query(db, arguments[0], arguments[1])
+        }
+        if (arguments.length == 3) {
+            return super.dedicated_query(db, arguments[0], arguments[1], arguments[2])
+        }
+
+        throw new Error('Invalid number of arguments')
+    }
+
+    static async non_returning_query() {
+        const db = this.database()
+        if (arguments.length == 2) {
+            return super.shared_non_returning_query(db, arguments[0], arguments[1])
+        }
+        if (arguments.length == 3) {
+            return super.dedicated_non_returning_query(db, arguments[0], arguments[1], arguments[2])
+        }
+
+        throw new Error('Invalid number of arguments')
     }
 }
 
