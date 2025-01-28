@@ -11,7 +11,6 @@ create table user_account (
     created_at timestamptz not null default current_timestamp,
     user_role varchar(3) not null check (user_role = 'adm' or user_role = 'usr') default 'usr',
     account_barrier timestamptz not null default current_timestamp,
-    banned boolean not null default false,
     date_of_birth date not null,
     unique (id, user_role)
 );
@@ -28,6 +27,16 @@ create table user_admin (
     user_role varchar(3) not null check (user_role = 'adm') default 'adm',
     foreign key (user_id, user_role) references user_account(id, user_role),
     unique (user_id, user_role)
+);
+
+create table account_suspension (
+    user_id varchar(36) not null references user_account(id),
+    suspension_reason text not null,
+    suspension_start_at timestamptz not null,
+    suspension_end_at timestamptz not null,
+    created_at timestamptz not null default current_timestamp,
+    created_by varchar(36) not null references user_admin(user_id),
+    primary key (user_id, suspension_start_at)
 );
 
 create table rsa_key (

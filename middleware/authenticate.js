@@ -155,7 +155,7 @@ function localStrategy(email, password, done) {
         done(new Error('Email and password are required'), null)
         return
     }
-    const query = 'SELECT id, banned, first_name, last_name, user_role, hashed_password, password_salt FROM user_account WHERE email = ?'
+    const query = 'SELECT id, first_name, last_name, user_role, hashed_password, password_salt FROM user_account WHERE email = ?'
     Database.query(query, [email])
     .then(([err, rows]) => {
         if (err) {
@@ -173,10 +173,10 @@ function localStrategy(email, password, done) {
             done(null, false)
             return
         }
-        if (user.banned) {
+        /*if (user.banned) {
             done(new Error('Your account has been banned'), null)
             return
-        }
+        }*/
         done(null, {
             id: user.id,
             email: email,
@@ -202,7 +202,6 @@ function serializeUser(user, done) {
 }
 
 function deserializeUser(user, done) {
-    console.log('deserializeUser')
     const query = 'SELECT id, email, first_name, last_name, user_role FROM user_account WHERE id = ?'
     Database.query(query, [user.id])
     .then(([err, rows]) => {
@@ -261,7 +260,7 @@ async function storeMetadata(req, res, next) {
     req.session.metadata = {
         
         // user-agent could be a useful way to detect potential session hijacking
-        // e.g. if user-agent switch during a session between different OS or browser
+        // e.g. if user-agent switch during a session between different OSes or browsers
         // it could be a sign of session hijacking
         user_agent: req.headers['user-agent'],
         created_at: new Date().toISOString()

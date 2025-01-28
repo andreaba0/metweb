@@ -15,9 +15,11 @@ body {
     --main-text-color-darker: #242423;
     --main-text-color: #333533;
     --accent-color-blue: #6a8eae;
-    --accent-color-yellow: #f5cb5c;
+    --yellow-color: #f5cb5c;
+    --yellow-2-color: #D8A25E;
     --gray-color: #f5f5f5;
     --green-color: #01ecd5;
+    --green-2-color: #41B06E;
     --red-color: #f05454;
     --blue-color: #4586ff;
     --black-color: #26282b;
@@ -34,4 +36,10 @@ body {
     --text-size-m: 1.25rem;
     --text-size-l: 1.5rem;
     --text-size-xl: 2rem;
+    --text-size-2xl: 2.5rem;
+    --text-size-3xl: 3rem;
+    --text-size-4xl: 3.5rem;
+    --text-size-5xl: 4rem;
+    --text-size-6xl: 5rem;
+    --text-size-7xl: 6rem;
 }

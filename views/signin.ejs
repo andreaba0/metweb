@@ -141,6 +141,7 @@
                 color: var(--blue-color);
                 text-decoration: underline;
                 font-size: var(--text-size-s);
+                letter-spacing: 0.5px;
             }
 
             form.recovery button[type="submit"] {
@@ -150,6 +151,8 @@
                 color: var(--blue-color);
                 text-decoration: underline;
                 font-size: var(--text-size-s);
+                letter-spacing: 0.5px;
+                display: inline;
             }
 
 
@@ -195,7 +198,7 @@
             <div class="option">
                 <form method="POST" action="/password/reset" class="recovery" onsubmit="submitRecoveryForm(event)">
                     <input type="hidden" id="recovery_email" name="email" />
-                    <button type="submit">Password dimenticata?</button>
+                    <button type="submit">Password dimenticata? Cambiala qui</button>
                 </form>
             </div>
         </div>

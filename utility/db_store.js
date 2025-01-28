@@ -9,11 +9,12 @@ require('dotenv').config();
  * 
  * Reasons to use a dedicated connection for a transactional query:
  * - Be able to run multiple transactions concurrently
- * - No overhead in case of a broken transaction
+ * - No overhead to restore a connection to its initial state after a broken transaction (e.g. not committed/rolled back)
+ * Downside:
+ * - Overhead of initializing a new connection for each user request that requires a transaction
  * 
  */
 class DatabaseManager {
-    static #dbms = null
 
     /**
      * This method is used to ensure that a shared database connection is not used for transaction statements.
@@ -43,14 +44,6 @@ class DatabaseManager {
     }
 
     constructor() {}
-
-    static database(env_name) {
-        if (this.#dbms == null) {
-            //this.#dbms = new sqlite3.Database(process.env.DATA_DB_NAME)
-            this.#dbms = new sqlite3.Database(env_name)
-        }
-        return this.#dbms
-    }
 
     static async #query_runner(db, query, args) {
         return new Promise((resolve, reject) => {
@@ -110,7 +103,8 @@ class DatabaseManager {
     /**
      * @param {function} callback of type (db: sqlite3.Database) => Promise<any>
      * @returns {Promise<[Error, any]>}
-     * @description Run a transaction within a new database connection. This avoid query to interfere with a running transaction
+     * @description Run a transaction within a new database connection. This avoid other queries to interfere with a running transaction
+     * an the lifecycle of a connection can be managed in a single place.
      */
     static async run_scoped_transaction(env_db_name, callback) {
         const db = new sqlite3.Database(env_db_name)
@@ -128,7 +122,7 @@ class DatabaseManager {
 }
 
 class Database extends DatabaseManager {
-    static #db = null
+    static #db = null // This is a shared instance of a db connection, used for non-transactional queries
     
     constructor() {
         super()
@@ -171,6 +165,10 @@ class Database extends DatabaseManager {
 
 }
 
+
+/**
+ * This class is used to interact with the session database managed by passportjs and express-session.
+ */
 class SessionDatabase extends DatabaseManager {
     static #db = null
     constructor() {
@@ -206,6 +204,10 @@ class SessionDatabase extends DatabaseManager {
         }
 
         throw new Error('Invalid number of arguments')
+    }
+
+    static async run_scoped_transaction(callback) {
+        return super.run_scoped_transaction(process.env.SESSION_DB_NAME, callback)
     }
 }
 

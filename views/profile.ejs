@@ -84,36 +84,46 @@
                 width: 100%;
             }
 
-            div.session {
+            div.session-list {
+                width: 100%;
+                max-width: 450px;
                 display: flex;
-                gap: 10px;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 12px;
+            }
+
+            div.session-item {
+                display: flex;
                 flex-direction: row;
                 align-items: center;
                 justify-content: space-between;
                 width: 100%;
-                border-bottom: 1px solid var(--navy-color);
+                border: 1px solid var(--navy-color);
+                border-radius: 6px;
             }
 
-            div.session div.cell {
-                padding: 10px 0;
+            div.session-item div.info-group {
                 display: flex;
                 flex-direction: row;
                 align-items: center;
-                justify-content: flex-start;
-                width: 100px;
+                justify-content: space-between;
+                gap: 3px;
+                width: 100%;
+                padding: 12px 0;
             }
 
-            div.session div.disconnect {
+            div.session-item div.action {
                 display: flex;
-                flex-basis: 50px;
-                flex-direction: row;
+                flex-direction: column;
                 align-items: center;
-                justify-content: flex-end;
-                width: 60px;
+                justify-content: center;
+                width: 150px;
             }
 
-            div.session div.disconnect button {
-                padding: 5px 15px;
+            div.session-item div.action button {
+                padding: 9px 15px;
                 border: none;
                 border-radius: 5px;
                 background: var(--red-color);
@@ -123,8 +133,60 @@
                 text-align: center;
             }
 
-            div.session div.cell i {
-                margin-right: 3px;
+            div.session-item div.action button:disabled {
+                background: var(--black-color);
+                color: var(--gray-color);
+                cursor: not-allowed;
+                opacity: 0.5;
+            }
+
+            div.session-item div.os {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                width: 150px;
+                padding: 18px 0;
+            }
+
+            div.session-item div.os i {
+                font-size: var(--text-size-6xl);
+                display: block;
+                color: var(--black-color);
+            }
+
+            div.session-info {
+                display: flex;
+                flex-grow: 1;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 3px;
+                width: 100%;
+                padding: 12px 0;
+                box-sizing: border-box;
+            }
+
+            div.session-info div.info {
+                width: 100%;
+                text-align: left;
+                width: 100%;
+                padding-left: 9px;
+                font-size: var(--text-size-xs);
+                color: var(--black-color);
+                font-weight: var(--text-normal);
+            }
+
+            div.session-item span.bold {
+                font-weight: var(--text-bold);
+            }
+
+            div.session-item span.green {
+                color: var(--green-2-color);
+            }
+
+            div.session-item span.yellow {
+                color: var(--yellow-2-color);
             }
         </style>
 
@@ -133,23 +195,34 @@
 
 <body>
     <script type="text/javascript">
+
+        function checkNumberOfActiveSession() {
+            const sessionList = document.getElementById('sessions-list');
+            if (sessionList.children.length === 0) {
+                var div = document.createElement('div');
+                div.innerHTML = 'Questa &egrave; la tua unica sessione attiva';
+                sessionList.appendChild(div);
+            }
+        }
+
         function sessionDeleteFormSubmission(e) {
             const sid = e.target.querySelector('input[name="session_id"]').value;
             if (!sid || sid.length === 0) {
                 return;
             }
             fetch('/profile/session', {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        sid: sid
-                    })
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    sid: sid
                 })
+            })
                 .then((response) => {
                     if (response.status >= 200 && response.status < 300) {
                         document.getElementById(sid).remove();
+                        checkNumberOfActiveSession();
                     }
                 });
         }
@@ -162,15 +235,15 @@
                 return;
             }
             fetch('/profile', {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        first_name: first_name,
-                        last_name: last_name
-                    })
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    first_name: first_name,
+                    last_name: last_name
                 })
+            })
                 .then(async (response) => {
                     if (response.status >= 200 && response.status < 300) {
                         window.location.reload();
@@ -200,55 +273,57 @@
                     <label for="surname">Cognome</label>
                     <input type="text" name="last_name" value="<%= user.last_name %>">
                 </div>
-                <button type="submit">Update</button>
+                <button type="submit">Aggiorna dati</button>
             </form>
-            <div>
+            <div class="session-block">
                 <div class="sessions_header">
                     <h2>Sessioni attive</h2>
                 </div>
-                <div class="sessions">
+                <div class="session-list" id="sessions-list">
                     <% if (sessions.length> 0) { %>
                         <% sessions.forEach(function(session) { %>
-                            <div class="session" id=<%= session.sid %>>
-                                <div class="cell">
-                                    <% if (session.os.toLowerCase()==='windows' ) { %>
-                                        <i class="fa-brands fa-windows"></i> Windows
-                                        <% } else if (session.os.toLowerCase()==='mac' ) { %>
-                                            <i class="fa-brands fa-apple"></i>
-                                            <% } else if (session.os.toLowerCase()==='linux' ) { %>
-                                                <i class="fa-brands fa-linux"></i>
-                                                <% } else if (session.os.toLowerCase()==='android' ) { %>
-                                                    <i class="fa-brands fa-android"></i> Android
-                                                    <% } else if (session.os.toLowerCase()==='ios' ) { %>
-                                                        <i class="fa-brands fa-apple"></i> iOS
-                                                        <% } else { %>
-                                                            <i class="fa-brands fa-question"></i>OS sconosciuto
-                                                            <% } %>
-                                </div>
-                                <div class="cell">
-                                    <% if (session.browser.toLowerCase()==='chrome' || session.browser.toLowerCase() === 'mobile chrome' ) { %>
-                                        <i class="fa-brands fa-chrome"></i> Chrome
-                                        <% } else if (session.browser.toLowerCase()==='firefox' ) { %>
-                                            <i class="fa-brands fa-firefox"></i> Firefox
-                                            <% } else if (session.browser.toLowerCase()==='safari' ) { %>
-                                                <i class="fa-brands fa-safari"></i> Safari
-                                                <% } else if (session.browser.toLowerCase()==='edge' ) { %>
-                                                    <i class="fa-brands fa-edge"></i> Edge
-                                                    <% } else if (session.browser.toLowerCase()==='opera' ) { %>
-                                                        <i class="fa-brands fa-opera"></i> Opera
-                                                        <% } else if (session.browser.toLowerCase()==='ie' ) { %>
-                                                            <i class="fa-brands fa-internet-explorer"></i> Internet
-                                                            Explorer
+                            <div class="session-item" id=<%=session.sid %>>
+                                <div class="info-group">
+                                    <div class="os">
+                                        <% if (session.os.toLowerCase()==='windows' ) { %>
+                                            <i class="fa-brands fa-windows"></i>
+                                            <% } else if (session.os.toLowerCase()==='mac' ) { %>
+                                                <i class="fa-brands fa-apple"></i>
+                                                <% } else if (session.os.toLowerCase()==='linux' ) { %>
+                                                    <i class="fa-brands fa-linux"></i>
+                                                    <% } else if (session.os.toLowerCase()==='android' ) { %>
+                                                        <i class="fa-brands fa-android"></i>
+                                                        <% } else if (session.os.toLowerCase()==='ios' ) { %>
+                                                            <i class="fa-brands fa-apple"></i>
                                                             <% } else { %>
-                                                                <i class="fa-brands fa-question"></i> Browser
-                                                                sconosciuto
+                                                                <i class="fa-brands fa-question"></i>
                                                                 <% } %>
+                                    </div>
+                                    <div class="session-info">
+                                        <% if (session.is_current) { %>
+                                            <div class="info">
+                                                <span class="bold green"><i class="fas fa-circle-dot"></i> Sessione corrente</span>
+                                            </div>
+                                            <div class="info">
+                                                <span class="bold yellow"><i class="fas fa-circle-info"></i> Effettua il logout per revocarla</span>
+                                            </div>
+                                        <% } %>
+                                        <div class="info">
+                                            <span class="bold">OS: </span>
+                                            <%= session.os %>
+                                        </div>
+                                        <div class="info">
+                                            <span class="bold">Browser: </span>
+                                            <%= session.browser %>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="disconnect">
-                                    <form method="DELETE" action="/profile/session" onsubmit="event.preventDefault(); sessionDeleteFormSubmission(event)">
+                                <div class="action">
+                                    <form method="DELETE" action="/profile/session"
+                                        onsubmit="event.preventDefault(); sessionDeleteFormSubmission(event)">
                                         <input type="hidden" name="session_id" value="<%= session.sid %>">
-                                        <button type="submit">
-                                            <i class="fa-solid fa-xmark"></i>
+                                        <button type="submit" <%= session.is_current==1 ? 'disabled' : '' %>>
+                                            Revoca
                                         </button>
                                     </form>
                                 </div>

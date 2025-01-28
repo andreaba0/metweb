@@ -7,7 +7,7 @@ function deletePollTransaction(poll_id, user_id) {
         return new Promise(async (resolve, reject) => {
             let err;
 
-            // enforce foreign key to delete all related data for this db connection
+            // enforce foreign key on this connection
             var [_, rows] = await Database.query(db, 'PRAGMA foreign_keys = ON', [])
             if (_) {
                 reject(_)
