@@ -101,6 +101,7 @@ class DatabaseManager {
     }
 
     /**
+     * @param {string} env_db_name
      * @param {function} callback of type (db: sqlite3.Database) => Promise<any>
      * @returns {Promise<[Error, any]>}
      * @description Run a transaction within a new database connection. This avoid other queries to interfere with a running transaction

@@ -1,6 +1,34 @@
 const {SharedCache, Cache, CacheMiss, CacheHit, CacheError, CacheEmpty} = require('./cache')
 const {Database} = require('./db_store')
 
+/**
+ * Email verification tokens and password reset tokens are jwts signed with rsa keys.
+ * To limit the validity of these keys in the system, keys can be rotated.
+ * On a low level the rotation works as follows:
+ * 1. A new key is generated
+ * 2. The new key is pushed to the database
+ * 3. The latest 3 keys generated are retrieved from the database by the system
+ * This will create the following scenario:
+ * [future key, current key, old key] ... old keys
+ * Current key is used to sign new tokens, while future and old keys are used to verify tokens.
+ * All 3 keys can be used to verify tokens, but only the current key can be used to sign tokens.
+ * This is because in a distributed system with many instances, some instances may have already queried
+ * and cached the latest 3 keys, while the others may still have the old keys.
+ * Here is an example of of the key rotation:
+ * System I     : [key3, key2, key1]
+ * System II    : [key3, key2, key1]
+ * System III   : [key4, key3, key2]
+ * System IV    : [key3, key2, key1]
+ * The format of the keys array is: [future key, current key, old key]
+ * The system above has 4 instances.
+ * System I, II, and IV have the old keys, while System III has the new keys.
+ * System III can now sign with key3, and the other not yet updated systems can still verify with key3.
+ * Rotation may happen on a schedule, or after a certain amount of time.
+ * A more efficient way can use 2 keys instead of 3.
+ */
+
+
+
 class KeySchema {
     #keys = []
     constructor(arr) {

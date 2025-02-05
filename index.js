@@ -159,11 +159,29 @@ app.post('/poll/report', loggedIn, authorize('user'), /*postReport*/ PollReport.
 
 app.get('/signin', Signin.Get)
 //app.post('/signin', Signin.Post)
-app.post('/signin', Signin.sanitizeSigninData, passport.authenticate('local', {
-    //successRedirect: '/profile',
-    failureRedirect: '/signin',
-    //failureFlash: true
-}), storeMetadata, (req, res) => {
+app.post('/signin', Signin.sanitizeSigninData, (req, res, next) => {
+    passport.authenticate('local', {
+        //successRedirect: '/profile',
+        //failureRedirect: '/signin',
+        //failureFlash: true
+    }, (err, user, info) => {
+        console.log('authenticating')
+        console.log(err)
+        console.log(user)
+        if(err) {
+            console.log(err)
+            return next(err)
+        }
+        req.logIn(user, (err) => {
+            if(err) {
+                console.log(err)
+                return next(err)
+            }
+            return next()
+        })
+    })(req, res, next)
+}, storeMetadata, (req, res) => {
+    console.log('redirecting')
     if(req.isAuthenticated()) {
         res.redirect('/profile')
     } else {

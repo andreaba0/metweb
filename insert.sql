@@ -127,8 +127,6 @@ YLU7UiB8YY/ZM3B0gsF+M7o=
 '
 );
 
-insert into email_type (id) values ('reset_password'), ('verify_email');
-
 insert into user_account (id, email, first_name, last_name, hashed_password, password_salt, user_role, account_barrier, date_of_birth) values (
     'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
     'andrea.gabbani@gmail.com',
@@ -473,7 +471,7 @@ insert into vote (vote_page_id, vote_type, vote_option_index, created_by, user_g
     '28459784-5cd6-488b-86c0-2ef373b8d2df'
 );
 
-insert into voter (vote_page_id, voter_id, created_at) values (
+insert into voter (vote_page_id, created_by, created_at) values (
     'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
     'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
     datetime()
