@@ -24,34 +24,34 @@ function authorize(role) {
     }
 }
 
-function localStrategy(email, password, done) {
+async function localStrategy(email, password, done) {
     console.log('localStrategy')
     if(!email || !password) {
         done(new Error('Email and password are required'), null)
         return
     }
-    const query = 'SELECT id, first_name, last_name, user_role, hashed_password, password_salt FROM user_account WHERE email = ?'
-    Database.query(query, [email])
-    .then(([err, rows]) => {
-        if (err) {
-            done(err)
-            return
-        }
-        if (rows.length == 0) {
-            done(null, false, {message: 'User not found'})
-            return
-        }
-        const user = rows[0]
-        const salt = user.password_salt
-        const hashed_password = calculate_hash(password, salt)
-        if (hashed_password != user.hashed_password) {
-            done(null, false, {message: 'Incorrect password'})
-            return
-        }
-        /*if (user.banned) {
-            done(new Error('Your account has been banned'), null)
-            return
-        }*/
+    const queryUser = 'SELECT id, first_name, last_name, user_role, hashed_password, password_salt FROM user_account WHERE email = ? limit 1'
+    const [err, rows] = await Database.query(queryUser, [email])
+    if (err) {
+        console.log(err)
+        done(err, null)
+        return
+    }
+    if (rows.length == 0) {
+        done(null, false, {message: 'User not found'})
+        return
+    }
+    const user = rows[0]
+    const salt = user.password_salt
+    const hashed_password = calculate_hash(password, salt)
+    if (hashed_password != user.hashed_password) {
+        done(null, false, {message: 'Incorrect password'})
+        return
+    }
+
+    // In this project mvp suspension for admin users is not implemented
+    // so, admin users are always allowed to login
+    if(user.user_role == 'adm') {
         done(null, {
             id: user.id,
             email: email,
@@ -59,9 +59,26 @@ function localStrategy(email, password, done) {
             last_name: user.last_name,
             role: user.user_role
         })
-    })
-    .catch(err => {
-        done(err)
+        return
+    }
+
+    const querySuspension = 'SELECT suspension_reason from account_suspension where user_id = ? and suspension_end_at > ? order by suspension_end_at desc limit 1'
+    const [errSuspension, rowsSuspension] = await Database.query(querySuspension, [user.id, new Date().toISOString()])
+    if (errSuspension) {
+        console.log(errSuspension)
+        done(errSuspension, null)
+        return
+    }
+    if (rowsSuspension.length > 0) {
+        done(null, false, {message: 'User is suspended', suspension_reason: rowsSuspension[0].suspension_reason})
+        return
+    }
+    done(null, {
+        id: user.id,
+        email: email,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        role: user.user_role
     })
 }
 

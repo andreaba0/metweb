@@ -14,7 +14,8 @@ class Users {
             from
                 user_account
             where
-                user_role='usr'    
+                user_role='usr'
+            limit 10 offset 0
         `, [])
         if (err) {
             throw new FrontendError(500, 'Errore durante il recupero degli utenti')

@@ -18,12 +18,15 @@ body {
     --yellow-color: #f5cb5c;
     --yellow-2-color: #D8A25E;
     --gray-color: #f5f5f5;
+    --white-color: #f5f5f5;
     --green-color: #01ecd5;
     --green-2-color: #41B06E;
     --red-color: #f05454;
     --blue-color: #4586ff;
     --black-color: #26282b;
     --navy-color: #373f51;
+    --light-gray-color: #adb5bd;
+    --dark-gray-color: #161a1d;
     --lime-color: #58a4b0;
 
     --text-bold: 700;

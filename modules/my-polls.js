@@ -1,18 +1,15 @@
 const {Database} = require('../utility/db_store')
 const {FrontendError} = require('../utility/error')
+const {Poll} = require('../types/poll')
 
 
 class MyPolls {
     static async Get(req, res) {
+        const fields = Poll.getFieldList()
         const query = `
             SELECT 
-                id, 
-                title, 
-                vote_description, 
-                compile_start_at, 
-                compile_end_at, 
-                available,
-                (select count(distinct voter.voter_id) from voter where voter.vote_page_id = vote_page.id) as total_voter
+                ${fields.join(', ')},
+                (select count(voter.created_by) from voter where voter.vote_page_id = vote_page.id) as total_voter
             from 
                 vote_page 
             where 
@@ -27,29 +24,31 @@ class MyPolls {
         let polls = []
         const today = new Date().getTime()
         for (var i =0;i<result.length;i++) {
-            let poll = result[i]
-            let start_date = new Date(poll.compile_start_at).getTime()
-            let end_date = new Date(poll.compile_end_at).getTime()
+            let poll = new Poll()
+            poll.loadFromDatabaseRow(result[i])
             let status = 'Not available'
-            if (today >= start_date && today <= end_date) {
+            if (poll.isCompilableNow()) {
                 status = 'Available'
             }
-            if (today < start_date) {
-                status = `Not available till ${new Date(start_date)}`
+            const compileStartAt = new Date(poll.getProperty('compile_start_at'))
+            const compileEndAt = new Date(poll.getProperty('compile_end_at'))
+            const now = new Date()
+            if (now < compileStartAt) {
+                status = `Not available since ${compileStartAt}`
             }
-            if (today > end_date) {
-                status = `Not available since ${new Date(end_date)}`
+            if (now > compileEndAt) {
+                status = `Not available till ${compileEndAt}`
             }
-            status = `available from ${new Date(start_date)} to ${new Date(end_date)}`
+            status = `available from ${compileStartAt} to ${compileEndAt}`
             polls.push({
-                id: poll.id,
-                title: poll.title,
-                description: poll.vote_description,
-                start_date: start_date,
-                end_date: end_date,
+                id: poll.getProperty('id'),
+                title: poll.getProperty('title'),
+                description: poll.getProperty('vote_description'),
+                start_date: poll.getProperty('compile_start_at'),
+                end_date: poll.getProperty('compile_end_at'),
                 status: status,
-                available: poll.available,
-                total_voter: poll.total_voter
+                available: poll.isSuspended(),
+                total_voter: result[i].total_voter
             })
         }
         console.log(polls)

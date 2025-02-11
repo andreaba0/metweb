@@ -76,6 +76,7 @@ const {PasswordReset} = require('./modules/password/reset/[token]')
 const {PasswordRecovery} = require('./modules/password/reset')
 const {Users} = require('./modules/users')
 const {Session} = require('./modules/profile/session')
+const {ApiUsers} = require('./modules/api/users')
 
 const { FrontendError } = require('./utility/error')
 
@@ -142,6 +143,7 @@ app.patch('/profile', loggedIn, authorize('*'), Profile.Patch)
 app.get('/report/list', loggedIn, authorize('admin'), ReportList.Get)
 
 app.get('/users', loggedIn, authorize('admin'), Users.Get)
+app.get('/api/users', loggedIn, authorize('admin'), ApiUsers.Get)
 
 app.get('/confirm', (req, res) => {
     res.sendFile(__dirname + '/views/confirm.html')

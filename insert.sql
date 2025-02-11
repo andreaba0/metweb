@@ -189,7 +189,7 @@ insert into user_account (id, email, first_name, last_name, hashed_password, pas
     date('now', '-31 years')
 ), (
     '00000000-0000-0000-0000-000000000000',
-    'pietro.fernando@gmail.com',
+    'pietro.fernando@hotmail.com',
     'Pietro',
     'Fernando',
     'e58815a2d289354c28c7c1ab17a247ba9a84f396fefde72eb3a929fa3a5727c1',
@@ -199,7 +199,7 @@ insert into user_account (id, email, first_name, last_name, hashed_password, pas
     date('now', '-18 years')
 ), (
     '11111111-1111-1111-1111-111111111111',
-    'matteo.gigo@gmail.com',
+    'matteo.gigo@studenti.uniupo.com',
     'Matteo',
     'Gigo',
     'e58815a2d289354c28c7c1ab17a247ba9a84f396fefde72eb3a929fa3a5727c1',
@@ -219,7 +219,7 @@ insert into user_account (id, email, first_name, last_name, hashed_password, pas
     date('now', '-60 years')
 ), (
     '33333333-3333-3333-3333-333333333333',
-    'marco.pezzali@gmail.com',
+    'marco.pezzali@learn.outlook.com',
     'Marco',
     'Pezzali',
     'e58815a2d289354c28c7c1ab17a247ba9a84f396fefde72eb3a929fa3a5727c1',
@@ -289,13 +289,13 @@ insert into user_admin (user_id, user_role) values (
     'adm'
 );
 
-insert into vote_page (id, vote_type, vote_description, title, created_by, available, option_type, compile_start_at, compile_end_at) values (
+insert into vote_page (id, vote_type, vote_description, title, created_by, suspension_reason, option_type, compile_start_at, compile_end_at) values (
     'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
     'anymus',
     'Votazione per verificare il supporto delle persone verso la proposta sull Eutanasia legale proposta da Marco Cappato',
     'Sei favorevole alla proposta di legge sull Eutanasia legale proposta da Marco Cappato?',
     'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-    true,
+    null,
     'single',
     datetime(datetime(), '-1 day'),
     datetime(datetime(), '+1 day')
@@ -305,7 +305,7 @@ insert into vote_page (id, vote_type, vote_description, title, created_by, avail
     'Votazione per misurare il consenso dell''attuale governo in carica',
     'Supporti l''operato del governo attuale?',
     'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-    false,
+    'sospeso',
     'single',
     datetime(datetime(), '-1 day'),
     datetime(datetime(), '+1 day')
@@ -315,10 +315,10 @@ insert into vote_page (id, vote_type, vote_description, title, created_by, avail
     'Sondaggio per capire quali esami sono stati sostenuti al terzo anno di università',
     'Quali esami hai sostenuto al terzo anno di università?',
     'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
-    true,
+    null,
     'multiple',
-    datetime(datetime(), '-1 day'),
-    datetime(datetime(), '+1 day')
+    datetime(datetime(), '-3 day'),
+    datetime(datetime(), '-2 day')
 );
 
 insert into vote_option (option_index, vote_page_id, option_text) values (

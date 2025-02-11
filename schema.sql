@@ -30,7 +30,11 @@ create table user_admin (
 );
 
 create table account_suspension (
+
+    /* In this project mvp we are not going to implement the suspension of an admin account */
     user_id varchar(36) not null references user_customer(user_id),
+    
+    
     suspension_reason text not null,
     suspension_start_at timestamptz not null,
     suspension_end_at timestamptz not null,
@@ -60,8 +64,12 @@ create table vote_page (
     title text not null,
     created_at timestamp not null default current_timestamp,
     created_by varchar(36) not null references user_customer(user_id),
-    available boolean not null default true,
-    option_type varchar(6) not null check (option_type = 'single' or option_type = 'multiple') default 'single',
+    
+    /* The following field is used to mark a poll as suspended by providing a reason for the suspension */
+    /* If this field is not null, then the poll can not be compiled anymore */
+    suspension_reason text null default null,
+    
+    option_type varchar(8) not null check (option_type = 'single' or option_type = 'multiple') default 'single',
     compile_start_at timestamp not null,
     compile_end_at timestamp not null,
     public_stats boolean not null default false,
