@@ -85,15 +85,23 @@ class PollCompileId {
             return
         }
         if (poll_page.voted == 1) {
-            res.status(403).send('You have already voted')
+            const err = new FrontendError(403, 'You have already voted')
+            err.render(res)
             return
         }
         if (poll.getProperty('created_by') == user_id) {
-            res.status(403).send('You cannot compile a poll you created')
+            const err = new FrontendError(403, 'You cannot compile a poll you created')
+            err.render(res)
             return
         }
         if (poll.isSuspended()) {
             const err = new FrontendError(403, 'This poll has been suspended')
+            err.render(res)
+            return
+        }
+        if(!poll.emailIsAllowedToCompile(user.email)) {
+            console.log(user.email)
+            const err = new FrontendError(403, 'You are not allowed to compile this poll')
             err.render(res)
             return
         }
@@ -174,6 +182,11 @@ class PollCompileId {
         }
         if (poll.isMultipleChoice() && !Array.isArray(answers) && answers.length == 0) {
             res.status(400).send('Invalid answer format')
+            return
+        }
+        if(!poll.emailIsAllowedToCompile(req.user.email)) {
+            console.log(req.user.email)
+            res.status(403).send('You are not allowed to compile this poll')
             return
         }
 

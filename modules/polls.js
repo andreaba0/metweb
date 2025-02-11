@@ -27,7 +27,7 @@ class Polls {
             order_by = 'ORDER BY ' + order_by_list.join(', ')
         }
 
-        var where = 'WHERE available = 1 '
+        var where = 'WHERE suspension_reason IS NULL '
         if (query_params.length>0) {
             where += 'AND ' + query_params.join(' AND ')
         }
@@ -39,7 +39,7 @@ class Polls {
                 vote_description, 
                 first_name, 
                 last_name, 
-                count(voter_id) as votes, 
+                count(voter.created_by) as votes, 
                 vote_page.created_at as created_at
             from 
                 vote_page left join voter on vote_page.id = voter.vote_page_id

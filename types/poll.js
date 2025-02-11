@@ -1,6 +1,10 @@
 const {Database} = require('../utility/db_store')
 const {Filter} = require('../utility/filter')
 
+
+/**
+ * This is a wrapper class
+ */
 class Poll {
     static identifier = 'id'
     static fieldNames = [
@@ -90,6 +94,23 @@ class Poll {
         this.option_type = row.option_type
     }
 
+    emailIsAllowedToCompile(email) {
+        if (!this.loaded) {
+            throw new Error('Poll is not loaded')
+        }
+        const filter = JSON.parse(this.restrict_filter)
+        const allowedDomains = filter['allowed_domains']
+        if (allowedDomains.length == 0) {
+            return true
+        }
+        for (let i = 0; i < allowedDomains.length; i++) {
+            if (Filter.domainMatchEmail(allowedDomains[i], email)) {
+                return true
+            }
+        }
+        return false
+    }
+
     isSuspended() {
         if (!this.loaded) {
             throw new Error('Poll is not loaded')
@@ -136,22 +157,6 @@ class Poll {
             throw new Error(`Property ${property} does not exist`)
         }
         return this[property]
-    }
-
-    emailIsAllowedToCompile(email) {
-        if (!this.loaded) {
-            throw new Error('Poll is not loaded')
-        }
-        if (this.restrict_filter == null) {
-            return true
-        }
-        var emailFilters = this.restrict_filter['domain']
-        for (let i = 0; i < emailFilters.length; i++) {
-            if (Filter.domainMatchEmail(emailFilters[i], email)) {
-                return true
-            }
-        }
-        return false
     }
 }
 
