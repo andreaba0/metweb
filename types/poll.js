@@ -60,6 +60,7 @@ class Poll {
         if (err) {
             throw new Error(err)
         }
+        console.log(rows)
         for (let i = 0; i < rows.length; i++) {
             this.options.push({
                 id: rows[i].id,

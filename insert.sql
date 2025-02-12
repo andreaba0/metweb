@@ -127,7 +127,7 @@ YLU7UiB8YY/ZM3B0gsF+M7o=
 '
 );
 
-insert into user_account (id, email, first_name, last_name, hashed_password, password_salt, user_role, account_barrier, date_of_birth) values (
+/*insert into user_account (id, email, first_name, last_name, hashed_password, password_salt, user_role, account_barrier, date_of_birth) values (
     'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
     'andrea.gabbani@gmail.com',
     'Andrea',
@@ -517,3 +517,4 @@ insert into report (vote_page_id, report_text, created_at, created_by) values (
     '11111111-1111-1111-1111-111111111111'
 );
 
+*/

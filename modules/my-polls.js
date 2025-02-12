@@ -9,11 +9,18 @@ class MyPolls {
         const query = `
             SELECT 
                 ${fields.join(', ')},
-                (select count(voter.created_by) from voter where voter.vote_page_id = vote_page.id) as total_voter
+                (
+                    select 
+                        count(voter.created_by) 
+                    from 
+                        voter 
+                    where 
+                        voter.vote_page_id = vote_page.id
+                ) as total_voter
             from 
                 vote_page 
             where 
-                created_by = ?
+                vote_page.created_by = ?
         `
         const [err, result] = await Database.query(query, [req.user.id])
         if (err) {

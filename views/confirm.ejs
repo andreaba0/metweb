@@ -130,7 +130,7 @@
             display: none;
         }
 
-        form div.mono input {
+        form div.mono input, form div.mono select {
             width: 100%;
             padding: 15px 9px;
             font-size: var(--text-size-s);
@@ -178,14 +178,21 @@
         <form method="POST" action=<%='/signup/confirm/' + token %>>
             <div class="multi">
                 <div>
-                    <input type="text" placeholder="Nome" id="name" name="first_name" />
+                    <input type="text" placeholder="Nome" id="first_name" name="first_name" />
                 </div>
                 <div>
-                    <input type="text" placeholder="Cognome" id="surname" name="last_name" />
+                    <input type="text" placeholder="Cognome" id="last_name" name="last_name" />
                 </div>
             </div>
             <div class="mono">
-                <input type="date" name="birthdate" id="birthdate" placeholder="Data di nascita" />
+                <input type="date" name="date_of_birth" id="date_of_birth" placeholder="Data di nascita" />
+            </div>
+            <div class="mono">
+                <select name="gender">
+                    <option value="male">Maschio</option>
+                    <option value="female">Femmina</option>
+                    <option value="not_say" selected>Prefereisco non rispondere</option>
+                </select>
             </div>
             <div class="mono">
                 <input type="email" placeholder="Ripeti la tua email" id="email" name="email" />

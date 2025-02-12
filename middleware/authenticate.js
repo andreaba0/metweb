@@ -105,7 +105,7 @@ async function deserializeUser(user, done) {
             return
         }
         if (rows.length == 0) {
-            done(new Error('User not found'), null)
+            done(err, null)
             return
         }
         const user = rows[0]

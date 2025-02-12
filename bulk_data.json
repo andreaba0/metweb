@@ -1,0 +1,419 @@
+[
+    {
+        "title": "Qual è il tuo piatto preferito?",
+        "description": "Un sondaggio per scoprire quale piatto è il più amato tra diverse opzioni di cucina.",
+        "answers": [
+            "Pizza",
+            "Pasta",
+            "Sushi",
+            "Burger",
+            "Insalata"
+        ],
+        "anonymous": true,
+        "public_stats": false,
+        "start_at": "2025-02-01T08:00:00",
+        "end_at": "2025-02-28T23:59:59",
+        "adult": false,
+        "multiple_choice": false
+    },
+    {
+        "title": "Quante ore al giorno usi il tuo smartphone?",
+        "description": "Indaga il tempo medio che le persone passano quotidianamente sui propri smartphone.",
+        "answers": [
+            "Meno di 1 ora",
+            "1-2 ore",
+            "3-4 ore",
+            "5 ore o più"
+        ],
+        "anonymous": true,
+        "public_stats": true,
+        "start_at": "2025-02-01T09:00:00",
+        "end_at": "2025-02-20T23:59:59",
+        "adult": false,
+        "multiple_choice": false
+    },
+    {
+        "title": "Qual è il tuo sport preferito?",
+        "description": "Un sondaggio per determinare quale sport è più popolare tra le persone.",
+        "answers": [
+            "Calcio",
+            "Basket",
+            "Tennis",
+            "Nuoto",
+            "Pallavolo"
+        ],
+        "anonymous": true,
+        "public_stats": false,
+        "start_at": "2025-02-01T10:00:00",
+        "end_at": "2025-02-15T23:59:59",
+        "adult": false,
+        "multiple_choice": false
+    },
+    {
+        "title": "Quale tecnologia preferisci?",
+        "description": "Un sondaggio per capire quale tecnologia ha più attratto l'interesse degli utenti.",
+        "answers": [
+            "Smartphone",
+            "Smartwatch",
+            "Laptop",
+            "Console da gioco",
+            "Tablet"
+        ],
+        "anonymous": true,
+        "public_stats": true,
+        "start_at": "2025-02-01T08:00:00",
+        "end_at": "2025-02-28T23:59:59",
+        "adult": false,
+        "multiple_choice": false
+    },
+    {
+        "title": "Cosa pensi della cucina vegana?",
+        "description": "Scopri se la cucina vegana è apprezzata tra le diverse opzioni alimentari.",
+        "answers": [
+            "Molto positiva",
+            "Positiva",
+            "Neutra",
+            "Negativa",
+            "Molto negativa"
+        ],
+        "anonymous": true,
+        "public_stats": false,
+        "start_at": "2025-02-01T08:00:00",
+        "end_at": "2025-02-20T23:59:59",
+        "adult": false,
+        "multiple_choice": false
+    },
+    {
+        "title": "Quanto è importante per te la sostenibilità tecnologica?",
+        "description": "Indaga sull'importanza che le persone attribuiscono alla sostenibilità nel settore tecnologico.",
+        "answers": [
+            "Molto importante",
+            "Abbastanza importante",
+            "Poco importante",
+            "Non importante"
+        ],
+        "anonymous": true,
+        "public_stats": true,
+        "start_at": "2025-02-01T09:00:00",
+        "end_at": "2025-02-28T23:59:59",
+        "adult": false,
+        "multiple_choice": false
+    },
+    {
+        "title": "Ti piace fare attività fisica all'aperto?",
+        "description": "Un sondaggio per scoprire la popolarità delle attività all'aperto tra gli utenti.",
+        "answers": [
+            "Sì, molto",
+            "Sì, ogni tanto",
+            "No, preferisco stare in casa"
+        ],
+        "anonymous": true,
+        "public_stats": false,
+        "start_at": "2025-02-01T08:00:00",
+        "end_at": "2025-02-20T23:59:59",
+        "adult": false,
+        "multiple_choice": false
+    },
+    {
+        "title": "Qual è il tuo dispositivo tecnologico indispensabile?",
+        "description": "Scopri quale dispositivo tecnologico le persone considerano assolutamente necessario.",
+        "answers": [
+            "Smartphone",
+            "Computer",
+            "Smartwatch",
+            "Tablet",
+            "Auricolari wireless"
+        ],
+        "anonymous": true,
+        "public_stats": true,
+        "start_at": "2025-02-01T09:00:00",
+        "end_at": "2025-02-28T23:59:59",
+        "adult": false,
+        "multiple_choice": false
+    },
+    {
+        "title": "Qual è il tuo allenamento preferito?",
+        "description": "Un sondaggio per conoscere gli allenamenti più scelti da chi pratica sport.",
+        "answers": [
+            "Corsa",
+            "Palestra",
+            "Yoga",
+            "Pilates",
+            "CrossFit"
+        ],
+        "anonymous": true,
+        "public_stats": false,
+        "start_at": "2025-02-01T08:00:00",
+        "end_at": "2025-02-20T23:59:59",
+        "adult": false,
+        "multiple_choice": false
+    },
+    {
+        "title": "Come preferisci cucinare le verdure?",
+        "description": "Un sondaggio per scoprire i metodi di cottura preferiti per le verdure.",
+        "answers": [
+            "Fritte",
+            "Grigliate",
+            "Bollite",
+            "Al vapore",
+            "Crude"
+        ],
+        "anonymous": true,
+        "public_stats": false,
+        "start_at": "2025-02-01T08:00:00",
+        "end_at": "2025-02-28T23:59:59",
+        "adult": false,
+        "multiple_choice": false
+    },
+    {
+        "title": "Qual è la tua stagione preferita?",
+        "description": "Scopri quale stagione dell'anno le persone preferiscono di più.",
+        "answers": [
+            "Primavera",
+            "Estate",
+            "Autunno",
+            "Inverno"
+        ],
+        "anonymous": true,
+        "public_stats": false,
+        "start_at": "2025-02-01T08:00:00",
+        "end_at": "2025-02-28T23:59:59",
+        "adult": false,
+        "multiple_choice": false
+    },
+    {
+        "title": "Utilizzi frequentemente dispositivi smart nella tua casa?",
+        "description": "Un sondaggio per scoprire quante persone utilizzano dispositivi intelligenti nelle loro case.",
+        "answers": [
+            "Sì, tutti i giorni",
+            "Sì, qualche volta",
+            "No, mai"
+        ],
+        "anonymous": true,
+        "public_stats": true,
+        "start_at": "2025-02-01T09:00:00",
+        "end_at": "2025-02-28T23:59:59",
+        "adult": false,
+        "multiple_choice": false
+    },
+    {
+        "title": "Quanto tempo dedichi alla lettura di libri?",
+        "description": "Indaga sulla quantità di tempo che le persone dedicano alla lettura.",
+        "answers": [
+            "Meno di 1 ora a settimana",
+            "1-5 ore a settimana",
+            "Più di 5 ore a settimana",
+            "Non leggo mai"
+        ],
+        "anonymous": true,
+        "public_stats": false,
+        "start_at": "2025-02-01T08:00:00",
+        "end_at": "2025-02-20T23:59:59",
+        "adult": false,
+        "multiple_choice": false
+    },
+    {
+        "title": "Quanto spesso fai sport?",
+        "description": "Un sondaggio per conoscere la frequenza con cui le persone praticano attività fisica.",
+        "answers": [
+            "Tutti i giorni",
+            "3-4 volte a settimana",
+            "1-2 volte a settimana",
+            "Mai"
+        ],
+        "anonymous": true,
+        "public_stats": false,
+        "start_at": "2025-02-01T08:00:00",
+        "end_at": "2025-02-20T23:59:59",
+        "adult": false,
+        "multiple_choice": false
+    },
+    {
+        "title": "Quale sistema operativo usi più frequentemente?",
+        "description": "Indaga sui sistemi operativi più utilizzati tra smartphone e computer.",
+        "answers": [
+            "Android",
+            "iOS",
+            "Windows",
+            "MacOS",
+            "Linux"
+        ],
+        "anonymous": true,
+        "public_stats": true,
+        "start_at": "2025-02-01T09:00:00",
+        "end_at": "2025-02-28T23:59:59",
+        "adult": false,
+        "multiple_choice": false
+    },
+    {
+        "title": "Qual è il tuo tipo di vacanza preferito?",
+        "description": "Un sondaggio per scoprire quale tipo di vacanza prediligono le persone.",
+        "answers": [
+            "Mare",
+            "Montagna",
+            "Città d'arte",
+            "Vacanze avventurose",
+            "Relax e benessere"
+        ],
+        "anonymous": true,
+        "public_stats": false,
+        "start_at": "2025-02-01T08:00:00",
+        "end_at": "2025-02-20T23:59:59",
+        "adult": false,
+        "multiple_choice": false
+    },
+    {
+        "title": "Preferisci cucinare a casa o mangiare fuori?",
+        "description": "Un sondaggio per capire se la gente preferisce cucinare da sola o mangiare fuori.",
+        "answers": [
+            "Cucinare a casa",
+            "Mangiare fuori",
+            "Dipende dal periodo"
+        ],
+        "anonymous": true,
+        "public_stats": false,
+        "start_at": "2025-02-01T08:00:00",
+        "end_at": "2025-02-28T23:59:59",
+        "adult": false,
+        "multiple_choice": false
+    },
+    {
+        "title": "Hai mai provato un dispositivo di realtà virtuale?",
+        "description": "Indaga se le persone hanno avuto esperienze con dispositivi VR.",
+        "answers": [
+            "Sì, molte volte",
+            "Sì, una volta",
+            "No, mai"
+        ],
+        "anonymous": true,
+        "public_stats": true,
+        "start_at": "2025-02-01T08:00:00",
+        "end_at": "2025-02-28T23:59:59",
+        "adult": false,
+        "multiple_choice": false
+    },
+    {
+        "title": "Cosa pensi delle auto elettriche?",
+        "description": "Un sondaggio per raccogliere opinioni sulle auto elettriche.",
+        "answers": [
+            "Molto favorevole",
+            "Favorevole",
+            "Neutrale",
+            "Contrario",
+            "Molto contrario"
+        ],
+        "anonymous": true,
+        "public_stats": false,
+        "start_at": "2025-02-01T08:00:00",
+        "end_at": "2025-02-20T23:59:59",
+        "adult": false,
+        "multiple_choice": false
+    },
+    {
+        "title": "Qual è la tua colazione ideale?",
+        "description": "Un sondaggio per capire le preferenze delle persone riguardo alla colazione.",
+        "answers": [
+            "Caffè e cornetto",
+            "Uova e pancetta",
+            "Yogurt e frutta",
+            "Cereali",
+            "Niente colazione"
+        ],
+        "anonymous": true,
+        "public_stats": false,
+        "start_at": "2025-02-01T08:00:00",
+        "end_at": "2025-02-28T23:59:59",
+        "adult": false,
+        "multiple_choice": false
+    },
+    {
+        "title": "Quali piattaforme social utilizzi più frequentemente?",
+        "description": "Un sondaggio per scoprire quali piattaforme social sono le più popolari tra gli utenti.",
+        "answers": [
+            "Facebook",
+            "Instagram",
+            "TikTok",
+            "Twitter",
+            "LinkedIn",
+            "Snapchat"
+        ],
+        "anonymous": false,
+        "public_stats": true,
+        "start_at": "2025-02-01T08:00:00",
+        "end_at": "2025-02-28T23:59:59",
+        "adult": false,
+        "multiple_choice": true
+    },
+    {
+        "title": "Quali attività svolgi durante il tuo tempo libero?",
+        "description": "Scopri quali sono le attività più comuni durante il tempo libero delle persone.",
+        "answers": [
+            "Guardare film",
+            "Leggere libri",
+            "Fare sport",
+            "Giocare ai videogiochi",
+            "Uscire con gli amici",
+            "Cucinare"
+        ],
+        "anonymous": false,
+        "public_stats": true,
+        "start_at": "2025-02-01T08:00:00",
+        "end_at": "2025-02-28T23:59:59",
+        "adult": false,
+        "multiple_choice": true
+    },
+    {
+        "title": "Quali dispositivi elettronici possiedi?",
+        "description": "Un sondaggio per raccogliere informazioni sui dispositivi elettronici posseduti dalle persone.",
+        "answers": [
+            "Smartphone",
+            "Laptop",
+            "Smartwatch",
+            "Tablet",
+            "Console da gioco",
+            "Smart TV"
+        ],
+        "anonymous": false,
+        "public_stats": true,
+        "start_at": "2025-02-01T08:00:00",
+        "end_at": "2025-02-28T23:59:59",
+        "adult": false,
+        "multiple_choice": true
+    },
+    {
+        "title": "Cosa fai di solito per mantenerti in forma?",
+        "description": "Indaga le attività fisiche più popolari tra le persone per mantenersi in forma.",
+        "answers": [
+            "Corsa",
+            "Palestra",
+            "Yoga",
+            "Ciclismo",
+            "Escursioni",
+            "Nuoto"
+        ],
+        "anonymous": false,
+        "public_stats": true,
+        "start_at": "2025-02-01T08:00:00",
+        "end_at": "2025-02-20T23:59:59",
+        "adult": false,
+        "multiple_choice": true
+    },
+    {
+        "title": "Quali sono le tue preferenze alimentari?",
+        "description": "Un sondaggio per capire le preferenze alimentari delle persone.",
+        "answers": [
+            "Vegetariano",
+            "Vegano",
+            "Omnivoro",
+            "Pescatariano",
+            "Celiaco",
+            "Senza lattosio"
+        ],
+        "anonymous": false,
+        "public_stats": true,
+        "start_at": "2025-02-01T08:00:00",
+        "end_at": "2025-02-28T23:59:59",
+        "adult": false,
+        "multiple_choice": true
+    }
+]

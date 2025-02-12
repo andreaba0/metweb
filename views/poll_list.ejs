@@ -12,6 +12,10 @@
 
 <body>
 
+    <% if(typeof role !== 'undefined'&&typeof path_active !== 'undefined') { %>
+        <%- include('./partials/menu.ejs') %>
+    <% } %>
+
     <script type="text/javascript">
         function redirect(url) {
             window.location = url;
@@ -171,7 +175,7 @@
         }
 
         div.form form button {
-            padding: 15px 9px;
+            padding: 16px 9px;
             font-size: var(--text-size-s);
             font-weight: var(--text-bold);
             color: var(--white-color);

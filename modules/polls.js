@@ -56,6 +56,8 @@ class Polls {
         }
         res.status(200).render('poll_list', {
             title: 'Poll List',
+            path_active: 'polls',
+            role: req.user?.role || 'guest',
             poll_list: result,
             votes_order: 'none',
             date_order: 'none',

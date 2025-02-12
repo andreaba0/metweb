@@ -211,7 +211,7 @@
     }
 </style>
 
-
+<% if (typeof role !== 'undefined' && (role === 'usr'||role ==='adm')) { %>
 <div class="menu">
     <div class="menu-box-icon" id="menu-control-status">
         <i class="fa-solid fa-bars"></i>
@@ -223,6 +223,7 @@
         <i class="fa-solid fa-exclamation-circle"></i>
     </div>
 </div>
+<% } %>
 
 <script type="text/javascript">
     async function reportPollSubmit(e) {
@@ -258,6 +259,7 @@
     </div>
 </div>
 
+<% if (typeof role !== 'undefined' && (role === 'adm'||role === 'usr')) { %>
 <div class="side-blur" id="menu-box">
     <div class="side-menu">
         <div class="menu-option-box">
@@ -330,3 +332,4 @@
         }
     });
 </script>
+<% } %>
