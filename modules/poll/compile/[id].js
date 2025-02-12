@@ -79,44 +79,41 @@ class PollCompileId {
         const poll_page = result1[0]
         const poll = new Poll()
         poll.loadFromDatabaseRow(poll_page)
-        if (poll_page.reported == 1) {
+        /*if (poll_page.reported == 1) {
             const err = new FrontendError(403, 'You cannot compile a poll you reported')
             err.render(res)
             return
-        }
-        if (poll_page.voted == 1) {
+        }*/
+        /*if (poll_page.voted == 1) {
             const err = new FrontendError(403, 'You have already voted')
             err.render(res)
             return
-        }
-        if (poll.getProperty('created_by') == user_id) {
+        }*/
+        /*if (poll.getProperty('created_by') == user_id) {
             const err = new FrontendError(403, 'You cannot compile a poll you created')
             err.render(res)
             return
-        }
+        }*/
         if (poll.isSuspended()) {
             const err = new FrontendError(403, 'This poll has been suspended')
             err.render(res)
             return
         }
-        if(!poll.emailIsAllowedToCompile(user.email)) {
+        /*if(!poll.emailIsAllowedToCompile(user.email)) {
             console.log(user.email)
             const err = new FrontendError(403, 'You are not allowed to compile this poll')
             err.render(res)
             return
-        }
+        }*/
         const now = new Date()
         const compileStartAt = new Date(poll.getProperty('compile_start_at'))
         const compileEndAt = new Date(poll.getProperty('compile_end_at'))
+        var timeStatus = 'available'
         if (now < compileStartAt) {
-            const err = new FrontendError(403, 'Poll is not yet available')
-            err.render(res)
-            return
+            timeStatus = 'not_yet'
         }
         if (compileEndAt < new Date()) {
-            const err = new FrontendError(403, 'Poll is no longer available')
-            err.render(res)
-            return
+            timeStatus = 'expired'
         }
         query = `SELECT option_index, option_text FROM vote_option WHERE vote_page_id = ? ORDER BY option_index ASC`
         let [err2, result2] = await Database.query(query, [id])
@@ -146,7 +143,12 @@ class PollCompileId {
             description: poll.getProperty('vote_description'),
             options: options,
             multiple_choice: (poll.getProperty('option_type') == 'multiple') ? true : false,
-            anonymous: (poll.getProperty('vote_type') == 'anymus') ? true : false
+            anonymous: (poll.getProperty('vote_type') == 'anymus') ? true : false,
+            time_status: timeStatus,
+            is_author: poll.getProperty('created_by') == user_id,
+            has_reported: poll_page.reported == 1,
+            has_right_to_vote: poll.emailIsAllowedToCompile(user.email),
+            has_voted: poll_page.voted == 1
         })
     }
 

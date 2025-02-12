@@ -1,101 +1,93 @@
 const {Database} = require('../../../utility/db_store')
 const {FrontendError} = require('../../../utility/error')
+const {Poll} = require('../../../types/poll')
 
 class PollVotersId {
     static async Get(req, res) {
         const poll_id = req.params.id
-        const poll_data_sql = `
-            select
-                vote_type,
-                available
-            from
-                vote_page
-            where
-                id = ? and created_by = ?
-        `
-        var [err, result] = await Database.query(poll_data_sql, [poll_id, req.user.id])
-        if (err) {
+        const poll = new Poll()
+        try {
+            await poll.loadFromDatabase(poll_id)
+            await poll.loadOptionsFromDatabase()
+        } catch(e) {
             const page = new FrontendError(500, 'Database error')
             page.render(res)
             return
         }
-        if (result.length == 0) {
-            const page = new FrontendError(404, 'Poll not found')
+        if(poll.getProperty('created_by') != req.user.id) {
+            const page = new FrontendError(403, 'You are not the author of this poll')
             page.render(res)
             return
         }
-        const poll_data = result[0]
-        const sql = `
-            select
-                vote.vote_page_id as poll_id,
-                option_text as answer,
-                coalesce(user_account.first_name, '') as first_name,
-                coalesce(user_account.last_name, '') as last_name,
-                created_by
-            from
-                vote 
-                    inner join 
-                vote_option 
-                    on 
-                        vote.vote_option_index = vote_option.option_index and 
-                        vote.vote_page_id = vote_option.vote_page_id
-                    left join
-                user_account
+        if(poll.isSuspended()) {
+            const page = new FrontendError(403, 'This poll has been suspended')
+            page.render(res)
+            return
+        }
+        var query = '';
+        var params = [];
+
+        if(poll.isAnonymouslyCompilable()) {
+            query = `
+                select
+                    concat(user_account.first_name, ' ', user_account.last_name) as created_by
+                from
+                    voter
+                    inner join
+                    user_account
+                    on
+                        voter.created_by = user_account.id
+                where
+                    vote_page_id = ?
+            `
+            params = [poll_id]
+        } else {
+            // in this case, the compilation of the poll is public
+            // so, the author can see who voted what
+            query = `
+                select
+                    group_concat(vote_option_index) as answers,
+                    concat(user_account.first_name, ' ', user_account.last_name) as created_by,
+                    user_group
+                from
+                    vote
+                    inner join
+                    user_account
                     on
                         vote.created_by = user_account.id
-            where
-                vote.vote_page_id = ?
-        `
-        var [err, result] = await Database.query(sql, [poll_id])
+                where
+                    vote_page_id = ?
+                group by
+                    created_by
+            `
+            params = [poll_id]
+        }
+
+        var [err, result] = await Database.query(query, params)
         if (err) {
             console.log(err)
             const page = new FrontendError(500, 'Database error')
             page.render(res)
             return
         }
-        var votes = []
-        var voters = {}
-        console.log(result)
-        for (var i = 0; i < result.length; i++) {
-            if (poll_data.vote_type == 'anymus') {
-                votes.push({
-                    poll_id: result[i].poll_id,
-                    answer: [result[i].answer],
-                    created_by: 'anonymous'
-                })
-                continue
-            }
-            if (poll_data.vote_type == 'public') {
-                if (voters[result[i].created_by] == null) {
-                    voters[result[i].created_by] = {
-                        first_name: result[i].first_name,
-                        last_name: result[i].last_name,
-                        answers: []
-                    }
-                }
-                voters[result[i].created_by].answers.push(result[i].answer)
+
+        if(!poll.isAnonymouslyCompilable()) {
+            for(var i=0;i<result.length;i++) {
+                result[i].answers = result[i].answers.split(',')
             }
         }
-        if (poll_data.vote_type == 'public') {
-            for (var key in voters) {
-                votes.push({
-                    poll_id: poll_id,
-                    created_by: key,
-                    first_name: (voters[key].first_name == '') ? 'anonymous' : voters[key].first_name,
-                    last_name: (voters[key].last_name == '') ? 'anonymous' : voters[key].last_name,
-                    answers: voters[key].answers
-                })
-            }
-        }
+
+        console.log('Poll voters')
         console.log(result)
-        console.log(voters)
-        console.log(votes)
+        console.log('end')
+
         res.status(200).render('poll/voters', {
-            title: 'Voters',
+            title: 'Lista dei votanti',
             path_active: 'voters',
             role: req.user.role,
-            votes: votes,
-            vote_type: poll_data.vote_type
+            votes: result,
+            is_anonymous: poll.isAnonymouslyCompilable(),
+            options_number: poll.getOptionsLength()
         })
     }
 }

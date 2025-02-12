@@ -20,6 +20,7 @@
 
             .body {
                 width: 100vw;
+                max-width: 100%;
                 overflow-x: hidden;
                 margin-top: 30px;
                 display: flex;
@@ -32,148 +33,131 @@
             h1 {
                 display: block;
                 padding: 10px 30px;
+                box-sizing: border-box;
                 font-size: var(--text-size-m);
                 font-weight: var(--text-bold);
             }
 
-            div.poll {
-                width: 100%;
-                max-width: 500px;
+            div.page-panel {
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
-                align-items: flex-start;
+                align-items: center;
                 box-sizing: border-box;
-                padding: 20px 30px;
-                gap: 6px;
-                background-color: var(--p-p);
-                border-radius: 9px;
+                width: 100%;
+                overflow-x: auto;
             }
 
-            div.poll h2 {
-                line-height: 1;
-                margin: 0;
-                padding: 0;
+            table {
+                border-collapse: collapse;
+                max-width: 700px;
+
+                /* Browsers tend to ignore max-width on elements that are not block or inline-block */
                 display: block;
+            }
+
+            th:first-child, td:first-child {
+                width: 100%;
+                max-width: 200px;
+            }
+
+            tr {
+                border-bottom: solid 1px var(--navy-color);
+            }
+
+            tr:last-child {
+                border-bottom: none;
+            }
+
+            th, td {
+                border-right: solid 1px var(--navy-color);
+                border-left: solid 1px var(--navy-color);
+            }
+
+            th:first-child, td:first-child {
+                border-left: none;
+            }
+
+            th:last-child, td:last-child {
+                border-right: none;
+            }
+
+            th.user {
+                background: var(--yellow-color);
+                color: var(--dark-gray-color);
+                padding: 15px 9px;
+                box-sizing: border-box;
                 font-size: var(--text-size-s);
-                font-weight: var(--text-bold);
-                color: var(--p-a);
+                width: 200px;
+                text-align: center;
             }
 
-            div.poll div.description {
-                line-height: 1;
-                margin: 0;
-                padding: 0;
-                display: block;
-                font-size: var(--text-size-xs);
-                font-weight: var(--text-normal);
-                color: var(--p-t);
+            th.option {
+                background: var(--yellow-color);
+                color: var(--dark-gray-color);
+                padding: 15px 9px;
+                box-sizing: border-box;
+                font-size: var(--text-size-s);
+                width: 15px;
+                text-align: center;
             }
 
-            div.poll div.total_voter {
-                line-height: 1;
-                margin-top: 6px;
-                display: block;
+            td.user {
+                color: var(--dark-gray-color);
+                padding: 12px 9px;
+                box-sizing: border-box;
                 font-size: var(--text-size-xs);
-                font-weight: var(--text-normal);
-                color: var(--p-t);
+                text-align: center;
             }
+
+            td.option {
+                color: var(--dark-gray-color);
+                padding: 12px 9px;
+                box-sizing: border-box;
+                font-size: var(--text-size-xs);
+                text-align: center;
+            }
+
+
 
             @media screen and (max-width: 600px) {
-                div.poll div.action div.container-a {
-                    padding: 0;
-                }
-                div.poll div.action div.container-a div.a {
-                    padding: 18px 18px;
-                }
-
-                div.poll div.action div.container-d {
-                    padding: 0;
-                    justify-content: center;
-                    align-items: flex-end;
-                }
-                div.poll div.action div.container-d div.d {
-                    padding: 18px 18px;
-                }
             }
 
             @media screen and (min-width: 600px) {
-                div.poll div.action div.container-a {
-                    padding: 6px 12px;
-                }
-                div.poll div.action div.container-a div.a {
-                    padding: 6px 45px;
-                }
-
-                div.poll div.action div.container-d {
-                    padding: 6px 12px;
-                    justify-content: center;
-                    align-items: center;
-                }
-                div.poll div.action div.container-d div.d {
-                    padding: 6px 45px;
-                }
-            }
-
-            div.poll div.action {
-                display: flex;
-                flex-direction: row;
-                justify-content: flex-start;
-                align-items: center;
-                gap: 10px;
-                width: 100%;
-            }
-
-            div.poll div.action div.container-a {
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-            }
-
-            div.poll div.action div.container-d {
-                display: flex;
-                flex-direction: column;
-                
-                flex: 1;
-            }
-
-            div.poll div.action div.container-a div.a {
-                display: block;
-                font-size: var(--text-size-s);
-                font-weight: var(--text-bold);
-                color: var(--p-p);
-                background-color: var(--p-t);
-                border-radius: 9px;
-                cursor: pointer;
-                text-align: center;
-            }
-
-            div.poll div.action div.container-d div.d {
-                display: block;
-                font-size: var(--text-size-s);
-                font-weight: var(--text-bold);
-                color: var(--p-p);
-                background-color: var(--red-color);
-                border-radius: 9px;
-                cursor: pointer;
-                flex: 1;
-                text-align: center;
-            }
-
-            a {
-                text-decoration: none;
-                color: inherit;
             }
         </style>
 
         <div class="body">
-            <h1>Lista votanti</h1>
+            <h1>Lista dei votanti</h1>
 
-            <div class="poll">
-                <h2>
-                    Giuseppe Lombardi
-                </h2>
+            <div class="page-panel">
+                <table>
+                    <tr>
+                        <th class="user">Nominativo</th>
+                        <% if(!is_anonymous) { %>
+                            <% for(var i=0;i<options_number;i++) { %>
+                                <th class="option"><%= i+1 %></th>
+                            <% } %>
+                        <% } %>
+                    </tr>
+                    <% for(var i=0;i<votes.length;i++) { %>
+                        <tr>
+                            <td class="user"><%= votes[i].created_by %></td>
+                            <% if(!is_anonymous) { %>
+                                <% for(var j=0;j<options_number;j++) { %>
+                                    <% if(votes[i].answers.find(index => index == j)) { %>
+                                        <td class="option">
+                                            <i class="fas fa-check"></i>
+                                        </td>
+                                    <% } else { %>
+                                        <td class="option"></td>
+                                    <% } %>
+                                <% } %>
+                            <% } %>
+                        </tr>
+                    <% } %>
+                </table>
+
             </div>
         </div>
 

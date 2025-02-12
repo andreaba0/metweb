@@ -28,6 +28,7 @@
         <style type="text/css">
             .poll-body {
                 width: 100vw;
+                max-width: 100%;
                 overflow-x: hidden;
                 margin-top: 30px;
                 display: flex;
@@ -147,23 +148,119 @@
                 color: var(--gray-color);
             }
 
-            .public_vote {
+            .info-box.warning {
+                background: var(--yellow-color);
+                color: var(--dark-gray-color);
+            }
+
+            .info-box.error {
+                background: var(--red-color);
+                color: var(--dark-gray-color);
+            }
+
+            .info-box {
                 width: 100%;
                 max-width: 400px;
-                padding: 20px;
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .info-box .icon {
+                flex-basis: 60px;
+                flex-grow: 0;
+                flex-shrink: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-size: var(--text-size-xl)
+            }
+
+            .info-box .text {
+                flex-grow: 1;
+                flex-shrink: 0;
+                flex-basis: 0;
                 box-sizing: border-box;
                 vertical-align: middle;
                 text-align: center;
-                background: var(--red-color);
-                color: var(--gray-color);
                 font-size: var(--text-size-xs);
+                font-weight: var(--text-normal);
+                padding: 21px 15px;
+                box-sizing: border-box;
             }
         </style>
 
         <div class="poll-body">
-            <div class="public_vote">
-                La compilazione di questo voto non &egrave; anonima, pertanto il voto che darai potr&agrave; essere associato al tuo account.
+            <% if(time_status=='available'&&!anonymous) { %>
+            <div class="info-box warning">
+                <div class="icon">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <div class="text">
+                    La compilazione di questo voto non &egrave; anonima, pertanto il voto che darai potr&agrave; essere associato al tuo account.
+                </div>
             </div>
+            <% } %>
+            <% if(time_status!='available') { %>
+            <div class="info-box error">
+                <div class="icon">
+                    <% if(time_status=='expired') { %>
+                        <i class="fa-solid fa-hourglass-end"></i>
+                        <% } else { %>
+                            <i class="fa-solid fa-hourglass"></i>
+                            <% } %>
+                </div>
+                <div class="text">
+                    <% if(time_status=='expired') { %>
+                    Questo sondaggio &egrave; scaduto e non &egrave; possibile inviare nuovi voti.
+                    <% } else { %>
+                    Questo sondaggio non &egrave; ancora disponibile per la compilazione.
+                    <% } %>
+                </div>
+            </div>
+            <% } %>
+            <% if (time_status=='available'&&is_author) { %>
+            <div class="info-box warning">
+                <div class="icon">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <div class="text">
+                    Sei l'autore di questo sondaggio, pertanto non ti &egrave; permesso votare.
+                </div>
+            </div>
+            <% } %>
+            <% if (time_status=='available'&&has_reported) { %>
+            <div class="info-box error">
+                <div class="icon">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <div class="text">
+                    Hai segnalato questo sondaggio, pertanto non ti &egrave; permesso votare.
+                </div>
+            </div>
+            <% } %>
+            <% if (time_status=='available'&&!has_right_to_vote) { %>
+            <div class="info-box error">
+                <div class="icon">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <div class="text">
+                    Non hai i permessi per votare su questo sondaggio.
+                </div>
+            </div>
+            <% } %>
+            <% if (time_status=='available'&&has_voted) { %>
+            <div class="info-box error">
+                <div class="icon">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <div class="text">
+                    Hai gi&agrave; votato su questo sondaggio.
+                </div>
+            </div>
+            <% } %>
             <div class="compile-title">
                 <%= description %>
             </div>
@@ -172,22 +269,22 @@
                 <% for (let i=0; i < options.length; i++) { %>
                     <div class="compile-answer" id="box-<%= i %>">
                         <% if (multiple_choice) { %>
-                            <input type="checkbox" name="answer" value=<%=options[i]["index"] %> id="input-<%=
-                                options[i]["index"] %>" />
-                                <% } else { %>
-                                    <input type="radio" name="answer" value=<%=options[i]["index"] %> id="input-<%=
-                                        options[i]["index"] %>" />
-                                        <% } %>
-                                            <label for=<%=`input-${options[i]["index"]}` %>><%= options[i]["text"] %>
-                                            </label>
+                            <input type="checkbox" name="answer" value=<%=options[i]["index"] %> id="input-<%= options[i]["index"] %>" />
+                        <% } else { %>
+                            <input type="radio" name="answer" value=<%=options[i]["index"] %> id="input-<%=options[i]["index"] %>" />
+                        <% } %>
+                        <label for=<%=`input-${options[i]["index"]}` %>><%= options[i]["text"] %>
+                        </label>
                     </div>
                     <% } %>
+                    <% if (time_status=='available'&&!is_author&&!has_reported&&has_right_to_vote&&!has_voted) { %>
                         <div class="compile-submit">
                             <button type="submit" disabled="true">
                                 <i class="fa-solid fa-signature"></i>
                                 Invia
                             </button>
                         </div>
+                    <% } %>
             </form>
         </div>
 

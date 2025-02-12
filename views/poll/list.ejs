@@ -3,14 +3,9 @@
 
 <head>
     <title>
-
+        I tuoi sondaggi
     </title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-    <link rel="stylesheet" type="text/css" href="/static/common/style.css" />
-
-    <script src="https://kit.fontawesome.com/49ec009d21.js" crossorigin="anonymous"></script>
+    <% include('../partials/common_head.ejs') %>
 </head>
 
 <body>
@@ -58,7 +53,7 @@
             }
 
             div.poll h2 {
-                line-height: 1;
+                line-height: 1.5;
                 margin: 0;
                 padding: 0;
                 display: block;
@@ -68,7 +63,7 @@
             }
 
             div.poll div.description {
-                line-height: 1;
+                line-height: 1.2;
                 margin: 0;
                 padding: 0;
                 display: block;
@@ -175,7 +170,7 @@
         </style>
 
         <div class="body">
-            <h1>Lista dei sondaggi</h1>
+            <h1>I tuoi sondaggi</h1>
             <% if (polls.length > 0) { %>
                 <% polls.forEach(function(poll) { %>
                     <div class="poll" id="<%= 'poll-' + poll.id %>">

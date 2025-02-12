@@ -33,10 +33,41 @@ class Poll {
     restrict_filter = {}
     option_type='single'
     vote_type='public'
+    options_loaded=false
+    options=[]
     constructor() {}
 
     static getFieldList() {
         return JSON.parse(JSON.stringify([Poll.identifier, ...Poll.fieldNames]))
+    }
+
+    async loadOptionsFromDatabase() {
+        if (!this.loaded) {
+            throw new Error('Poll is not loaded')
+        }
+        const query = `
+            select
+                option_index,
+                option_text
+            from
+                vote_option
+            where
+                vote_page_id = ?
+            order by
+                option_index
+        `
+        const [err, rows] = await Database.query(query, [this.id])
+        if (err) {
+            throw new Error(err)
+        }
+        for (let i = 0; i < rows.length; i++) {
+            this.options.push({
+                id: rows[i].id,
+                vote_option_index: rows[i].vote_option_index,
+                vote_option_text: rows[i].vote_option_text
+            })
+        }
+        this.options_loaded = true
     }
 
     async loadFromDatabase(id) {
@@ -99,7 +130,7 @@ class Poll {
             throw new Error('Poll is not loaded')
         }
         const filter = JSON.parse(this.restrict_filter)
-        const allowedDomains = filter['allowed_domains']
+        const allowedDomains = filter['allowed_domains'] || []
         if (allowedDomains.length == 0) {
             return true
         }
@@ -135,6 +166,13 @@ class Poll {
         return this.option_type == 'single'
     }
 
+    isAnonymouslyCompilable() {
+        if (!this.loaded) {
+            throw new Error('Poll is not loaded')
+        }
+        return this.vote_type == 'anymus'
+    }
+
     isMultipleChoice() {
         if (!this.loaded) {
             throw new Error('Poll is not loaded')
@@ -157,6 +195,20 @@ class Poll {
             throw new Error(`Property ${property} does not exist`)
         }
         return this[property]
+    }
+
+    getOptions() {
+        if (!this.options_loaded) {
+            throw new Error('Options are not loaded')
+        }
+        return this.options
+    }
+
+    getOptionsLength() {
+        if (!this.options_loaded) {
+            throw new Error('Options are not loaded')
+        }
+        return this.options.length
     }
 }
 

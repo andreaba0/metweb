@@ -77,6 +77,7 @@ const {PasswordRecovery} = require('./modules/password/reset')
 const {Users} = require('./modules/users')
 const {Session} = require('./modules/profile/session')
 const {ApiUsers} = require('./modules/api/users')
+const {PollStatsId} = require('./modules/poll/stats/[id]')
 
 const { FrontendError } = require('./utility/error')
 
@@ -244,6 +245,7 @@ app.get('/poll/create', loggedIn, authorize('user'), async (req, res) => {
 })
 
 app.get('/poll/voters/:id', loggedIn, authorize('user'), PollVotersId.Get)
+app.get('/poll/stats/:id', loggedIn, authorize('*'), PollStatsId.Get)
 
 app.get('/my-polls', loggedIn, authorize('user'), MyPolls.Get)
 
@@ -267,69 +269,6 @@ function generateQrCode() {
         })
     })
 }
-
-app.get('/pdf', async (req, res) => {
-
-    // create a stream to store qrcode
-    let qrBuffer = await generateQrCode()
-    
-
-    const doc = new PDFDocument({
-        autoFirstPage: false,
-        info: {
-            Title: 'Certificato di votazione',
-            Author: 'Andrea Barchietto',
-            Subject: 'Certificato di votazione',
-            CreationDate: new Date(),
-            Keywords: 'voting, certificate, pdf',
-            ModDate: new Date()
-        }
-    })
-    doc.pipe(res)
-    doc.addPage({
-        size: 'A4',
-        margins: {
-            top: 25,
-            bottom: 25,
-            left: 25,
-            right: 25
-        }
-    })
-    .font('Helvetica')
-    .fontSize(25)
-    .text('Certificato di votazione', {
-        align: 'center'
-    })
-    .moveDown()
-    .fontSize(12)
-    .text('Con la presente si certifica che il signor', {
-        align: 'center'
-    })
-    .moveDown(0.5)
-    .fontSize(20)
-    .text('John Doe', {
-        align: 'center',
-    })
-    .fontSize(12)
-    .text('ha effettuato la votazione in data', {
-        align: 'center'
-    })
-    .moveDown(0.5)
-    .font('fonts/SourceCodePro-Regular.ttf')
-    .fontSize(15)
-    .text('01/09/2024', {
-        align: 'center'
-    })
-    .fontSize(10)
-    .text('Le date sono espresse nel formato: dd/mm/yyyy', 50, 11.7*72-60)
-    .font('Helvetica')
-    .image('data:image/png;base64,' + qrBuffer.toString('base64'), 298.8-100, 400, {
-        fit: [200, 200],
-        align: 'center',
-        valign: 'center'
-    })
-    doc.end()
-})
 
 async function logout(req) {
     return new Promise((resolve, reject) => {

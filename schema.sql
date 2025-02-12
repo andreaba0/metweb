@@ -75,7 +75,7 @@ create table vote_page (
     public_stats boolean not null default false,
 
     /* A json object with the filter restrictions imposed on the vote */
-    restrict_filter jsonb not null default '{}',
+    restrict_filter jsonb not null default '{"allowed_domains": []}',
 
     /* Enforce vote to be anonymous or public */
     unique (id, vote_type)

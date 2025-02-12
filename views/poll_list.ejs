@@ -127,12 +127,111 @@
             padding-right: 12px;
             box-sizing: border-box;
         }
+
+        div.form {
+            width: 100%;
+            max-width: 700px;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        div.form form {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        div.form form input[type="text"] {
+            padding: 15px 9px;
+            font-size: var(--text-size-s);
+            font-weight: var(--text-normal);
+            color: var(--black-color);
+            line-height: 1;
+            border: solid 1px var(--black-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        div.form form select {
+            padding: 15px 9px;
+            font-size: var(--text-size-s);
+            font-weight: var(--text-normal);
+            color: var(--black-color);
+            line-height: 1;
+            border: solid 1px var(--black-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        div.form form button {
+            padding: 15px 9px;
+            font-size: var(--text-size-s);
+            font-weight: var(--text-bold);
+            color: var(--white-color);
+            line-height: 1;
+            background-color: var(--black-color);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+
+        @media only screen and (min-width: 700px) {
+            div.form form {
+                flex-direction: row;
+            }
+
+            div.form form input[type="text"] {
+                flex-basis: 200px;
+            }
+
+            div.form form input[type="text"], div.form form select, div.form form button {
+                flex-grow: 1;
+                flex-shrink: 1;
+            }
+        }
+
+        @media only screen and (max-width: 700px) {
+            div.form form {
+                flex-direction: column;
+            }
+
+            div.form form input[type="text"], div.form form select, div.form form button {
+                flex-basis: auto;
+                width: 100%;
+                flex-grow: 1;
+                flex-shrink: 0;
+            }
+        }
     </style>
 
     <!-- Lista dei sondaggi -->
     <div class="body">
         <div class="header">
             <h1>Lista dei sondaggi</h1>
+        </div>
+        <div class="form">
+            <form method="GET">
+                <input type="text" name="search" placeholder="Cerca sondaggio per parola chiave" value="<%= search %>">
+                <select name="votes_order">
+                    <option value="votes_desc" <% if (votes_order == 'votes_desc') { %>selected<% } %>>Voti</option>
+                    <option value="votes_asc" <% if (votes_order == 'votes_asc') { %>selected<% } %>>Voti (crescente)</option>
+                    <option value="none" <% if (votes_order == 'none') { %>selected<% } %>>Nessun ordine</option>
+                </select>
+                <select name="date_order">
+                    <option value="date_desc" <% if (date_order == 'date_desc') { %>selected<% } %>>Data</option>
+                    <option value="date_asc" <% if (date_order == 'date_asc') { %>selected<% } %>>Data (crescente)</option>
+                    <option value="none" <% if (date_order == 'none') { %>selected<% } %>>Nessun ordine</option>
+                </select>
+                <button type="submit">Cerca</button>
+            </form>
         </div>
         <div class="poll-list">
             <% if (poll_list.length > 0) { %>

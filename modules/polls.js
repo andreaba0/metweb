@@ -56,7 +56,10 @@ class Polls {
         }
         res.status(200).render('poll_list', {
             title: 'Poll List',
-            poll_list: result
+            poll_list: result,
+            votes_order: 'none',
+            date_order: 'none',
+            search: ''
         })
     }
 }
