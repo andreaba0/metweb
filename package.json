@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest",
     "start": "node index.js",
-    "init": "node bulk_insert.js"
+    "bulk": "node bulk_insert.js"
   },
   "author": "Andrea Barchietto",
   "license": "ISC",

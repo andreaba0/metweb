@@ -21,6 +21,17 @@ class CustomDate {
             return null
         }
     }
+
+    static parse_from_frontend_date(raw_date) {
+        let [day, month, year] = raw_date.split('/')
+        try {
+            let date = new Date(`${year}-${month}-${day}T00:00:00Z`)
+            return date
+        } catch(e) {
+            console.log(e)
+            return null
+        }
+    }
 }
 
 module.exports = {

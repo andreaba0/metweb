@@ -8,6 +8,9 @@
 
     <%- include('./partials/common_head.ejs') %>
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
     <style type="text/css">
         @media only screen and (min-width: 800px) and (min-height: 500px) {
             body {
@@ -175,7 +178,7 @@
         <div>
             <img src="/static/icon/signup.svg" alt="Icona accedi" />
         </div>
-        <form method="POST" action=<%='/signup/confirm/' + token %>>
+        <form method="POST" action="<%='/signup/confirm/' + token %>" id="signup-form">
             <div class="multi">
                 <div>
                     <input type="text" placeholder="Nome" id="first_name" name="first_name" />
@@ -188,7 +191,7 @@
                 <input type="date" name="date_of_birth" id="date_of_birth" placeholder="Data di nascita" />
             </div>
             <div class="mono">
-                <select name="gender">
+                <select name="gender" id="gender">
                     <option value="male">Maschio</option>
                     <option value="female">Femmina</option>
                     <option value="not_say" selected>Prefereisco non rispondere</option>
@@ -201,13 +204,65 @@
                 <input type="password" placeholder="La tua password" id="password" name="password" />
             </div>
             <div class="mono">
-                <input type="password" placeholder="Riscrivi la tua password" id="password-check"
+                <input type="password" placeholder="Riscrivi la tua password" id="confirm_password"
                     name="confirm_password" />
             </div>
             <div>
                 <button type="submit">Crea Account</button>
             </div>
         </form>
+
+        <script type="text/javascript">
+            flatpickr("#date_of_birth", {
+                enableTime: false,
+                dateFormat: "d/m/Y",
+            });
+
+            document.getElementById('signup-form').addEventListener('submit', async function (e) {
+                e.preventDefault();
+                console.log('submit');
+                var form = e.target;
+                var location = form.action;
+                const res = await fetch(location, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        first_name: form.first_name.value,
+                        last_name: form.last_name.value,
+                        date_of_birth: form.date_of_birth.value,
+                        gender: form.gender.value,
+                        email: form.email.value,
+                        password: form.password.value,
+                        confirm_password: form.confirm_password.value
+                    })
+                });
+                if(res.status>=200 && res.status<300) {
+                    window.location.href = '/signin';
+                    return;
+                }
+                const errors = await res.json();
+                for(var i=0;i<errors.length;i++) {
+                    var error = errors[i];
+                    document.getElementById(error.field).style.border = '2px solid var(--red-color)';
+                }
+            });
+
+            function updateBorder(e) {
+                e.target.style.border = '2px solid transparent';
+                e.target.style.borderBottom = '2px solid var(--accent-color-blue)';
+            }
+
+            document.getElementById('first_name').addEventListener('input', updateBorder);
+            document.getElementById('last_name').addEventListener('input', updateBorder);
+            document.getElementById('date_of_birth').addEventListener('input', updateBorder);
+            document.getElementById('email').addEventListener('input', updateBorder);
+            document.getElementById('password').addEventListener('input', updateBorder);
+            document.getElementById('confirm_password').addEventListener('input', updateBorder);
+            document.getElementById('gender').addEventListener('input', updateBorder);
+
+        </script>
     </div>
 </body>
 

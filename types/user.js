@@ -30,13 +30,13 @@ class User {
                 message: 'Last name must be alphabetical'
             })
         }
-        if (!body.date_of_birth||!CustomDate.parse_from_frontend(body.date_of_birth)) {
+        if (!body.date_of_birth||!CustomDate.parse_from_frontend_date(body.date_of_birth)) {
             errors.push({
                 field: 'date_of_birth',
                 message: 'Date of birth must be valid'
             })
         } else {
-            const dateOfBirth = CustomDate.parse_from_frontend(body.date_of_birth)
+            const dateOfBirth = CustomDate.parse_from_frontend_date(body.date_of_birth)
             if (dateOfBirth > new Date()) {
                 errors.push({
                     field: 'date_of_birth',
@@ -75,7 +75,14 @@ class User {
                 message: 'Password must be filled'
             })
         } else {
-            if(!validator.isStrongPassword(body.password)) {
+            if(!validator.isStrongPassword(body.password, {
+                minLength: 8,
+                minLowercase: 1,
+                minUppercase: 0,
+                minNumbers: 0,
+                minSymbols: 0,
+                returnScore: false
+            })) {
                 errors.push({
                     field: 'password',
                     message: 'Password must be strong'

@@ -130,7 +130,7 @@ app.get('/', (req, res) => {
 })
 
 app.get('/signup/confirm/:token', SignupConfirmToken.Get)
-app.post('/signup/confirm', SignupConfirmToken.Post)
+app.post('/signup/confirm/:token', SignupConfirmToken.Post)
 app.get('/signup', Signup.Get)
 app.post('/signup', Signup.Post)
 app.get('/password/reset/:token', PasswordReset.Get)

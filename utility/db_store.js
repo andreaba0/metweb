@@ -115,6 +115,7 @@ class DatabaseManager {
             res.push(null, data)
         } catch(e) {
             console.log(e)
+            var err = await DatabaseManager.non_returning_query_runner(db, 'ROLLBACK', [])
             res.push(e, null)
         }
         db.close()
