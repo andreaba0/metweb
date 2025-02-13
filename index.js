@@ -278,6 +278,6 @@ app.get('*', (req, res) => {
     frontendError.render(res)
 })
 
-app.listen(port, bound_ip, () => {
+app.listen(port, () => {
     console.log(`Server is running on port ${port}`)
 })
