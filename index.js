@@ -82,10 +82,6 @@ const {PollStatsId} = require('./modules/poll/stats/[id]')
 
 const { FrontendError } = require('./utility/error')
 
-const PDFDocument = require('pdfkit')
-const QRCode = require('qrcode')
-const stream = require('node:stream')
-const { Buffer } = require('node:buffer')
 
 
 app.set('view engine', 'ejs')
