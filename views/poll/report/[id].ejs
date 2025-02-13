@@ -108,9 +108,59 @@
                 box-sizing: border-box;
             }
 
+            div.error {
+                width: 100%;
+                text-align: center;
+                background: var(--red-color);
+                color: var(--white-color);
+                font-size: var(--text-size-s);
+                font-weight: var(--text-bold);
+                padding: 18px 21px;
+                box-sizing: border-box;
+                display: none;
+            }
+
+            form.block {
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 12px;
+            }
+
+            form.block textarea {
+                width: 100%;
+                box-sizing: border-box;
+                padding: 12px 15px;
+                color: var(--navy-color);
+                background-color: var(--white-color);
+                border-radius: 6px;
+                border: solid 2px var(--blue-color);
+                font-size: var(--text-size-xs);
+                font-weight: var(--text-normal);
+                resize: vertical;
+            }
+
+            form.block textarea:focus {
+                outline: none;
+            }
+
+            form.block select {
+                width: 100%;
+                padding: 12px 15px;
+                box-sizing: border-box;
+                color: var(--navy-color);
+                background-color: var(--white-color);
+                border-radius: 6px;
+                border: solid 2px var(--blue-color);
+                font-size: var(--text-size-s);
+                font-weight: var(--text-bold);
+                text-align: center;
+            }
+
             form.block button[type="submit"] {
                 width: 100%;
-                max-width: 400px;
                 padding: 21px 15px;
                 color: var(--gray-color);
                 background-color: var(--red-color);
@@ -148,7 +198,7 @@
                 <% for (var i=0;i<poll_options.length;i++) { %>
                     <div class="option_text">
                         <i class="fas fa-circle"></i>
-                        <%= poll_options[i].option_text %>
+                        <%= poll_options[i] %>
                     </div>
                     <% } %>
                     <div class="section">
@@ -162,18 +212,55 @@
                     <div class="section">
                         <i class="fas fa-info-circle"></i>Azioni
                     </div>
-                    <form method="POST" class="block" action="/poll/report/<%= id %>">
+                    <form method="POST" class="block" action="/poll/report/<%= id %>" id="action-form">
+                        <textarea name="block_reason" placeholder="Motivo del blocco" id="block-reason"></textarea>
+                        <select name="request_action" required>
+                            <option value="approve" selected>Approva</option>
+                            <option value="reject">Rifiuta</option>
+                        </select>
                         <button type="submit">
-                            Blocca il sondaggio
+                            Procedi
                         </button>
                     </form>
-                    <form method="POST" class="block" action="/poll/report/<%= id %>">
-                        <button type="submit">
-                            Annulla segnalazioni
-                        </button>
-                    </form>
+                    <div class="error" id="error"></div>
             </div>
         </div>
+
+        <script type="text/javascript">
+            document.getElementById('action-form').addEventListener('submit', async function(event) {
+                event.preventDefault();
+                var form = event.target;
+                const block_reason = form['block_reason'].value;
+                const request_action = form['request_action'].value;
+                if(request_action=='approve'&&block_reason.length==0) {
+                    document.getElementById('block-reason').focus();
+                    document.getElementById('block-reason').style.border = 'solid 2px var(--red-color)';
+                    return;
+                }
+                const url = form.action;
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        block_reason: block_reason,
+                        request_action: request_action
+                    })
+                });
+                if(response.status<200||response.status>299) {
+                    let text = await response.text();
+                    document.getElementById('error').innerText = text;
+                    document.getElementById('error').style.display = 'block';
+                    return;
+                }
+                window.location.href = '/report/list';
+            });
+
+            document.getElementById('block-reason').addEventListener('input', function(event) {
+                event.target.style.border = 'solid 2px var(--blue-color)';
+            });
+        </script>
 
 </body>
 

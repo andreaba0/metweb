@@ -4,16 +4,51 @@
 <head>
     <title>PollEd</title>
 
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <script src="https://kit.fontawesome.com/49ec009d21.js" crossorigin="anonymous"></script>
+
     <link rel="stylesheet" type="text/css" href="/static/common/style.css" />
     <link rel="stylesheet" type="text/css" href="/static/index/style.css" />
 </head>
 
 <body>
+    <style type="text/css">
+        div.action {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            box-sizing: border-box;
+        }
+
+        div.action div {
+            padding: 10px 20px;
+            border-radius: 5px;
+            background-color: var(--blue-color);
+            color: var(--white-color);
+            cursor: pointer;
+        }
+
+        div.access {
+            background-color: var(--navy-color);
+            color: var(--white-color);
+            padding: 15px 9px;
+            border-radius: 6px;
+        }
+    </style>
     <header>
         <h1>PollEd</h1>
         <h2>
             Una piattaforma semplice e veloce per creare e pubblicare votazioni online
         </h2>
+        <div class="action">
+            <div class="access" onclick="window.location.href='/signup';">Registrati</div>
+            <div class="access" onclick="window.location.href='/signin';">Accedi</div>
+            <div class="polls" onclick="window.location.href='/polls';">Vedi sondaggi</div>
+        </div>
     </header>
 
     <main>

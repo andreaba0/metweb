@@ -3,7 +3,7 @@ const {v4: uuidv4, validate: isValidUUID} = require('uuid')
 const {Filter} = require('../../../utility/filter')
 const {CustomDate} = require('../../../utility/date')
 
-function uploadPollTransaction(uuid, userUUID, user_visibility, title, description, options, multipleChoice, start_date, end_date, filter, public_stats) {
+function uploadPollTransaction(uuid, userUUID, user_visibility, title, description, options, multipleChoice, start_date, end_date, filter, public_stats, adult_restrict) {
     return (db) => {
         return new Promise(async (resolve, reject) => {
             var err;
@@ -23,8 +23,9 @@ function uploadPollTransaction(uuid, userUUID, user_visibility, title, descripti
                     restrict_filter, 
                     option_type, 
                     compile_start_at, 
-                    compile_end_at
-                ) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
+                    compile_end_at,
+                    adult_only
+                ) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
             [
                 uuid, 
                 public_stats, 
@@ -35,7 +36,8 @@ function uploadPollTransaction(uuid, userUUID, user_visibility, title, descripti
                 filter, 
                 multipleChoice, 
                 start_date, 
-                end_date
+                end_date,
+                adult_restrict
             ])
             if (err) {
                 console.log(1, err)
@@ -131,7 +133,7 @@ class PollCreateUuid {
             })
             return
         }
-        let uploadT = uploadPollTransaction(poll_id, req.user.id, compilation_type, title, description, options, multiple_choice, start_date, end_date, JSON.stringify({allowed_domains: allowed_domains}), public_stats)
+        let uploadT = uploadPollTransaction(poll_id, req.user.id, compilation_type, title, description, options, multiple_choice, start_date, end_date, JSON.stringify({allowed_domains: allowed_domains}), public_stats, adult_restrict)
         //const upload = await uploadPollTransaction(Database.database(), poll_id, req.user.id, compilation_type, title, description, options, multiple_choice, start_date, end_date, JSON.stringify({allowed_domains: allowed_domains}), public_stats)
         var [err, upload] = await Database.run_scoped_transaction(uploadT)
         if (err) {

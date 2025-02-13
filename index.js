@@ -158,7 +158,6 @@ app.post('/poll/compile/:id', loggedIn, authorize('user'), /*createPollCompilati
 
 app.get('/poll/report/:id', loggedIn, authorize('admin'), PollReportId.Get)
 app.post('/poll/report/:id', loggedIn, authorize('admin'), PollReportId.Post)
-app.delete('/poll/report/:id', loggedIn, authorize('admin'), PollReportId.Delete)
 app.post('/poll/report', loggedIn, authorize('user'), /*postReport*/ PollReport.Post)
 
 app.get('/signin', Signin.Get)
@@ -255,21 +254,6 @@ app.get('/polls', Polls.Get)
 app.get('/poll/:uuid', loggedIn, authorize('*'), (req, res) => {
     res.sendStatus(204)
 })
-
-function generateQrCode() {
-    return new Promise((resolve, reject) => {
-        QRCode.toBuffer('https://example.com/pdf/1', {
-            errorCorrectionLevel: 'H',
-            scale: 1,
-            type: 'png'
-        }, (err, buffer) => {
-            if (err) {
-                reject(err)
-            }
-            resolve(buffer)
-        })
-    })
-}
 
 async function logout(req) {
     return new Promise((resolve, reject) => {

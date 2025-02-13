@@ -30,7 +30,7 @@ class Polls {
             order_by = 'ORDER BY ' + order_by_list.join(', ')
         }
 
-        var where = 'WHERE suspension_reason IS NULL and vote_page.vote_type = "public" '
+        var where = 'WHERE suspension_reason IS NULL '
         if (query_params.length>0) {
             where += 'AND ' + query_params.join(' AND ')
         }

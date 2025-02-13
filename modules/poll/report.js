@@ -6,9 +6,15 @@ class PollReport {
         const poll_id = body.poll_id
         const reason = body.report
         const user_id = req.user.id
-        const query = 'INSERT INTO report(vote_page_id, created_by, report_text) VALUES (?, ?, ?)'
+        const query = `
+            INSERT INTO report
+            (vote_page_id, created_by, report_text) 
+            VALUES 
+            (?, ?, ?) 
+            on conflict (vote_page_id, created_by) do update set report_text = excluded.report_text`
         const [err, result] = await Database.query(query, [poll_id, user_id, reason])
         if (err) {
+            console.log(err)
             res.status(500).send('Service temporarily unavailable')
             return
         }

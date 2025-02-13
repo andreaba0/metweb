@@ -32,6 +32,24 @@ class CustomDate {
             return null
         }
     }
+
+    static parse_from_database(raw_date) {
+        let [date, time] = raw_date.split(' ')
+        let [year, month, day] = date.split('-')
+        let [hour, minute, second] = time.split(':')
+        try {
+            let date = new Date(`${year}-${month}-${day}T${hour}:${minute}:${second}Z`)
+            return date
+        } catch(e) {
+            console.log(e)
+            return null
+        }
+    }
+
+    static numberOfYearsBetween(date1, date2) {
+        let diff = date1 - date2
+        return diff / (1000 * 60 * 60 * 24 * 365)
+    }
 }
 
 module.exports = {

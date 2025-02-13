@@ -16,12 +16,6 @@
         <%- include('./partials/menu.ejs') %>
     <% } %>
 
-    <script type="text/javascript">
-        function redirect(url) {
-            window.location = url;
-        }
-    </script>
-
     <style type="text/css">
         .body {
             width: 100vw;
@@ -132,6 +126,15 @@
             box-sizing: border-box;
         }
 
+        .info .go-to-stats {
+            font-size: var(--text-size-xs);
+            font-weight: var(--text-normal);
+            color: var(--blue-color);
+            line-height: 1;
+            padding-right: 12px;
+            box-sizing: border-box;
+        }
+
         div.form {
             width: 100%;
             max-width: 700px;
@@ -216,6 +219,13 @@
         }
     </style>
 
+    <script type="text/javascript">
+        function redirect(e, url) {
+            e.stopPropagation();
+            window.location.href = url;
+        }
+    </script>
+
     <!-- Lista dei sondaggi -->
     <div class="body">
         <div class="header">
@@ -240,7 +250,7 @@
         <div class="poll-list">
             <% if (poll_list.length > 0) { %>
                 <% poll_list.forEach(function(poll) { %>
-                    <div class="poll" onclick="redirect('/poll/compile/<%= poll.id %>')">
+                    <div class="poll" onclick="redirect(event, '/poll/compile/<%= poll.id %>')">
                         <div class="votes-container">
                             <div class="votes">
                                 <%= poll.votes %>
@@ -253,6 +263,7 @@
                             <div class="title"><%= poll.title %></div>
                             <div class="description"><%= poll.vote_description %></div>
                             <div class="created_at"><%= poll.created_at %></div>
+                            <div class="go-to-stats" onclick="redirect(event, '/poll/stats/<%= poll.id %>')">Vai alle statistiche</div>
                         </div>
                     </div>
                 <% }); %>

@@ -67,7 +67,7 @@ class PollCompileId {
         let [err1, result1] = await Database.query(query, [user_id, user_id, id])
         if (err1) {
             console.log(err1)
-            res.status(500).send('Service temporarily unavailable')
+            return new FrontendError(500, 'Service temporarily unavailable').render(res)
             return
         }
         if (result1.length == 0) {
@@ -75,36 +75,28 @@ class PollCompileId {
             err.render(res)
             return
         }
+
+        query = `select date_of_birth from user_account where id = ?`
+        let [err3, result3] = await Database.query(query, [user_id])
+        if (err3) {
+            console.log(err3)
+            return new FrontendError(500, 'Service temporarily unavailable').render(res)
+            return
+        }
+        if (result3.length == 0) {
+            return new FrontendError(500, 'User not found').render(res)
+        }
+        const dob = CustomDate.parse_from_database(result3[0].date_of_birth)
+        const isAdult = CustomDate.numberOfYearsBetween(dob, new Date()) >= 18
         console.log(result1)
         const poll_page = result1[0]
         const poll = new Poll()
         poll.loadFromDatabaseRow(poll_page)
-        /*if (poll_page.reported == 1) {
-            const err = new FrontendError(403, 'You cannot compile a poll you reported')
-            err.render(res)
-            return
-        }*/
-        /*if (poll_page.voted == 1) {
-            const err = new FrontendError(403, 'You have already voted')
-            err.render(res)
-            return
-        }*/
-        /*if (poll.getProperty('created_by') == user_id) {
-            const err = new FrontendError(403, 'You cannot compile a poll you created')
-            err.render(res)
-            return
-        }*/
         if (poll.isSuspended()) {
             const err = new FrontendError(403, 'This poll has been suspended')
             err.render(res)
             return
         }
-        /*if(!poll.emailIsAllowedToCompile(user.email)) {
-            console.log(user.email)
-            const err = new FrontendError(403, 'You are not allowed to compile this poll')
-            err.render(res)
-            return
-        }*/
         const now = new Date()
         const compileStartAt = new Date(poll.getProperty('compile_start_at'))
         const compileEndAt = new Date(poll.getProperty('compile_end_at'))
@@ -134,6 +126,8 @@ class PollCompileId {
                 text: result2[i].option_text
             })
         }
+
+        const userCanVoteByAge = ((poll.isAdultOnly() && isAdult)|| !poll.isAdultOnly()) ? true : false 
         console.log(options)
         res.render('poll/compile', {
             id: id,
@@ -148,7 +142,11 @@ class PollCompileId {
             is_author: poll.getProperty('created_by') == user_id,
             has_reported: poll_page.reported == 1,
             has_right_to_vote: poll.emailIsAllowedToCompile(user.email),
-            has_voted: poll_page.voted == 1
+            has_voted: poll_page.voted == 1,
+            is_adult: isAdult,
+            isAdultOnly: poll.isAdultOnly(),
+            user_can_vote_by_age: userCanVoteByAge,
+            user_can_compile: timeStatus == 'available' && poll.emailIsAllowedToCompile(user.email) && !poll_page.voted && poll.getProperty('created_by') != user_id && userCanVoteByAge
         })
     }
 
@@ -210,7 +208,7 @@ class PollCompileId {
             err.render(res)
             return
         }
-        res.status(204).send('Poll compiled')
+        res.redirect(`/poll/compile/${poll_id}`)
     }
 }
 

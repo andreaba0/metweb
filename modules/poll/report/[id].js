@@ -1,37 +1,61 @@
 const {Database} = require('../../../utility/db_store')
 const {FrontendError} = require('../../../utility/error')
+const {Poll} = require('../../../types/poll')
+
+function approveSuspensionTransaction(id, reason, status) {
+    return (db) => {
+        return new Promise(async (resolve, reject) => {
+            var query;
+            var errPragma = await Database.non_returning_query(db, 'PRAGMA foreign_keys = ON', [])
+            if (errPragma) {
+                reject(errPragma)
+                return
+            }
+            var errBegin = await Database.non_returning_query(db, 'BEGIN TRANSACTION', [])
+            if (errBegin) {
+                reject(errBegin)
+                return
+            }
+            query = `
+                update vote_page
+                set suspension_reason = ?
+                where id = ?
+            `
+            var err = await Database.non_returning_query(db, query, [reason, id])
+            if (err) {
+                reject(err)
+                return
+            }
+            query = `
+                update report
+                set approved = ?
+                where vote_page_id = ?
+            `
+            var err = await Database.non_returning_query(db, query, [status, id])
+            if (err) {
+                reject(err)
+                return
+            }
+            var errCommit = await Database.non_returning_query(db, 'COMMIT', [])
+            if (errCommit) {
+                reject(errCommit)
+                return
+            }
+            resolve(1)
+        })
+    }
+}
 
 class PollReportId {
     static async Get(req, res) {
         const id = req.params.id
-        const poll_info_query = `
-            select 
-                title, vote_description
-            from
-                vote_page
-            where
-                id = ?
-        `
-        const [err_poll_info, poll_info] = await Database.query(poll_info_query, [id])
-        if (err_poll_info) {
-            res.status(500).send('Service temporarily unavailable')
-            return
-        }
-        if (poll_info.length == 0) {
-            const err = new FrontendError(403, 'Poll not found')
+        const poll = new Poll()
+        try {
+            await poll.loadFromDatabase(id)
+            await poll.loadOptionsFromDatabase()
+        } catch(e) {
+            const err = new FrontendError(404, 'Poll not found')
             err.render(res)
-        }
-        const poll_options_query = `
-            select 
-                option_text
-            from
-                vote_option
-            where
-                vote_page_id = ?
-        `
-        const [err_poll_options, poll_options] = await Database.query(poll_options_query, [id])
-        if (err_poll_options) {
-            res.status(500).send('Service temporarily unavailable')
             return
         }
         const poll_report_query = `
@@ -40,7 +64,7 @@ class PollReportId {
             from
                 report
             where
-                vote_page_id = ?
+                vote_page_id = ? and approved = 'p'
         `
         const [err_poll_report, poll_report] = await Database.query(poll_report_query, [id])
         if (err_poll_report) {
@@ -48,19 +72,39 @@ class PollReportId {
             err.render(res)
             return
         }
+        if(poll_report.length==0) {
+            res.redirect('/report/list')
+            return
+        }
         res.status(200).render('poll/report/[id]', {
             id: id,
             title: 'Report Poll',
             path_active: 'report_poll',
             role: req.user.role,
-            poll_info: poll_info[0],
-            poll_options: poll_options,
+            poll_info: {
+                title: poll.getProperty('title'),
+                vote_description: poll.getProperty('vote_description'),
+            },
+            poll_options: poll.getOrderedOptions(),
             poll_reports: poll_report
         })
     }
 
     static async Post(req, res) {
         const id = req.params.id
+        const body = req.body
+        const request_action = body.request_action
+        const block_reason = body.block_reason
+        if(!request_action||(request_action&&!block_reason)) {
+            res.status(400).send('Bad Request')
+        }
+        var poll = new Poll()
+        try {
+            await poll.loadFromDatabase(id)
+        } catch(e) {
+            res.status(404).send('Poll not found')
+            return
+        }
         const block_poll_query = `
             update
                 vote_page
@@ -69,51 +113,17 @@ class PollReportId {
             where
                 id = ?
         `
-        const [err_block_poll, _1] = await Database.query(block_poll_query, [id])
-        if (err_block_poll) {
-            const err = new FrontendError(500, 'Maybe this is a server error')
-            err.render(res)
-            return
-        }
 
-        const update_report_query = `
-            update
-                report
-            set
-                approved = 'y'
-            where
-                vote_page_id = ?
-        `
-        const [err_update_report, _2] = await Database.query(update_report_query, [id])
-        if (err_update_report) {
-            const err = new FrontendError(500, 'Maybe this is a server error')
-            err.render(res)
-            return
-        }
-        res.redirect('/report/list')
-    }
+        const approved = (request_action=='approve') ? 'y' : 'r'
+        const reason = (request_action=='approve') ? block_reason : null
 
-    static async Delete(req, res) {
-        const id = req.params.id
-        const delete_report_query = `
-            delete from
-                report
-            where
-                vote_page_id = ?
-            returning count(*) as count
-        `
-        const [err_delete_report, rows_affected] = await Database.query(delete_report_query, [id])
-        if (err_delete_report) {
-            const err = new FrontendError(500, 'Maybe this is a server error')
-            err.render(res)
+        const updateT = approveSuspensionTransaction(id, reason, approved)
+        const [err, result] = await Database.run_scoped_transaction(updateT)
+        if (err) {
+            res.status(500).send('Service temporarily unavailable')
             return
         }
-        if (rows_affected[0].count == 0) {
-            const err = new FrontendError(403, 'This poll has no report. Maybe it does not exist?')
-            err.render(res)
-            return
-        }
-        res.status(204).send('Deleted')
+        res.status(204).send('Approved')
     }
 }
 

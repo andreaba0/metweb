@@ -59,14 +59,23 @@
                 font-weight: var(--text-bold);
             }
 
-            .user-metadata {
-                width: 100%;
-                text-align: left;
-                color: var(--navy-color);
+            .user-metadata, .user-action {
                 font-size: var(--text-size-s);
                 font-weight: var(--text-normal);
                 box-sizing: border-box;
+                width: 100%;
+            }
+
+            .user-metadata {
+                text-align: left;
+                color: var(--navy-color);
                 padding-left: 15px;
+            }
+
+            .user-action {
+                text-align: right;
+                color: var(--blue-color);
+                padding-right: 15px;
             }
 
             .load-more-button {
@@ -77,6 +86,22 @@
                 font-size: var(--text-size-m);
                 font-weight: var(--text-bold);
                 cursor: pointer;
+            }
+
+            .button {
+                padding: 12px 21px;
+                background: var(--blue-color);
+                border-radius: 12px;
+                color: var(--white-color);
+                font-size: var(--text-size-s);
+                font-weight: var(--text-bold);
+                cursor: pointer;
+                display: inline-block;
+                text-decoration: none;
+            }
+
+            a:link, a:visited {
+                color: var(--white-color);
             }
         </style>
     </head>

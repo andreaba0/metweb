@@ -18,7 +18,8 @@ class Poll {
         'created_by',
         'suspension_reason',
         'restrict_filter',
-        'option_type'
+        'option_type',
+        'adult_only'
     ]
     #loaded = false
     id=''
@@ -34,6 +35,7 @@ class Poll {
     option_type='single'
     vote_type='public'
     options_loaded=false
+    adult_only=false
     options=[]
     constructor() {}
 
@@ -60,7 +62,6 @@ class Poll {
         if (err) {
             throw new Error(err)
         }
-        console.log(rows)
         for (let i = 0; i < rows.length; i++) {
             this.options.push({
                 id: rows[i].id,
@@ -124,6 +125,7 @@ class Poll {
         this.suspension_reason = row.suspension_reason
         this.restrict_filter = row.restrict_filter
         this.option_type = row.option_type
+        this.adult_only = row.adult_only
     }
 
     emailIsAllowedToCompile(email) {
@@ -158,6 +160,13 @@ class Poll {
         const compileStartAt = new Date(this.compile_start_at)
         const compileEndAt = new Date(this.compile_end_at)
         return now >= compileStartAt && now <= compileEndAt
+    }
+
+    isAdultOnly() {
+        if (!this.loaded) {
+            throw new Error('Poll is not loaded')
+        }
+        return this.adult_only
     }
 
     isSingleChoice() {

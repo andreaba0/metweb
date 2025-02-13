@@ -63,6 +63,7 @@ create table vote_page (
     vote_description text not null,
     title text not null,
     created_at timestamp not null default current_timestamp,
+    adult_only boolean not null default false,
     created_by varchar(36) not null references user_customer(user_id) on delete cascade,
     
     /* The following field is used to mark a poll as suspended by providing a reason for the suspension */
@@ -134,7 +135,7 @@ create table report (
     vote_page_id varchar(36) not null references vote_page(id) on delete cascade,
     report_text text not null,
     created_at timestamp not null default current_timestamp,
-    approved varchar(1) not null check (approved = 'y' or approved = 'p') default 'p',
+    approved varchar(1) not null check (approved = 'y' or approved = 'p' or approved = 'r') default 'p',
     created_by varchar(36) not null references user_customer(user_id),
     primary key (vote_page_id, created_by)
 );

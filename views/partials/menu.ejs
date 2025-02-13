@@ -241,7 +241,8 @@
             console.log('Report inviato');
             window.location.href = window.location.href;
         } else {
-            alert('Errore nell\'invio del report');
+            const text = await res.text();
+            alert(text);
         }
     }
 </script>

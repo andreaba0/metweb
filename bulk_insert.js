@@ -18,6 +18,7 @@ function format_date(date) {
 class User {
     constructor(role, gender) {
         this.id = faker.string.uuid()
+        console.log(this.id)
         this.firstName = faker.person.firstName()
         this.lastName = faker.person.lastName()
         this.email = faker.internet.email({
@@ -28,11 +29,12 @@ class User {
         this.hashed_password = calculate_hash('password', this.salt)
         this.role = role
         this.gender = gender
-        this.birthdate = faker.date.birthdate({
+        const birthdate = faker.date.birthdate({
             mode: 'age',
             min: 12,
             max: 95
         })
+        this.birthdate = format_date(birthdate)
     }
 
     static generateEmail(first_name, last_name) {
@@ -216,8 +218,8 @@ async function bulkCreatePoll() {
             poll.title,
             (users[0]).id,
             (poll.multiple_choice) ? 'multiple' : 'single',
-            poll.start_at,
-            poll.end_at,
+            format_date(new Date(poll.start_at)),
+            format_date(new Date(poll.end_at)),
             poll.public_stats,
             poll.created_at
         )
@@ -348,7 +350,7 @@ function generateRecords(poll, author) {
         res.push((poll.anonymous) ? 'anymus' : 'public')
         res.push(options_chosen[i])
         res.push((poll.anonymous) ? null : author)
-        res.push(date)
+        res.push(format_date(new Date(date)))
         res.push(user_group)
     }
     return [options_chosen.length, res]
