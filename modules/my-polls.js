@@ -21,6 +21,8 @@ class MyPolls {
                 vote_page 
             where 
                 vote_page.created_by = ?
+            order by
+                vote_page.created_at desc
         `
         const [err, result] = await Database.query(query, [req.user.id])
         if (err) {

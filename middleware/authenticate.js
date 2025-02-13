@@ -138,6 +138,22 @@ async function loggedIn(req, res, next) {
     next()
 }
 
+async function updateSessionIfLoggedIn(req, res, next) {
+    if (!req.isAuthenticated()) {
+        next()
+        return
+    }
+    req.session.access = {
+        last_access: new Date().toISOString()
+    }
+    try {
+        await saveMetadata(req)
+    } catch(err) {
+        console.log(err)
+    }
+    next()
+}
+
 async function saveMetadata(req) {
     return new Promise((resolve, reject) => {
         req.session.save(err => {
@@ -174,5 +190,6 @@ module.exports = {
     serializeUser: serializeUser,
     deserializeUser: deserializeUser,
     loggedIn: loggedIn,
-    storeMetadata: storeMetadata
+    storeMetadata: storeMetadata,
+    updateSessionIfLoggedIn: updateSessionIfLoggedIn
 }

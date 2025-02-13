@@ -1,6 +1,7 @@
 const {Database} = require('../../../utility/db_store')
 const {v4: uuidv4, validate: isValidUUID} = require('uuid')
 const {Filter} = require('../../../utility/filter')
+const {CustomDate} = require('../../../utility/date')
 
 function uploadPollTransaction(uuid, userUUID, user_visibility, title, description, options, multipleChoice, start_date, end_date, filter, public_stats) {
     return (db) => {
@@ -89,6 +90,7 @@ class PollCreateUuid {
     }
 
     static async Post(req, res) {
+        console.log(req.body)
         if (req.params.uuid == null) {
             res.status(400).send('Invalid request')
             return

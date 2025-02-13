@@ -77,18 +77,14 @@ class PollVotersId {
             }
         }
 
-        console.log('Poll voters')
-        console.log(result)
-        console.log('end')
-        console.log(poll.getOptionsLength())
-
         res.status(200).render('poll/voters', {
             title: 'Lista dei votanti',
             path_active: 'voters',
             role: req.user.role,
             votes: result,
             is_anonymous: poll.isAnonymouslyCompilable(),
-            options_number: poll.getOptionsLength()
+            options_number: poll.getOptionsLength(),
+            options: poll.getOrderedOptions()
         })
     }
 }

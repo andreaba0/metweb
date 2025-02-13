@@ -9,17 +9,20 @@ class Polls {
         if (query.hasOwnProperty('active')&&query.active) {
             query_params.push('compile_start_at < datetime("now") AND compile_end_at > datetime("now")')
         }
-        if (query.hasOwnProperty('votes')&&query.votes=='asc') {
+        if (query.hasOwnProperty('votes_order')&&query.votes_order=='votes_asc') {
             order_by_list.push('votes ASC')
         }
-        if (query.hasOwnProperty('votes')&&query.votes=='desc') {
+        if (query.hasOwnProperty('votes_order')&&query.votes_order=='votes_desc') {
             order_by_list.push('votes DESC')
         }
-        if (query.hasOwnProperty('created')&&query.created=='asc') {
+        if (query.hasOwnProperty('date_order')&&query.date_order=='date_asc') {
             order_by_list.push('created_at ASC')
         }
-        if (query.hasOwnProperty('created')&&query.created=='desc') {
+        if (query.hasOwnProperty('date_order')&&query.date_order=='date_desc') {
             order_by_list.push('created_at DESC')
+        }
+        if (query.hasOwnProperty('search')&&query.search) {
+            query_params.push(`title LIKE "%${query.search}%" or vote_description LIKE "%${query.search}%"`)
         }
 
         var order_by = ''
@@ -27,7 +30,7 @@ class Polls {
             order_by = 'ORDER BY ' + order_by_list.join(', ')
         }
 
-        var where = 'WHERE suspension_reason IS NULL '
+        var where = 'WHERE suspension_reason IS NULL and vote_page.vote_type = "public" '
         if (query_params.length>0) {
             where += 'AND ' + query_params.join(' AND ')
         }
@@ -54,14 +57,15 @@ class Polls {
             console.log(err)
             return new FrontendError(500, 'Internal Server Error').render(res)
         }
+        console.log(result)
         res.status(200).render('poll_list', {
             title: 'Poll List',
             path_active: 'polls',
             role: req.user?.role || 'guest',
             poll_list: result,
-            votes_order: 'none',
-            date_order: 'none',
-            search: ''
+            votes_order: query.votes_order || 'none',
+            date_order: query.date_order || 'none',
+            search: query.search || ''
         })
     }
 }

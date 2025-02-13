@@ -221,6 +221,10 @@
                     displayError('La data di inizio deve essere precedente a quella di fine');
                     return;
                 }
+                if (end_date <= new Date()) {
+                    displayError('La data di fine del sondaggio deve essere maggiore della data attuale');
+                    return;
+                }
                 const domains = document.getElementById('domain_filter').value;
                 if (!domains) {
                     e.target.submit();

@@ -64,8 +64,8 @@ class Poll {
         for (let i = 0; i < rows.length; i++) {
             this.options.push({
                 id: rows[i].id,
-                vote_option_index: rows[i].vote_option_index,
-                vote_option_text: rows[i].vote_option_text
+                vote_option_index: rows[i].option_index,
+                vote_option_text: rows[i].option_text
             })
         }
         this.options_loaded = true
@@ -181,6 +181,13 @@ class Poll {
         return this.option_type == 'multiple'
     }
 
+    statsArePublicyAvailable() {
+        if (!this.loaded) {
+            throw new Error('Poll is not loaded')
+        }
+        return this.public_stats
+    }
+
     getSuspensionReason() {
         if (!this.loaded) {
             throw new Error('Poll is not loaded')
@@ -210,6 +217,18 @@ class Poll {
             throw new Error('Options are not loaded')
         }
         return this.options.length
+    }
+
+    getOrderedOptions() {
+        var options = []
+        for (let i = 0; i < this.options.length; i++) {
+            for (let j = 0; j < this.options.length; j++) {
+                if (this.options[j].vote_option_index == i) {
+                    options.push(this.options[j].vote_option_text)
+                }
+            }
+        }
+        return options
     }
 }
 

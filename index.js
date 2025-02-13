@@ -47,7 +47,8 @@ const {
     localStrategy, 
     serializeUser, 
     deserializeUser, 
-    loggedIn, 
+    loggedIn,
+    updateSessionIfLoggedIn, 
     storeMetadata
 } = require('./middleware/authenticate')
 const {KeyManager, KeySchema, KeyManagerError} = require('./utility/key_rotation')
@@ -245,7 +246,7 @@ app.get('/poll/create', loggedIn, authorize('user'), async (req, res) => {
 })
 
 app.get('/poll/voters/:id', loggedIn, authorize('user'), PollVotersId.Get)
-app.get('/poll/stats/:id', loggedIn, authorize('*'), PollStatsId.Get)
+app.get('/poll/stats/:id', updateSessionIfLoggedIn, authorize('*'), PollStatsId.Get)
 
 app.get('/my-polls', loggedIn, authorize('user'), MyPolls.Get)
 

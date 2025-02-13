@@ -27,7 +27,7 @@
                 flex-direction: column;
                 justify-content: flex-start;
                 align-items: center;
-                gap: 10px;
+                gap: 30px;
             }
 
             h1 {
@@ -48,7 +48,7 @@
                 overflow-x: auto;
             }
 
-            table {
+            .page-panel table {
                 border-collapse: collapse;
                 max-width: 700px;
 
@@ -56,33 +56,33 @@
                 display: block;
             }
 
-            th:first-child, td:first-child {
+            .page-panel th:first-child, .page-panel  td:first-child {
                 width: 100%;
                 max-width: 200px;
             }
 
-            tr {
+            .page-panel tr {
                 border-bottom: solid 1px var(--navy-color);
             }
 
-            tr:last-child {
+            .page-panel tr:last-child {
                 border-bottom: none;
             }
 
-            th, td {
+            .page-panel th, .page-panel  td {
                 border-right: solid 1px var(--navy-color);
                 border-left: solid 1px var(--navy-color);
             }
 
-            th:first-child, td:first-child {
+            .page-panel th:first-child, .page-panel  td:first-child {
                 border-left: none;
             }
 
-            th:last-child, td:last-child {
+            .page-panel th:last-child, .page-panel  td:last-child {
                 border-right: none;
             }
 
-            th.user {
+            .page-panel th.user {
                 background: var(--yellow-color);
                 color: var(--dark-gray-color);
                 padding: 15px 9px;
@@ -92,7 +92,7 @@
                 text-align: center;
             }
 
-            th.option {
+            .page-panel th.option {
                 background: var(--yellow-color);
                 color: var(--dark-gray-color);
                 padding: 15px 9px;
@@ -102,7 +102,7 @@
                 text-align: center;
             }
 
-            td.user {
+            .page-panel td.user {
                 color: var(--dark-gray-color);
                 padding: 12px 9px;
                 box-sizing: border-box;
@@ -110,25 +110,104 @@
                 text-align: center;
             }
 
-            td.option {
+            .page-panel td.option {
                 color: var(--dark-gray-color);
                 padding: 12px 9px;
                 box-sizing: border-box;
                 font-size: var(--text-size-xs);
                 text-align: center;
+            }
+
+
+            div.options {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                width: 100%;
+                max-width: 700px;
+            }
+
+            div.options table {
+                border-collapse: collapse;
+                width: 100%;
+                max-width: 700px;
+            }
+
+            div.options th, div.options td {
+                vertical-align: center;
+                font-size: var(--text-size-s);
+            }
+
+            div.options tr {
+                border-bottom: solid 1px var(--navy-color);
+            }
+
+            div.options tr:last-child {
+                border-bottom: none;
+            }
+
+            div.options tr:first-child {
+                background: var(--yellow-color);
+                height: 57px;
+            }
+
+            div.options tr:first-child th {
+                text-align: center;
+            }
+
+            div.options th:first-child, div.options td:first-child {
+                border-right: solid 1px var(--navy-color);
+                width: 120px;
+                text-align: center;
+            }
+
+            div.options td:last-child {
+                padding: 0 15px;
             }
 
 
 
             @media screen and (max-width: 600px) {
+                div.options td:first-child {
+                    font-size: var(--text-size-l);
+                }
             }
 
             @media screen and (min-width: 600px) {
+                div.options td:first-child {
+                    font-size: var(--text-size-2xl);
+                }
             }
         </style>
 
         <div class="body">
             <h1>Lista dei votanti</h1>
+
+            <% if(!is_anonymous) { %>
+            <div class="options">
+                <table>
+                    <tr>
+                        <th>
+                            Numero
+                        </th>
+                        <th>
+                            Testo della risposta
+                        </th>
+                    </tr>
+                    <% for(var i=0;i<options_number;i++) { %>
+                        <tr>
+                            <td>
+                                <%= i+1 %>
+                            </td>
+                            <td>
+                                <%= options[i] %>
+                            </td>
+                        </tr>
+                    <% } %>
+                </table>
+            </div>
+            <% } %>
 
             <div class="page-panel">
                 <table>
@@ -147,7 +226,7 @@
                                 <% for(var j=0;j<options_number;j++) { %>
                                     <% if(votes[i].answers.find(index => index == j)) { %>
                                         <td class="option">
-                                            <i class="fas fa-check"></i>
+                                            <i class="fas fa-circle"></i>
                                         </td>
                                     <% } else { %>
                                         <td class="option"></td>
