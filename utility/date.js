@@ -22,6 +22,13 @@ class CustomDate {
         }
     }
 
+    static formatForDatabase(date) {
+        if (!date instanceof Date) {
+            return null
+        }
+        return date.toISOString().slice(0, 19).replace('T', ' ')
+    }
+
     static parse_from_frontend_date(raw_date) {
         let [day, month, year] = raw_date.split('/')
         try {

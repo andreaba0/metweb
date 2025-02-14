@@ -211,7 +211,7 @@ app.get('/inbox', async (req, res) => {
         if (!(email.email_type === 'verify_email'|| email.email_type === 'reset_password')) {
             return
         }
-        const base_uri = `http://${process.env.BOUND_IP}:${process.env.PORT}`
+        const base_uri = `http://${process.env.BOUND_IP}`
         const body = email.email_type === 'verify_email' ? 
             `<a href="${base_uri}/signup/confirm/${content.token}">Accedi al seguente link per confermare la mail</a>` 
             : 

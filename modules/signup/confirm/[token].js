@@ -160,7 +160,9 @@ class SignupConfirmToken {
         }*/
         const salt = create_salt()
         const hashed_password = calculate_hash(formBody.password, salt)
-        const birthdate = CustomDate.parse_from_frontend_date(formBody.date_of_birth)
+        let birthdate = CustomDate.parse_from_frontend_date(formBody.date_of_birth)
+        birthdate = CustomDate.formatForDatabase(birthdate)
+        console.log(birthdate)
         const uploadT = uploadUserTransactioon(
             id, 
             formBody.first_name, 
