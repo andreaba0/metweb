@@ -1,5 +1,4 @@
 const {Database} = require('../../utility/db_store')
-const {FrontendError} = require('../../utility/error')
 
 class ApiUsers {
     static async Get(req, res) {

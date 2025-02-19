@@ -30,6 +30,7 @@ create table user_admin (
 );
 
 create table account_suspension (
+    id varchar(26) primary key,
 
     /* In this project mvp we are not going to implement the suspension of an admin account */
     user_id varchar(36) not null references user_customer(user_id) on delete cascade,
@@ -39,8 +40,7 @@ create table account_suspension (
     suspension_start_at timestamptz not null,
     suspension_end_at timestamptz not null,
     created_at timestamptz not null default current_timestamp,
-    created_by varchar(36) not null references user_admin(user_id),
-    primary key (user_id, suspension_start_at)
+    created_by varchar(36) not null references user_admin(user_id)
 );
 
 create table rsa_key (

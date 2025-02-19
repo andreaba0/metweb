@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+            <%= title %>
+        </title>
+
+        <%- include('../partials/common_head.ejs') %>
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+        
+
+        <style type="text/css">
+            .body {
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .page {
+                width: 100%;
+                max-width: 700px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 15px;
+                padding: 45px 0;
+            }
+
+            h1 {
+                margin: 0;
+                padding: 25px 0;
+                color: var(--navy-color);
+                font-size: var(--text-size-2xl);
+                display: block;
+                text-align: center;
+            }
+
+            .load-more-button {
+                padding: 21px 30px;
+                background: var(--dark-gray-color);
+                border-radius: 12px;
+                color: var(--white-color);
+                font-size: var(--text-size-m);
+                font-weight: var(--text-bold);
+                cursor: pointer;
+            }
+
+            .grow-1 {
+                flex-grow: 1;
+            }
+
+            .cols {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .items-center {
+                align-items: center;
+            }
+
+            .justify-center {
+                justify-content: center;
+            }
+
+            .items-start {
+                align-items: flex-start;
+            }
+
+            .items-end {
+                align-items: flex-end;
+            }
+
+            .justify-start {
+                justify-content: flex-start;
+            }
+
+            .justify-end {
+                justify-content: flex-end;
+            }
+
+            .w-full {
+                width: 100%;
+            }
+
+            .rows {
+                display: flex;
+                flex-direction: row;
+            }
+
+            .relative {
+                position: relative;
+            }
+
+            .absolute {
+                position: absolute;
+            }
+
+            @media screen and (max-width: 768px) {
+                .rows-responsive {
+                    display: flex;
+                    flex-direction: column-reverse;
+                    align-items: center;
+                }
+            }
+
+            @media screen and (min-width: 768px) {
+                .rows-responsive {
+                    display: flex;
+                    flex-direction: row;
+                    align-items: flex-start;
+                }
+            }
+
+            .gap-15 {
+                gap: 15px;
+            }
+
+            form.suspension {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 15px;
+                width: 100%;
+                flex-grow: 1;
+            }
+
+            form.suspension input {
+                display: block;
+                width: 100%;
+                flex-grow: 1;
+                padding: 12px 9px;
+                border-radius: 12px;
+                font-size: var(--text-size-s);
+                font-weight: var(--text-normal);
+                box-sizing: border-box;
+                border: solid 2px var(--light-gray-color);
+            }
+
+            form.suspension label {
+                display: inline-block;
+                width: auto;
+            }
+
+            form.suspension button {
+                padding: 15px 21px;
+                background: var(--blue-color);
+                border-radius: 12px;
+                color: var(--white-color);
+                font-size: var(--text-size-m);
+                font-weight: var(--text-bold);
+                cursor: pointer;
+                border: none;
+                box-sizing: border-box;
+            }
+
+            textarea.reason {
+                width: 100%;
+                padding: 12px 9px;
+                border-radius: 12px;
+                font-size: var(--text-size-s);
+                font-weight: var(--text-normal);
+                box-sizing: border-box;
+                border: solid 2px var(--light-gray-color);
+                resize: vertical;
+            }
+
+            div.suspension-list {
+                border-top: solid 2px var(--light-gray-color);
+                border-bottom: solid 2px var(--light-gray-color);
+                padding: 12px 0;
+            }
+
+            div.suspension-list .box {
+                border-left: solid 4px var(--navy-color);
+                box-sizing: border-box;
+            }
+
+            div.suspension-list .reason {
+                font-size: var(--text-size-s);
+                font-weight: var(--text-normal);
+                box-sizing: border-box;
+                padding: 6px 15px;
+            }
+
+            div.suspension-list .dates {
+                font-size: var(--text-size-xs);
+                font-weight: var(--text-normal);
+                box-sizing: border-box;
+                padding: 12px 15px;
+            }
+
+            div#user-info label {
+                display: inline-block;
+                width: auto;
+                font-size: var(--text-size-s);
+                font-weight: var(--text-normal);
+                color: var(--navy-color);
+                margin-bottom: 6px;
+            }
+
+            div#user-info input {
+                display: block;
+                width: 100%;
+                padding: 12px 9px;
+                border-radius: 12px;
+                font-size: var(--text-size-s);
+                font-weight: var(--text-normal);
+                box-sizing: border-box;
+                border: solid 1px var(--light-gray-color);
+            }
+
+            div#suspension-list .delete {
+                right: 0;
+                top: 0;
+                padding: 12px;
+                color: var(--red-color);
+                cursor: pointer;
+                font-size: var(--text-size-m);
+                z-index: 10;
+            }
+        </style>
+    </head>
+    <body>
+        <%- include('../partials/menu.ejs') %>
+
+        <script type="text/javascript">
+            var offset = 1;
+            async function loadMoreUsers() {
+                var loadMoreButton = document.getElementById('load-more-button');
+                var page = document.getElementById('page');
+                const urlParams = new URLSearchParams({
+                    page: offset
+                })
+                var response = await fetch('/api/users?' + urlParams.toString(), {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if(response<200||response>299){
+                    let text = await response.text();
+                    console.error(text);
+                    return;
+                }
+                offset++;
+                var data = await response.json();
+                const users = data.users;
+                const pageSize = data.page_size;
+
+                users.forEach(function(user) {
+                    var userContainer = document.createElement('div');
+                    userContainer.classList.add('user-container');
+
+                    var userName = document.createElement('div');
+                    userName.classList.add('user-name');
+                    userName.innerText = user.first_name + ' ' + user.last_name;
+                    userContainer.appendChild(userName);
+
+                    var userId = document.createElement('div');
+                    userId.classList.add('user-metadata');
+                    userId.innerText = 'ID: ' + user.id;
+                    userContainer.appendChild(userId);
+
+                    var userEmail = document.createElement('div');
+                    userEmail.classList.add('user-metadata');
+                    userEmail.innerText = 'Email: ' + user.email;
+                    userContainer.appendChild(userEmail);
+
+                    page.insertBefore(userContainer, loadMoreButton);
+                });
+
+                if(users.length < pageSize) {
+                    loadMoreButton.style.display = 'none';
+                    return;
+                }
+            }
+        </script>
+
+        <div>
+            <div class="body">
+                <div class="page" id="page">
+                    <h1>
+                        Informazioni generali
+                    </h1>
+
+                    <div class="rows-responsive gap-15 w-full">
+                        <div class="cols w-full items-center justify-center gap-15 grow-1">
+                            <form method="POST" action="/api/user/suspend/<%= user.id %>" class="suspension" id="suspension-form">
+                                <h2>
+                                    Nuova sospensione
+                                </h2>
+                                <div class="cols items-center w-full">
+                                    <label for="reason">
+                                        Motivo
+                                    </label>
+                                    <textarea id="reason" name="reason" class="reason" required></textarea>
+                                </div>
+                                <div class="rows items-center w-full gap-15">
+                                    <div class="cols items-start w-full">
+                                        <label for="start_date">
+                                            Data di inizio
+                                        </label>
+                                        <input type="date" id="start_date" name="start_date" required>
+                                    </div>
+                                    <div class="cols items-end w-full">
+                                        <label for="end_date">
+                                            Data di fine
+                                        </label>
+                                        <input type="date" id="end_date" name="end_date" required>
+                                    </div>
+                                </div>
+                                <button type="submit" class="button">
+                                    Creare sospensione
+                                </button>
+                            </form>
+                            <div class="suspension-list w-full cols items-center gap-15" id="suspension-list">
+                                <h2>
+                                    Lista completa delle sospensioni
+                                </h2>
+
+                                <% user.suspensions.forEach(function(suspension) { %>
+                                    <div class="cols items-start box w-full relative">
+                                        <div class="reason w-full">
+                                            <%= suspension.reason %>
+                                        </div>
+                                        <div class="dates">
+                                            <%= suspension.start_date %> -> <%= suspension.end_date %>
+                                        </div>
+                                        <div class="absolute delete" id="<%= suspension.id %>" onclick="deleteSuspension(this)">
+                                            <i class="fas fa-trash"></i>
+                                        </div>
+                                    </div>
+                                <% }); %>
+
+                            </div>
+                        </div>
+
+                        <div class="cols w-full items-center grow-1">
+                            <h2>
+                                Anagrafica utente
+                            </h2>
+                            <div class="cols items-start w-full" id="user-info">
+                                <label for="first_name">
+                                    Nome
+                                </label>
+                                <input type="text" id="first_name" name="first_name" value="<%= user.first_name %>" disabled>
+                            </div>
+                            <div class="cols items-start w-full" id="user-info">
+                                <label for="last_name">
+                                    Cognome
+                                </label>
+                                <input type="text" id="last_name" name="last_name" value="<%= user.last_name %>" disabled>
+                            </div>
+                            <div class="cols items-start w-full" id="user-info">
+                                <label for="email">
+                                    Email
+                                </label>
+                                <input type="text" id="email" name="email" value="<%= user.email %>" disabled>
+                            </div>
+                            <div class="cols items-start w-full" id="user-info">
+                                <label for="gender">
+                                    Genere
+                                </label>
+                                <input type="text" id="gender" name="gender" value="<%= user.gender %>" disabled>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+            flatpickr("#start_date", {
+                enableTime: true,
+                dateFormat: "d/m/Y",
+            });
+            flatpickr("#end_date", {
+                enableTime: true,
+                dateFormat: "d/m/Y",
+            });
+
+            async function deleteSuspension(element) {
+                const id = element.id;
+                var response = await fetch(`/api/user/suspend/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if(response.status>=200&&response.status<300){
+                    element.parentElement.remove();
+                    return;
+                }
+                var error = await response.text();
+                alert(error);
+            }
+
+            function createSuspensionData(row) {
+                const container = document.createElement('div');
+                container.classList.add('cols', 'items-start', 'box', 'w-full', 'relative');
+
+                const reason = document.createElement('div');
+                reason.classList.add('reason', 'w-full');
+                reason.innerText = row.reason;
+                container.appendChild(reason);
+
+                const dates = document.createElement('div');
+                dates.classList.add('dates');
+                dates.innerText = row.start_date + ' -> ' + row.end_date;
+                container.appendChild(dates);
+
+                const del = document.createElement('div');
+                del.id = row.id;
+                del.addEventListener('click', function(event) {
+                    const id = row.id;
+                    deleteSuspension(document.getElementById(id));
+                });
+                del.classList.add('absolute', 'delete');
+                del.innerHTML = '<i class="fas fa-trash"></i>';
+                container.appendChild(del);
+
+                return container;
+            }
+
+
+            var suspensionForm = document.getElementById('suspension-form');
+            var suspensionList = document.getElementById('suspension-list');
+            suspensionForm.addEventListener('submit', async function(event) {
+                event.preventDefault();
+                const action = event.target.action;
+                var response = await fetch(action, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        reason: event.target.reason.value,
+                        start_date: event.target.start_date.value,
+                        end_date: event.target.end_date.value
+                    })
+                });
+                if(response.status>=200&&response.status<300){
+                    const res = await response.json();
+                    const container = createSuspensionData(res);
+                    suspensionList.appendChild(container);
+                    suspensionForm.reset();
+                    return;
+                }
+                var errors = await response.json();
+                for(var i=0;i<errors.length;i++){
+                    var box = errors[i];
+                    document.getElementById(box.field).style.borderColor = 'red';
+                }
+            });
+
+            document.getElementById('reason').addEventListener('focus', function(event) {
+                event.target.style.borderColor = 'initial';
+            });
+            document.getElementById('start_date').addEventListener('focus', function(event) {
+                event.target.style.borderColor = 'initial';
+            });
+            document.getElementById('end_date').addEventListener('focus', function(event) {
+                event.target.style.borderColor = 'initial';
+            });
+        </script>
+    </body>
+</html>

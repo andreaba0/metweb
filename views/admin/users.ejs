@@ -178,6 +178,11 @@
                             <div class="user-metadata">
                                 <strong>Email:</strong> <%= user.email %>
                             </div>
+                            <div class="user-action">
+                                <a href="/user/<%= user.id %>" class="button">
+                                    Visualizza
+                                </a>
+                            </div>
                         </div>
                         <% }) %>
                     <div class="load-more-button" id="load-more-button" onclick="loadMoreUsers()">

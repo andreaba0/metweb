@@ -79,6 +79,8 @@ const {Users} = require('./modules/users')
 const {Session} = require('./modules/profile/session')
 const {ApiUsers} = require('./modules/api/users')
 const {PollStatsId} = require('./modules/poll/stats/[id]')
+const {UserUuid} = require('./modules/user/[uuid]')
+const {ApiUserSuspendUuid} = require('./modules/api/user/suspend/[uuid]')
 
 const { FrontendError } = require('./utility/error')
 
@@ -141,13 +143,15 @@ app.patch('/profile', loggedIn, authorize('*'), Profile.Patch)
 app.get('/report/list', loggedIn, authorize('admin'), ReportList.Get)
 
 app.get('/users', loggedIn, authorize('admin'), Users.Get)
+app.get('/user/:uuid', loggedIn, authorize('admin'), UserUuid.Get)
+app.post('/api/user/suspend/:uuid', loggedIn, authorize('admin'), ApiUserSuspendUuid.Post)
+app.delete('/api/user/suspend/:uuid', loggedIn, authorize('admin'), ApiUserSuspendUuid.Delete)
 app.get('/api/users', loggedIn, authorize('admin'), ApiUsers.Get)
 
 app.get('/confirm', (req, res) => {
     res.sendFile(__dirname + '/views/confirm.html')
 })
 
-//app.get('/poll/compile/:id', authenticate, renewExpired, authorize('user'), /*pollCompile*/ PollCompileId.Get)
 app.get('/poll/compile/:id', loggedIn, authorize('user'), PollCompileId.Get)
 
 app.post('/poll/compile/:id', loggedIn, authorize('user'), /*createPollCompilation*/ PollCompileId.Post)
@@ -170,6 +174,11 @@ app.post('/signin', Signin.sanitizeSigninData, (req, res, next) => {
         if(err) {
             console.log(err)
             return next(err)
+        }
+        if(!user) {
+            res.render('signin', {
+                error: info.message
+            })
         }
         req.logIn(user, (err) => {
             if(err) {
