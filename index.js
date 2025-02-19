@@ -29,6 +29,9 @@ if (!process.env.TOKEN_AUD) {
 if (!process.env.TOKEN_ISS) {
     throw new Error('TOKEN_ISS is not defined in .env file')
 }
+if(!process.env.EMAIL_URL) {
+    throw new Error('EMAIL_URL is not defined in .env file')
+}
 
 const express = require('express')
 const app = express()
@@ -179,6 +182,7 @@ app.post('/signin', Signin.sanitizeSigninData, (req, res, next) => {
             res.render('signin', {
                 error: info.message
             })
+            return
         }
         req.logIn(user, (err) => {
             if(err) {
@@ -220,7 +224,7 @@ app.get('/inbox', async (req, res) => {
         if (!(email.email_type === 'verify_email'|| email.email_type === 'reset_password')) {
             return
         }
-        const base_uri = `http://${process.env.BOUND_IP}`
+        const base_uri = `${process.env.EMAIL_URL}`
         const body = email.email_type === 'verify_email' ? 
             `<a href="${base_uri}/signup/confirm/${content.token}">Accedi al seguente link per confermare la mail</a>` 
             : 
