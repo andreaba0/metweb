@@ -78,18 +78,14 @@ class PasswordReset {
                 user_account 
             set 
                 hashed_password = ?, 
-                password_salt = ?, 
-                account_barrier = ? 
+                password_salt = ?
             where 
-                email = ? and
-                account_barrier < ?
+                email = ?
             returning id
         `
         const salt = create_salt()
         const hashed_password = calculate_hash(password, salt)
-        const account_barrier = iat * 1000
-        const date_from_iat_epoch = new Date(account_barrier).toUTCString()
-        const args = [hashed_password, salt, date_from_iat_epoch, email, date_from_iat_epoch]
+        const args = [hashed_password, salt, email]
         const [err, result] = await Database.query(query, args)
         if (err) {
             console.log(err)
