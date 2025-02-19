@@ -1,4 +1,4 @@
-const {Database} = require('../../../../utility/db_store')
+const {Database, SessionDatabase} = require('../../../../utility/db_store')
 const {CustomDate} = require('../../../../utility/date')
 const ulid = require('ulid')
 const validator = require('validator')
@@ -76,7 +76,7 @@ class ApiUserSuspendUuid {
             res.status(400).json(errors)
             return
         }
-        const query = `
+        let query = `
             insert into account_suspension(id, user_id, suspension_reason, suspension_start_at, suspension_end_at, created_by)
             values(?, ?, ?, ?, ?, ?)
             returning suspension_reason, suspension_start_at, suspension_end_at
@@ -92,6 +92,28 @@ class ApiUserSuspendUuid {
         if(err) {
             console.log(err)
             res.status(500).send('Errore durante la sospensione dell\'account')
+            return
+        }
+        const today = new Date()
+        if(today < from_date || today > to_date) {
+            res.status(201).send({
+                id: suspensionUlid,
+                reason: result[0].suspension_reason,
+                start_date: CustomDate.dateToITString(CustomDate.parse_from_database(result[0].suspension_start_at)),
+                end_date: CustomDate.dateToITString(CustomDate.parse_from_database(result[0].suspension_end_at))
+            })
+            return
+        }
+
+        // If the suspension also covers today, it is necessary to delete the user's sessions
+        query = `
+            delete from user_session
+            where json_extract(sess, '$.passport.user.id') = ?
+        `
+        const [err1, result1] = await SessionDatabase.query(query, [user_id])
+        if(err1) {
+            console.log(err1)
+            res.status(500).send('Errore durante la cancellazione delle sessioni')
             return
         }
         res.status(201).send({

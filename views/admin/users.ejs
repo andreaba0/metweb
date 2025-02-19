@@ -151,6 +151,15 @@
                     userEmail.innerText = 'Email: ' + user.email;
                     userContainer.appendChild(userEmail);
 
+                    var userAction = document.createElement('div');
+                    userAction.classList.add('user-action');
+                    var userActionLink = document.createElement('a');
+                    userActionLink.classList.add('button');
+                    userActionLink.href = '/user/' + user.id;
+                    userActionLink.innerText = 'Visualizza';
+                    userAction.appendChild(userActionLink);
+                    userContainer.appendChild(userAction);
+
                     page.insertBefore(userContainer, loadMoreButton);
                 });
 
