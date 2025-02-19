@@ -57,6 +57,10 @@ class CustomDate {
 
     static numberOfYearsBetween(date1, date2) {
         let diff = date1 - date2
+        if (diff < 0) {
+            diff = -diff
+        }
+        console.log(diff / (1000 * 60 * 60 * 24 * 365))
         return diff / (1000 * 60 * 60 * 24 * 365)
     }
 

@@ -46,6 +46,17 @@ class Filter {
         return res;
     }
 
+    static allDomainsAreValid(domainsString) {
+        if (!domainsString) {
+            return true;
+        }
+        const domains = Filter.parse(domainsString);
+        let localSplit = domainsString.split(',').map(function (item) {
+            return item.trim();
+        });
+        return domains.length === localSplit.length;
+    }
+
     /**
      * This function checks if the domain matches the email.
      * @param {domain string} domain 

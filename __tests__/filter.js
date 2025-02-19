@@ -18,4 +18,13 @@ describe('Filter', () => {
         expect(Filter.parse('')).toEqual([]);
         expect(Filter.parse(null)).toEqual([]);
     });
+
+    it('should check that all domains are valid domain', () => {
+        expect(Filter.allDomainsAreValid('*.example.com, a.example.com')).toEqual(true);
+        expect(Filter.allDomainsAreValid('*.example.com, a.example.com, *.example.com')).toEqual(true);
+        expect(Filter.allDomainsAreValid('*.example.com, a.example.com, example.c-om,')).toEqual(false);
+        expect(Filter.allDomainsAreValid('*.example.com')).toEqual(true);
+        expect(Filter.allDomainsAreValid('')).toEqual(true);
+        expect(Filter.allDomainsAreValid(null)).toEqual(true);
+    });
 })

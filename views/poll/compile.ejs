@@ -236,7 +236,7 @@
                 </div>
             </div>
             <% } %>
-            <% if (time_status=='available'&&!is_adult&&isAdultOnly) { %>
+            <% if (time_status=='available'&&!user_can_vote_by_age) { %>
                 <div class="info-box error">
                     <div class="icon">
                         <i class="fa-solid fa-triangle-exclamation"></i>
@@ -245,7 +245,7 @@
                         Questo sondaggio &egrave; riservato ai maggiorenni.
                     </div>
                 </div>
-                <% } %>
+            <% } %>
             <% if (time_status=='available'&&has_reported) { %>
             <div class="info-box error">
                 <div class="icon">

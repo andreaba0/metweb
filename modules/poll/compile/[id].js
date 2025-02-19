@@ -88,6 +88,8 @@ class PollCompileId {
         }
         const dob = CustomDate.parse_from_database(result3[0].date_of_birth)
         const isAdult = CustomDate.numberOfYearsBetween(dob, new Date()) >= 18
+        console.log(isAdult)
+        console.log(isAdult)
         console.log(result1)
         const poll_page = result1[0]
         const poll = new Poll()
@@ -127,8 +129,10 @@ class PollCompileId {
             })
         }
 
-        const userCanVoteByAge = ((poll.isAdultOnly() && isAdult)|| !poll.isAdultOnly()) ? true : false 
+        const userCanVoteByAge = (isAdult || !poll.isAdultOnly()) ? true : false
+        console.log(userCanVoteByAge)
         console.log(options)
+        console.log(timeStatus)
         res.render('poll/compile', {
             id: id,
             role: req.user.role,

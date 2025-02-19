@@ -119,7 +119,9 @@ class PollCreateUuid {
         let end_date = body.end_date
         if (end_date == null) error = 'End date is required'
         let domain_filter = body.domain_filter
+        domain_filter = domain_filter.trim()
         let allowed_domains = []
+        if(!Filter.allDomainsAreValid(domain_filter)) error = 'Invalid domain filter'
         allowed_domains = Filter.parse(domain_filter)
         let public_stats = (body.public_stats == 'on') ? true : false
         if (error != null) {

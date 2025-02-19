@@ -169,6 +169,10 @@
                 margin-top: 21px;
                 max-width: 400px;
             }
+
+            .hidden {
+                display: none;
+            }
         </style>
 
         <script type="text/javascript">
@@ -321,10 +325,14 @@
                 <button class="manage_questions" onclick="addOption()"><i class="fa-solid fa-plus"></i></button>
                 <button class="manage_questions" onclick="removeOption()"><i class="fa-solid fa-minus"></i></button>
             </div>
-            <div class="error" id="error">
-                test
-            </div>
+            <div class="error" id="error"></div>
         </div>
+
+        <% if (typeof error !== 'undefined') { %>
+            <script type="text/javascript">
+                displayError('<%= error %>');
+            </script>
+        <% } %>
 
         <script type="text/javascript">
             flatpickr("#date-start", {
