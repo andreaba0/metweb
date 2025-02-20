@@ -29,6 +29,7 @@ class PollStatsId {
             select
                 coalesce(count(vote.vote_id), 0) as votes,
                 vote_option.option_index,
+                vote_option.option_text as option_text,
                 (
                     select
                         count(created_by)
@@ -96,25 +97,13 @@ class PollStatsId {
             console.log(err3)
             return new FrontendError(500, 'Internal Server Error').render(res)
         }
-
-
-        var statsAnswerForEachOption = []
-        for (let i = 0; i < options.length; i++) {
-            statsAnswerForEachOption.push({
-                option_index: i,
-                option_text: poll.options[i].vote_option_text,
-                votes: rows1[i].votes,
-                total_votes: rows1[i].total_votes,
-                percentage: parseInt((rows1[i].votes / rows1[i].total_votes) * 100)
-            })
-        }
         
 
         res.status(200).render('poll/stats', {
             title: 'Statistiche',
             path_active: 'poll/stats',
             role: req.user?.role || 'guest',
-            statsAnswerForEachOption: statsAnswerForEachOption,
+            statsAnswerForEachOption: rows1,
             statsPerGender: rows2,
             statsPerTime: rows3
         })

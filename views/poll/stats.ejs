@@ -10,6 +10,10 @@
         <%- include('../partials/menu.ejs') %>
         <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 
+        <script type="text/javascript">
+            const customStyles = window.getComputedStyle(document.body);
+        </script>
+
         <style type="text/css">
             .body {
                 margin: 0 auto;
@@ -51,66 +55,6 @@
                 }
             }
 
-            div.poll-answers-stats {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                width: 100%;
-                max-width: 800px;
-                gap: 6px;
-            }
-
-            div.poll-answers-stats div.container {
-                display: block;
-                position: relative;
-                width: 100%;
-                height: 63px;
-                border-left: solid 2px var(--navy-color);
-                border-right: solid 2px var(--navy-color);
-            }
-
-            div.poll-answers-stats div.container div.progress-bar {
-                display: block;
-                position: absolute;
-                height: 100%;
-                top: 0;
-                left: 0;
-                background: var(--blue-color);
-                opacity: 0.8;
-                z-index: 10;
-            }
-
-            div.poll-answers-stats div.container div.text {
-                display: block;
-                position: absolute;
-                height: 100%;
-                width: 100%;
-                top: 0;
-                left: 0;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                color: var(--black-color);
-                font-weight: bold;
-                z-index: 20;
-            }
-
-            div.poll-answers-stats div.container div.text div.percentage {
-                font-size: var(--text-size-s);
-                font-weight: var(--text-bold);
-                box-sizing: border-box;
-                padding: 0 30px;
-            }
-
-            div.poll-answers-stats div.container div.text div.option-text {
-                font-size: var(--text-size-s);
-                font-weight: var(--text-normal);
-                box-sizing: border-box;
-                padding: 0 30px;
-            }
-
             div.chart {
                 width: 100%;
                 max-width: 800px;
@@ -122,30 +66,21 @@
                 Statistiche del sondaggio
             </h1>
 
-            <div class="poll-answers-stats">
-                <% for(var i=0;i<statsAnswerForEachOption.length;i++) { %>
-                    <div class="container">
-                        <div class="progress-bar" style="width: <%= statsAnswerForEachOption[i].percentage %>%"></div>
-                        <div class="text">
-                            <div class="percentage">
-                                <%= statsAnswerForEachOption[i].votes %>/<%= statsAnswerForEachOption[i].total_votes %>
-                            </div>
-                            <div class="option-text">
-                                <%= statsAnswerForEachOption[i].option_text %>
-                            </div>
-                        </div>
-                    </div>
-                <% } %>
-            </div>
             <div class="chart">
                 <canvas id="chart1"></canvas>
             </div>
             <div class="chart">
                 <canvas id="chart2"></canvas>
             </div>
+            <div class="chart">
+                <canvas id="chart3"></canvas>
+            </div>
         </div>
 
         <div style="display: none;">
+            <div id="statsAnswerForEachOption">
+                <%= JSON.stringify(statsAnswerForEachOption) %>
+            </div>
             <div id="statsPerGender">
                 <%= JSON.stringify(statsPerGender) %>
             </div>
@@ -155,7 +90,52 @@
         </div>
 
         <script type="text/javascript">
+            var defaultPlugins = {
+                legend: {
+                    labels: {
+                        font: {
+                            size: 15,
+                            weight: customStyles.getPropertyValue('--text-bold')
+                        }
+                    }
+                }
+            };
+        </script>
+
+        <script type="text/javascript">
             const ctx1 = document.getElementById('chart1');
+
+            const statsAnswerForEachOption = JSON.parse(document.getElementById('statsAnswerForEachOption').innerText);
+
+            const maxScale = statsAnswerForEachOption[0].total_votes;
+            var labels = statsAnswerForEachOption.map((option) => option.option_text);
+            var data = statsAnswerForEachOption.map((option) => option.votes);
+
+            new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Totale voti per risposta',
+                    data: data,
+                    borderWidth: 1,
+                    backgroundColor: customStyles.getPropertyValue('--blue-color')
+                }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: maxScale
+                        }
+                    },
+                    plugins: defaultPlugins
+                }
+            });
+        </script>
+
+        <script type="text/javascript">
+            const ctx2 = document.getElementById('chart2');
 
             const statsPerGender = JSON.parse(document.getElementById('statsPerGender').innerText);
             console.log(statsPerGender);
@@ -181,28 +161,30 @@
                 data.push((votes==-1)?0:votes);
             }
 
-            new Chart(ctx1, {
+            new Chart(ctx2, {
                 type: 'bar',
                 data: {
                 labels: genders,
                 datasets: [{
                     label: 'Voti per genere',
                     data: data,
-                    borderWidth: 1
+                    borderWidth: 1,
+                    backgroundColor: customStyles.getPropertyValue('--blue-color')
                 }]
                 },
                 options: {
-                scales: {
-                    y: {
-                    beginAtZero: true
-                    }
-                }
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: defaultPlugins
                 }
             });
         </script>
 
         <script type="text/javascript">
-            const ctx2 = document.getElementById('chart2');
+            const ctx3 = document.getElementById('chart3');
 
             const statsPerTime = JSON.parse(document.getElementById('statsPerTime').innerText);
             console.log(statsPerTime);
@@ -222,22 +204,26 @@
                 data.push((votes==-1)?0:votes);
             }
 
-            new Chart(ctx2, {
-                type: 'bar',
+            new Chart(ctx3, {
+                type: 'line',
                 data: {
                 labels: hours,
                 datasets: [{
-                    label: 'Voti per fascia oraria',
+                    label: 'Voti per fascia oraria (Tutti i giorni)',
                     data: data,
-                    borderWidth: 1
+                    borderWidth: 3,
+                    backgroundColor: customStyles.getPropertyValue('--blue-color'),
+                    borderColor: customStyles.getPropertyValue('--blue-color'),
+                    tension: 0.3
                 }]
                 },
                 options: {
-                scales: {
-                    y: {
-                    beginAtZero: true
-                    }
-                }
+                    scales: {
+                        y: {
+                        beginAtZero: true
+                        }
+                    },
+                    plugins: defaultPlugins
                 }
             });
         </script>
